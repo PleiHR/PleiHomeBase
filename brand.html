@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Brand Hub · Plei</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .dlbtn{display:inline-flex;align-items:center;gap:7px;background:var(--green);color:#062018;font-weight:700;text-decoration:none;padding:9px 16px;border-radius:10px;font-size:13.5px}
+  .dlbtn.ghost{background:transparent;color:var(--green);border:1px solid rgba(47,215,113,.4)}
+  .sw{border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer}
+  .sw .chip{height:74px}
+  .sw .meta{padding:10px 12px}
+  .sw .meta b{display:block;font-size:13px}
+  .sw .meta span{font-size:12px;color:var(--muted);font-family:ui-monospace,Menlo,monospace}
+  .copied{color:var(--green)!important}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a class="logo" href="index.html"><img src="logo-green.png" alt="Plei" style="width:26px;height:26px;vertical-align:middle" />plei<span class="dot">.</span></a>
+      <a class="link" href="index.html">Home</a>
+      <a class="link active" href="brand.html">Brand</a>
+      <span class="spacer"></span><span class="badge">Brand Hub</span>
+    </nav>
+
+    <h1>Brand <span class="g">Hub</span></h1>
+    <p class="sub">Everything you need to represent Plei, the logo, colors, voice, and the full brand book. Download what you need right here.</p>
+
+    <a class="card" href="https://drive.google.com/file/d/16bjVefFa_GrfGE-HItNK6xI3guTNgoKy/view" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:18px;border-color:rgba(47,215,113,.4);margin-bottom:34px" onclick="event.stopPropagation()">
+      <div class="ic" style="margin-bottom:0;flex:0 0 auto"><svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v13a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2zM14 2v6h6"/></svg></div>
+      <div style="flex:1;min-width:0">
+        <h3 style="margin:0 0 3px">Plei Brand Book</h3>
+        <p style="margin:0">The full guide, logo usage, color, type, and voice. 2026 edition.</p>
+      </div>
+      <a class="dlbtn" href="https://drive.google.com/uc?export=download&id=16bjVefFa_GrfGE-HItNK6xI3guTNgoKy"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#062018" stroke-width="2"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></svg>Download</a>
+    </a>
+
+    <div class="section"><h2>Logo</h2><span class="rule"></span></div>
+    <div class="grid">
+      <div class="card" style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;min-height:150px">
+        <img src="logo-green.png" alt="Plei" style="width:64px;height:64px" />
+        <p style="margin:0;color:var(--muted);font-size:13px">The Plei mark</p>
+      </div>
+      <div class="card">
+        <h3>Logo files</h3>
+        <p>Full logo set, primary, mono, and mascot, in RGB (screen) and CMYK (print).</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <a class="dlbtn ghost" href="https://drive.google.com/drive/folders/1DaKmshchL53J9udagxo0uTU9DOO8yx5C" target="_blank" rel="noopener">RGB pack</a>
+          <a class="dlbtn ghost" href="https://drive.google.com/drive/folders/1lHGpFOQ5EfOLRp-pfa6iJgfX7GwCRdl1" target="_blank" rel="noopener">CMYK pack</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="section"><h2>Colors</h2><span class="rule"></span></div>
+    <p style="color:var(--muted);font-size:13px;margin:0 0 14px">Click a swatch to copy its hex. Confirm exact values against the brand book.</p>
+    <div class="grid small">
+      <div class="sw" data-hex="#2FD771"><div class="chip" style="background:#2FD771"></div><div class="meta"><b>Plei Green</b><span>#2FD771</span></div></div>
+      <div class="sw" data-hex="#8FF0BD"><div class="chip" style="background:#8FF0BD"></div><div class="meta"><b>Soft Green</b><span>#8FF0BD</span></div></div>
+      <div class="sw" data-hex="#0A2E20"><div class="chip" style="background:#0A2E20"></div><div class="meta"><b>Deep Green</b><span>#0A2E20</span></div></div>
+      <div class="sw" data-hex="#06231A"><div class="chip" style="background:#06231A"></div><div class="meta"><b>Ink</b><span>#06231A</span></div></div>
+      <div class="sw" data-hex="#FFFFFF"><div class="chip" style="background:#FFFFFF"></div><div class="meta"><b>White</b><span>#FFFFFF</span></div></div>
+    </div>
+
+    <div class="section"><h2>Voice</h2><span class="rule"></span></div>
+    <div class="prose">
+      <p>We sound like the game feels, warm, energetic, and human. People first, soccer follows. We're friendly and compassionate, we make the most of every play, and we build for the joy of playing.</p>
+      <ul>
+        <li><b>Do:</b> keep it warm, clear, and confident. Celebrate the community and the game.</li>
+        <li><b>Don't:</b> sound corporate, stiff, or hype-y. No jargon.</li>
+      </ul>
+    </div>
+
+    <footer><a href="index.html" style="color:var(--green);text-decoration:none">← Back to home</a></footer>
+  </div>
+<script>
+document.querySelectorAll('.sw').forEach(function(s){
+  s.addEventListener('click', function(){
+    var hex=s.dataset.hex, span=s.querySelector('.meta span'), old=span.textContent;
+    navigator.clipboard && navigator.clipboard.writeText(hex);
+    span.textContent='Copied!'; span.classList.add('copied');
+    setTimeout(function(){ span.textContent=old; span.classList.remove('copied'); },1100);
+  });
+});
+</script>
+</body>
+</html>

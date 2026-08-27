@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tools by Team · Plei Hub</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .toolgrp{margin:0 0 8px}
+  .toolwrap{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 20px}
+  .tool{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--txt);border-radius:10px;padding:7px 12px;font-size:13px;text-decoration:none}
+  .tool:hover{border-color:var(--green);color:var(--green-soft);background:rgba(47,215,113,.06)}
+  .tool .dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex:none}
+  .grouphead{display:flex;align-items:baseline;gap:10px;margin:24px 0 2px}
+  .grouphead h2{margin:0;font-size:17px}
+  .grouphead span{font-size:12.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a class="logo" href="index.html"><img src="logo-green.png" alt="Plei" style="width:26px;height:26px;vertical-align:middle" />plei<span class="dot">.</span></a>
+      <a class="link" href="index.html">Home</a>
+      <a class="link" href="okrs.html">OKRs</a>
+      <a class="link" href="hr.html">HR</a>
+      <span class="spacer"></span><span class="badge">Resources</span>
+    </nav>
+
+    <h1>Tools by <span class="g">team</span></h1>
+    <p class="sub">What software each team uses, so new hires and managers know what to request. Pulled from how finance tags software spend by department, with the company-wide tools broken out. Click any tool to open it.</p>
+
+    <div class="grouphead"><h2>Everyone</h2><span>company-wide, part of standard onboarding</span></div>
+    <div class="toolwrap">
+      <a class="tool" href="https://workspace.google.com" target="_blank" rel="noopener"><span class="dot"></span>Google Workspace</a>
+      <a class="tool" href="https://rippling.com" target="_blank" rel="noopener"><span class="dot"></span>Rippling</a>
+      <a class="tool" href="https://slack.com" target="_blank" rel="noopener"><span class="dot"></span>Slack</a>
+      <a class="tool" href="https://ramp.com" target="_blank" rel="noopener"><span class="dot"></span>Ramp</a>
+      <a class="tool" href="https://zoom.us" target="_blank" rel="noopener"><span class="dot"></span>Zoom</a>
+      <a class="tool" href="https://bitwarden.com" target="_blank" rel="noopener"><span class="dot"></span>Bitwarden</a>
+    </div>
+
+    <div class="grouphead"><h2>Engineering</h2></div>
+    <div class="toolwrap">
+      <a class="tool" href="https://gitlab.com" target="_blank" rel="noopener"><span class="dot"></span>GitLab</a>
+      <a class="tool" href="https://github.com" target="_blank" rel="noopener"><span class="dot"></span>GitHub</a>
+      <a class="tool" href="https://clerk.com" target="_blank" rel="noopener"><span class="dot"></span>Clerk</a>
+      <a class="tool" href="https://sentry.io" target="_blank" rel="noopener"><span class="dot"></span>Sentry</a>
+      <a class="tool" href="https://newrelic.com" target="_blank" rel="noopener"><span class="dot"></span>New Relic</a>
+      <a class="tool" href="https://sonarsource.com" target="_blank" rel="noopener"><span class="dot"></span>SonarSource</a>
+      <a class="tool" href="https://twilio.com" target="_blank" rel="noopener"><span class="dot"></span>Twilio</a>
+      <a class="tool" href="https://expo.dev" target="_blank" rel="noopener"><span class="dot"></span>Expo</a>
+      <a class="tool" href="https://cursor.com" target="_blank" rel="noopener"><span class="dot"></span>Cursor</a>
+      <a class="tool" href="https://anthropic.com" target="_blank" rel="noopener"><span class="dot"></span>Anthropic</a>
+      <a class="tool" href="https://abstractapi.com" target="_blank" rel="noopener"><span class="dot"></span>AbstractAPI</a>
+      <a class="tool" href="https://godaddy.com" target="_blank" rel="noopener"><span class="dot"></span>GoDaddy</a>
+      <a class="tool" href="https://play.google.com/console" target="_blank" rel="noopener"><span class="dot"></span>Google Play</a>
+    </div>
+
+    <div class="grouphead"><h2>Product &amp; Data</h2></div>
+    <div class="toolwrap">
+      <a class="tool" href="https://figma.com" target="_blank" rel="noopener"><span class="dot"></span>Figma</a>
+      <a class="tool" href="https://developer.apple.com" target="_blank" rel="noopener"><span class="dot"></span>Apple Developer</a>
+      <a class="tool" href="https://hex.tech" target="_blank" rel="noopener"><span class="dot"></span>Hex</a>
+      <a class="tool" href="https://buildbetter.ai" target="_blank" rel="noopener"><span class="dot"></span>BuildBetter</a>
+    </div>
+
+    <div class="grouphead"><h2>Marketing</h2></div>
+    <div class="toolwrap">
+      <a class="tool" href="https://canva.com" target="_blank" rel="noopener"><span class="dot"></span>Canva</a>
+      <a class="tool" href="https://framer.com" target="_blank" rel="noopener"><span class="dot"></span>Framer</a>
+      <a class="tool" href="https://wordpress.com" target="_blank" rel="noopener"><span class="dot"></span>WordPress</a>
+      <a class="tool" href="https://sproutsocial.com" target="_blank" rel="noopener"><span class="dot"></span>Sprout Social</a>
+      <a class="tool" href="https://mailerlite.com" target="_blank" rel="noopener"><span class="dot"></span>MailerLite</a>
+      <a class="tool" href="https://intercom.com" target="_blank" rel="noopener"><span class="dot"></span>Intercom</a>
+    </div>
+
+    <div class="grouphead"><h2>Magic</h2><span>internal marketplace</span></div>
+    <div class="toolwrap">
+      <a class="tool" href="https://airtable.com" target="_blank" rel="noopener"><span class="dot"></span>Airtable</a>
+      <a class="tool" href="https://getguru.com" target="_blank" rel="noopener"><span class="dot"></span>Guru</a>
+      <a class="tool" href="https://textrequest.com" target="_blank" rel="noopener"><span class="dot"></span>Text Request</a>
+      <a class="tool" href="https://vonage.com" target="_blank" rel="noopener"><span class="dot"></span>Vonage</a>
+      <a class="tool" href="https://atlist.com" target="_blank" rel="noopener"><span class="dot"></span>Atlist</a>
+    </div>
+
+    <div class="grouphead"><h2>Operations</h2></div>
+    <div class="toolwrap">
+      <a class="tool" href="https://chatgpt.com" target="_blank" rel="noopener"><span class="dot"></span>OpenAI / ChatGPT</a>
+      <a class="tool" href="https://calendly.com" target="_blank" rel="noopener"><span class="dot"></span>Calendly</a>
+    </div>
+
+    <div class="grouphead"><h2>People</h2><span>HR</span></div>
+    <div class="toolwrap">
+      <a class="tool" href="https://crowdparty.app" target="_blank" rel="noopener"><span class="dot"></span>CrowdParty</a>
+      <a class="tool" href="https://humaninterest.com" target="_blank" rel="noopener"><span class="dot"></span>Human Interest</a>
+    </div>
+
+    <div class="grouphead"><h2>Finance &amp; G&amp;A</h2></div>
+    <div class="toolwrap">
+      <a class="tool" href="https://quickbooks.intuit.com" target="_blank" rel="noopener"><span class="dot"></span>QuickBooks</a>
+      <a class="tool" href="https://carta.com" target="_blank" rel="noopener"><span class="dot"></span>Carta</a>
+      <a class="tool" href="https://dashboard.stripe.com" target="_blank" rel="noopener"><span class="dot"></span>Stripe</a>
+    </div>
+
+    <p style="color:var(--muted);font-size:13px;margin-top:26px">Mapping comes from finance's software-by-department tagging plus judgment on the shared tools. Something in the wrong place, or missing? Tell HR or Ops and we'll adjust.</p>
+
+    <footer><a href="index.html" style="color:var(--green);text-decoration:none">← Back to home</a></footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HR Dashboard · Plei Hub</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a class="logo" href="index.html"><img src="logo-green.png" alt="Plei" style="width:26px;height:26px;vertical-align:middle" />plei<span class="dot">.</span></a>
+      <a class="link" href="index.html">Home</a>
+      <a class="link" href="okrs.html">OKRs</a>
+      <a class="link active" href="hr.html">HR</a>
+      <span class="spacer"></span><span class="badge">HR only</span>
+    </nav>
+
+    <h1>HR <span class="g">dashboard</span></h1>
+    <p class="sub">People operations in one place.</p>
+
+    <div class="banner">
+      <svg viewBox="0 0 24 24"><path d="M12 3l8 4v5c0 5-3.5 7.5-8 9-4.5-1.5-8-4-8-9V7l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+      Restricted. Behind Cloudflare Access, visible to HR and leadership only. Everyone else is stopped at the login.
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 30px">
+      <div style="background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:15px 18px">
+        <p style="margin:0;font-size:28px;font-weight:800;color:var(--green)">41</p>
+        <p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">Team members</p>
+      </div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:15px 18px">
+        <p style="margin:0;font-size:28px;font-weight:800;color:var(--green)">8</p>
+        <p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">Countries</p>
+      </div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:15px 18px">
+        <p style="margin:0;font-size:28px;font-weight:800;color:var(--green)">11</p>
+        <p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">W-2 employees</p>
+      </div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:15px 18px">
+        <p style="margin:0;font-size:28px;font-weight:800;color:var(--green)">30</p>
+        <p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">Contractors</p>
+      </div>
+    </div>
+
+    <div class="grid">
+      <a class="card" href="access-map.html">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
+        <h3>Onboarding &amp; Offboarding</h3>
+        <p>The master access map. Every system, admin link, and owner, in one checklist you clone per person.</p>
+        <div class="go"><span class="host">access map</span><span class="open">Open →</span></div>
+      </a>
+      <a class="card" href="hiring.html">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM22 21v-2a4 4 0 00-3-3.9M16 3.1a4 4 0 010 7.8"/></svg></div>
+        <h3>Hiring &amp; Recruiting</h3>
+        <p>11 open roles, how we hire, and where candidates go.</p>
+        <div class="go"><span class="host">hiring</span><span class="open">Open →</span></div>
+      </a>
+      <a class="card" href="https://performance.plei.com/" target="_blank" rel="noopener">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 15a4 4 0 100-8 4 4 0 000 8zM5 21a7 7 0 0114 0"/></svg></div>
+        <h3>Performance Reviews</h3>
+        <p>Reviews, ratings, and performance tracking.</p>
+        <div class="go"><span class="host">performance.plei.com</span><span class="open">Open →</span></div>
+      </a>
+      <a class="card" href="hr-tasks.html?space=HR">
+        <div class="ic"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11M8 6h6M8 10h4M8 14h3"/></svg></div>
+        <h3>Team Tasks</h3>
+        <p>The Tasks board, filtered to the HR space.</p>
+        <div class="go"><span class="host">tasks · HR</span><span class="open">Open →</span></div>
+      </a>
+    </div>
+
+    <footer><a href="index.html" style="color:var(--green);text-decoration:none">← Back to home</a></footer>
+  </div>
+</body>
+</html>

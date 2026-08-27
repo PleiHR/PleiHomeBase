@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Projects &amp; Sprints · Plei Hub</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .pjtabs{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 6px}
+  .pjtab{border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--txt);border-radius:10px;padding:8px 14px;font-size:13.5px;font-weight:600;cursor:pointer}
+  .pjtab.on{border-color:var(--green);background:rgba(47,215,113,.1);color:var(--green-soft)}
+  .pjtab.add{color:var(--muted);font-weight:500}
+  .sprintbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 6px}
+  .sprintchip{border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--txt);border-radius:9px;padding:7px 12px;font-size:12.5px;cursor:pointer}
+  .sprintchip.on{border-color:var(--green);background:rgba(47,215,113,.1);color:var(--green-soft)}
+  .sprintchip .d{color:var(--muted);font-size:11px}
+  .sprintchip.add{color:var(--muted)}
+  .sprintmeta{background:linear-gradient(180deg,#0e3626,#0b2c1f);border:1px solid var(--line);border-radius:14px;padding:14px 18px;margin:8px 0 16px}
+  .sprintmeta h3{margin:0 0 4px;font-size:16px}
+  .sprintmeta .goal{color:var(--muted);font-size:13px;margin:0 0 10px}
+  .sprintmeta .pbar{height:8px;border-radius:6px;background:rgba(255,255,255,.06);overflow:hidden}
+  .sprintmeta .pbar>div{height:100%;background:var(--green);width:0;transition:width .3s}
+  .sprintmeta .ptxt{font-size:12px;color:var(--muted);margin-top:6px}
+  .addrow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 14px}
+  .addrow input,.addrow select{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:8px 10px;color:var(--txt);font:inherit;font-size:13px}
+  .addrow input.title{flex:1;min-width:200px}
+  .addrow input.pts{width:64px}
+  .addrow button{background:var(--green);color:#062018;font-weight:700;border:none;border-radius:9px;padding:9px 15px;font-size:13.5px;cursor:pointer}
+  .board{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:760px){ .board{grid-template-columns:1fr} }
+  .col{background:rgba(255,255,255,.015);border:1px solid var(--line);border-radius:14px;padding:12px;min-height:120px}
+  .col h4{margin:0 0 10px;font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--green-soft);display:flex;justify-content:space-between}
+  .col.doing h4{color:#e6c66a}.col.done h4{color:#8ff0bd}
+  .it{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:11px;padding:10px 12px;margin-bottom:9px;cursor:pointer}
+  .it .t{font-size:13.5px;font-weight:600;margin:0 0 6px;line-height:1.35}
+  .it.dn .t{text-decoration:line-through;color:var(--muted)}
+  .it .r{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11.5px;color:var(--muted)}
+  .it .av{width:20px;height:20px;border-radius:50%;background:#123;color:var(--green-soft);font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;border:1.5px solid #0b2c1f;margin-left:-5px}
+  .it .avs{display:inline-flex}.it .avs .av:first-child{margin-left:0}
+  .it .prio{border-radius:6px;padding:1px 7px;font-size:10.5px}
+  .prio.Low{background:#20303a;color:#9fc4d6}.prio.Normal{background:#1f3326;color:#8ff0bd}.prio.High{background:#3a2e18;color:#e6c66a}.prio.Urgent{background:#3a1512;color:#f28b82}
+  .it .pts{border:1px solid var(--line);border-radius:6px;padding:0 6px;font-size:10.5px}
+  .it .acts{display:flex;gap:6px;margin-top:8px}
+  .it .acts button{background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--txt);border-radius:7px;padding:3px 9px;font-size:11px;cursor:pointer}
+  .it .acts .del{margin-left:auto;color:#f28b82;border-color:transparent;background:none}
+  .empty{font-size:12px;color:var(--muted);padding:6px 2px}
+  .modal{position:fixed;inset:0;background:rgba(3,15,10,.62);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}
+  .modal.show{display:flex}
+  .sheet{width:100%;max-width:540px;background:#0c2a1f;border:1px solid var(--line);border-radius:16px;padding:22px 24px}
+  .sheet .x{float:right;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer}
+  .sheet input,.sheet select,.sheet textarea{width:100%;box-sizing:border-box;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:9px 11px;color:var(--txt);font:inherit;font-size:13.5px;margin-top:4px}
+  .sheet .lbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--green-soft);margin:14px 0 0}
+  .sheet .mtitle{font-size:18px;font-weight:800;border:none;background:transparent;padding:0 30px 0 0;margin:0}
+  .sheet textarea{min-height:70px;resize:vertical}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a class="logo" href="index.html"><img src="logo-green.png" alt="Plei" style="width:26px;height:26px;vertical-align:middle" />plei<span class="dot">.</span></a>
+      <a class="link" href="index.html">Home</a>
+      <a class="link" href="hr-tasks.html">Tasks</a>
+      <span class="spacer"></span><span class="badge">Internal</span>
+    </nav>
+
+    <h1>Projects &amp; <span class="g">sprints</span></h1>
+    <p class="sub">Run initiatives in sprints, plan a sprint with dates and a goal, work a backlog, and move items across the board. Built for the GTM plan and any cross-team initiative. Saves as you go.</p>
+
+    <div class="pjtabs" id="pjtabs"></div>
+    <div id="projectArea"></div>
+  </div>
+
+  <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+
+<script>
+var TEAM = ["Adrian Rodriguez Gonzalez","Agus Caruso","Alan Shilling","Andrea Lesmes","Angel Montejo","Angely Hernandez","Brayan Acebo","Bruno Brito","Carlos Sposito","Carmen Brandel","Chris Rodriguez","Danta & Co. Consulting LLC","David Caicedo","Delfina Valdez Martinez","Fabiano Oliveira","Giuliana Abras","Ivan Nuñez","JC Duran","Jeremias Espeche","Jonathan Montalvo","Julieta Ruber","Liz Irizarry","Lucas Arena","Maria Bautista","Maria Beltran","Maria Padron","Mili Bagaglio","Monica Rojas","Nahuel Canete","Natalia Ailen Dominguez Fernandez","Priscila Molina","Rigo B Castro","Roberto Dominguez","Sebastian Duque","Sebastian Rayo","Spencer Henry","Stefano Sanchez","Stephanie Kowalczuk","Thomas Arango","Tomás Noseda","Viviana Reales"];
+var PRIOS=["Low","Normal","High","Urgent"];
+var STLBL={todo:"To do",doing:"In motion",done:"Done"};
+
+var KEY="plei_projects_v1";
+function seed(){
+  var gtm={ id:"pj_gtm", name:"GTM Plan · Jono",
+    sprints:[{id:"sp1", name:"Sprint 1", start:"", end:"", goal:"Stand up the growth engine: social cadence, comms/PR narrative, first creator outreach."}],
+    items:[
+      {id:i(), title:"Social: ramp content cadence (Carlos)", who:["Carlos Sposito"], status:"todo", sprintId:"sp1", prio:"High", pts:5, notes:""},
+      {id:i(), title:"Comms/PR: launch narrative brief (Sabrina + UTA)", who:["Chris Rodriguez"], status:"todo", sprintId:"sp1", prio:"High", pts:5, notes:""},
+      {id:i(), title:"Creator outreach shortlist (Neymar, Ronaldinho, R. Carlos, Marlon)", who:[], status:"todo", sprintId:"sp1", prio:"Normal", pts:8, notes:""},
+      {id:i(), title:"Jason Sudeikis activation plan", who:[], status:"todo", sprintId:null, prio:"Normal", pts:3, notes:""},
+      {id:i(), title:"M&A: UK / Brazil target list + intro calls", who:[], status:"todo", sprintId:null, prio:"Normal", pts:8, notes:""},
+      {id:i(), title:"Capital: finder pipeline + investor list", who:["Liz Irizarry"], status:"todo", sprintId:null, prio:"High", pts:5, notes:""},
+      {id:i(), title:"Brand partners: Nike / Adidas intros", who:[], status:"todo", sprintId:null, prio:"Low", pts:3, notes:""}
+    ]};
+  return { projects:[gtm], sel:"pj_gtm", view:{} };
+}
+function i(){ return "it"+Date.now()+Math.random().toString(36).slice(2,6); }
+function load(){ try{ var s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.projects&&s.projects.length) return s; }catch(e){} return seed(); }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+var state=load();
+
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+function initials(n){ var p=String(n||"").trim().split(/\s+/); return (((p[0]||"")[0]||"")+((p[1]||"")[0]||"")).toUpperCase()||"?"; }
+function proj(){ return state.projects.filter(function(p){return p.id===state.sel;})[0]||state.projects[0]; }
+function curView(p){ return (state.view&&state.view[p.id])!==undefined ? state.view[p.id] : (p.sprints[0]?p.sprints[0].id:"__backlog__"); }
+function setView(p,v){ state.view=state.view||{}; state.view[p.id]=v; save(); }
+function fmtD(d){ if(!d) return ""; var x=new Date(d+"T00:00:00"); return isNaN(x)?d:x.toLocaleDateString(undefined,{month:"short",day:"numeric"}); }
+
+function renderTabs(){
+  var t=document.getElementById("pjtabs");
+  t.innerHTML = state.projects.map(function(p){ return '<button class="pjtab '+(p.id===state.sel?"on":"")+'" data-p="'+p.id+'">'+esc(p.name)+'</button>'; }).join("")
+    + '<button class="pjtab add" id="newProj">+ New project</button>';
+}
+function whoHtml(w){ w=w||[]; if(!w.length) return ""; var a=w.slice(0,3).map(function(n){return '<span class="av" title="'+esc(n)+'">'+esc(initials(n))+'</span>';}).join(""); return '<span class="avs">'+a+'</span>'+(w.length>3?' +'+(w.length-3):''); }
+function itemHtml(it){
+  var adv = it.status==="todo" ? '<button data-adv="'+it.id+'">Start →</button>' : (it.status==="doing" ? '<button data-adv="'+it.id+'">Done ✓</button>' : '<button data-back="'+it.id+'">Reopen</button>');
+  var back = it.status==="doing" ? '<button data-back="'+it.id+'">←</button>' : '';
+  return '<div class="it '+(it.status==="done"?"dn":"")+'" data-id="'+it.id+'"><p class="t">'+esc(it.title)+'</p>'+
+    '<div class="r">'+whoHtml(it.who)+'<span class="prio '+esc(it.prio||"Normal")+'">'+esc(it.prio||"Normal")+'</span>'+(it.pts?'<span class="pts">'+it.pts+' pts</span>':'')+'</div>'+
+    '<div class="acts">'+adv+back+'<button class="del" data-del="'+it.id+'">Delete</button></div></div>';
+}
+function renderProject(){
+  var p=proj(); if(!p){ document.getElementById("projectArea").innerHTML=""; return; }
+  var view=curView(p);
+  var sprintChips = p.sprints.map(function(s){ return '<button class="sprintchip '+(view===s.id?"on":"")+'" data-s="'+s.id+'">'+esc(s.name)+(s.start||s.end?' <span class="d">'+esc(fmtD(s.start))+(s.end?'–'+esc(fmtD(s.end)):'')+'</span>':'')+'</button>'; }).join("");
+  var backlogOn = view==="__backlog__";
+  var items = p.items.filter(function(it){ return backlogOn ? !it.sprintId : it.sprintId===view; });
+  var cols={todo:[],doing:[],done:[]}; items.forEach(function(it){ (cols[it.status]||cols.todo).push(it); });
+  var tot=items.length, done=cols.done.length, pct=tot?Math.round(done/tot*100):0;
+  var sp = p.sprints.filter(function(s){return s.id===view;})[0];
+  var metaHtml = (!backlogOn && sp) ?
+    '<div class="sprintmeta"><h3>'+esc(sp.name)+(sp.start||sp.end?' <span style="font-size:12px;color:var(--muted);font-weight:400">'+esc(fmtD(sp.start))+(sp.end?' – '+esc(fmtD(sp.end)):'')+'</span>':'')+'</h3>'+
+      (sp.goal?'<p class="goal">'+esc(sp.goal)+'</p>':'')+
+      '<div class="pbar"><div style="width:'+pct+'%"></div></div><div class="ptxt">'+done+' of '+tot+' done · '+pct+'% <a href="#" id="editSprint" style="color:var(--green);text-decoration:none;margin-left:8px">Edit sprint</a></div></div>' : '';
+  var assignOpts='<option value="">Assign…</option>'+TEAM.map(function(n){return '<option>'+esc(n)+'</option>';}).join("");
+  var prioOpts=PRIOS.map(function(x){return '<option'+(x==="Normal"?" selected":"")+'>'+x+'</option>';}).join("");
+  document.getElementById("projectArea").innerHTML =
+    '<div class="sprintbar"><span style="font-size:12.5px;color:var(--muted)">Sprints:</span>'+
+      '<button class="sprintchip '+(backlogOn?"on":"")+'" data-s="__backlog__">Backlog</button>'+ sprintChips +
+      '<button class="sprintchip add" id="newSprint">+ Sprint</button></div>'+
+    metaHtml +
+    '<div class="addrow"><input class="title" id="iTitle" type="text" placeholder="Add an item to '+(backlogOn?"the backlog":esc(sp?sp.name:""))+'…" />'+
+      '<select id="iWho">'+assignOpts+'</select><select id="iPrio">'+prioOpts+'</select><input class="pts" id="iPts" type="number" min="0" placeholder="pts" /><button id="iAdd">Add</button></div>'+
+    '<div class="board">'+
+      '<div class="col todo"><h4>To do <span>'+cols.todo.length+'</span></h4>'+(cols.todo.length?cols.todo.map(itemHtml).join(""):'<p class="empty">Nothing here.</p>')+'</div>'+
+      '<div class="col doing"><h4>In motion <span>'+cols.doing.length+'</span></h4>'+(cols.doing.length?cols.doing.map(itemHtml).join(""):'<p class="empty">Nothing in motion.</p>')+'</div>'+
+      '<div class="col done"><h4>Done <span>'+cols.done.length+'</span></h4>'+(cols.done.length?cols.done.map(itemHtml).join(""):'<p class="empty">Nothing done yet.</p>')+'</div>'+
+    '</div>';
+}
+function render(){ renderTabs(); renderProject(); }
+
+// ---- events ----
+document.getElementById("pjtabs").addEventListener("click", function(e){
+  var t=e.target.closest("[data-p]"); if(t){ state.sel=t.getAttribute("data-p"); save(); render(); return; }
+  if(e.target.closest("#newProj")){ var n=prompt("New project name:"); if(n&&n.trim()){ var id="pj"+Date.now(); state.projects.push({id:id,name:n.trim(),sprints:[{id:"s"+Date.now(),name:"Sprint 1",start:"",end:"",goal:""}],items:[]}); state.sel=id; save(); render(); } }
+});
+document.getElementById("projectArea").addEventListener("click", function(e){
+  var p=proj();
+  var sc=e.target.closest("[data-s]"); if(sc){ setView(p, sc.getAttribute("data-s")); render(); return; }
+  if(e.target.closest("#newSprint")){ var name=prompt("Sprint name:","Sprint "+(p.sprints.length+1)); if(name&&name.trim()){ var id="s"+Date.now(); p.sprints.push({id:id,name:name.trim(),start:"",end:"",goal:""}); setView(p,id); save(); render(); } return; }
+  if(e.target.closest("#editSprint")){ e.preventDefault(); openSprint(p, curView(p)); return; }
+  if(e.target.closest("#iAdd")){ addItem(p); return; }
+  var adv=e.target.closest("[data-adv]"), back=e.target.closest("[data-back]"), del=e.target.closest("[data-del]");
+  var id=(adv&&adv.getAttribute("data-adv"))||(back&&back.getAttribute("data-back"))||(del&&del.getAttribute("data-del"));
+  if(!id){ var card=e.target.closest(".it[data-id]"); if(card) openItem(p, card.getAttribute("data-id")); return; }
+  var it=p.items.filter(function(x){return x.id===id;})[0]; if(!it) return;
+  if(adv) it.status = it.status==="todo"?"doing":"done";
+  else if(back) it.status = it.status==="done"?"doing":"todo";
+  else if(del) p.items=p.items.filter(function(x){return x.id!==id;});
+  save(); render();
+});
+document.getElementById("projectArea").addEventListener("keydown", function(e){ if(e.key==="Enter" && e.target.id==="iTitle") addItem(proj()); });
+function addItem(p){
+  var t=document.getElementById("iTitle").value.trim(); if(!t) return;
+  var view=curView(p);
+  var who=document.getElementById("iWho").value ? [document.getElementById("iWho").value] : [];
+  p.items.push({id:i(), title:t, who:who, status:"todo", sprintId: view==="__backlog__"?null:view, prio:document.getElementById("iPrio").value, pts:parseInt(document.getElementById("iPts").value,10)||0, notes:""});
+  save(); render();
+}
+
+// ---- modals ----
+var modal=document.getElementById("modal"), sheet=document.getElementById("sheet");
+function closeModal(){ modal.classList.remove("show"); }
+modal.addEventListener("click", function(e){ if(e.target===modal) closeModal(); });
+document.addEventListener("keydown", function(e){ if(e.key==="Escape") closeModal(); });
+function openSprint(p, sid){
+  var s=p.sprints.filter(function(x){return x.id===sid;})[0]; if(!s) return;
+  sheet.innerHTML='<button class="x" id="mX">×</button><input class="mtitle" id="sName" value="'+esc(s.name)+'" />'+
+    '<div class="lbl">Start</div><input id="sStart" type="date" value="'+esc(s.start||"")+'" />'+
+    '<div class="lbl">End</div><input id="sEnd" type="date" value="'+esc(s.end||"")+'" />'+
+    '<div class="lbl">Sprint goal</div><textarea id="sGoal" placeholder="What are we trying to accomplish this sprint?">'+esc(s.goal||"")+'</textarea>'+
+    '<button id="sDel" style="margin-top:14px;background:none;border:none;color:#f28b82;font-size:12px;cursor:pointer">Delete sprint (items move to backlog)</button>';
+  modal.classList.add("show");
+  document.getElementById("mX").onclick=closeModal;
+  document.getElementById("sName").addEventListener("input",function(){ s.name=this.value; save(); renderProject(); });
+  document.getElementById("sStart").addEventListener("change",function(){ s.start=this.value; save(); renderProject(); });
+  document.getElementById("sEnd").addEventListener("change",function(){ s.end=this.value; save(); renderProject(); });
+  document.getElementById("sGoal").addEventListener("input",function(){ s.goal=this.value; save(); });
+  document.getElementById("sDel").onclick=function(){ if(!confirm("Delete "+s.name+"? Its items move to the backlog.")) return; p.items.forEach(function(it){ if(it.sprintId===sid) it.sprintId=null; }); p.sprints=p.sprints.filter(function(x){return x.id!==sid;}); setView(p,"__backlog__"); closeModal(); render(); };
+}
+function openItem(p, id){
+  var it=p.items.filter(function(x){return x.id===id;})[0]; if(!it) return; it.who=it.who||[];
+  var sprintOpts='<option value="">Backlog</option>'+p.sprints.map(function(s){return '<option value="'+s.id+'"'+(it.sprintId===s.id?' selected':'')+'>'+esc(s.name)+'</option>';}).join("");
+  var assignOpts='<option value="">Add assignee…</option>'+TEAM.filter(function(n){return it.who.indexOf(n)<0;}).map(function(n){return '<option>'+esc(n)+'</option>';}).join("");
+  var prioOpts=PRIOS.map(function(x){return '<option'+(it.prio===x?" selected":"")+'>'+x+'</option>';}).join("");
+  sheet.innerHTML='<button class="x" id="mX">×</button><input class="mtitle" id="mTitle" value="'+esc(it.title)+'" />'+
+    '<div class="lbl">Assignees</div><div id="mWho" style="display:flex;flex-wrap:wrap;gap:5px;margin:6px 0"></div><select id="mAddWho">'+assignOpts+'</select>'+
+    '<div class="lbl">Sprint</div><select id="mSprint">'+sprintOpts+'</select>'+
+    '<div class="lbl">Priority &amp; points</div><div style="display:flex;gap:8px"><select id="mPrio">'+prioOpts+'</select><input id="mPts" type="number" min="0" value="'+(it.pts||0)+'" style="width:90px" /></div>'+
+    '<div class="lbl">Notes</div><textarea id="mNotes" placeholder="Context, links…">'+esc(it.notes||"")+'</textarea>';
+  modal.classList.add("show");
+  function chips(){ document.getElementById("mWho").innerHTML=it.who.map(function(n){return '<span class="prio Normal" style="cursor:default">'+esc(n.split(" ")[0])+' <b data-rm="'+esc(n)+'" style="cursor:pointer">×</b></span>';}).join(""); }
+  chips();
+  document.getElementById("mX").onclick=closeModal;
+  document.getElementById("mTitle").addEventListener("input",function(){ it.title=this.value; save(); renderProject(); });
+  document.getElementById("mAddWho").addEventListener("change",function(){ if(this.value && it.who.indexOf(this.value)<0){ it.who.push(this.value); save(); chips(); renderProject(); } this.value=""; });
+  document.getElementById("mWho").addEventListener("click",function(e){ var r=e.target.closest("[data-rm]"); if(r){ it.who=it.who.filter(function(x){return x!==r.getAttribute("data-rm");}); save(); chips(); renderProject(); } });
+  document.getElementById("mSprint").addEventListener("change",function(){ it.sprintId=this.value||null; save(); render(); });
+  document.getElementById("mPrio").addEventListener("change",function(){ it.prio=this.value; save(); renderProject(); });
+  document.getElementById("mPts").addEventListener("change",function(){ it.pts=parseInt(this.value,10)||0; save(); renderProject(); });
+  document.getElementById("mNotes").addEventListener("input",function(){ it.notes=this.value; save(); });
+}
+render();
+</script>
+</body>
+</html>
