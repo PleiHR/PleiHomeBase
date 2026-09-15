@@ -47,7 +47,8 @@
 .task .acts{display:flex;gap:6px;margin-top:8px}
 .task .acts button{background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--txt);border-radius:7px;padding:3px 9px;font-size:11px;cursor:pointer}
 .task .acts button:hover{border-color:var(--green)}
-.task .acts .del{margin-left:auto;color:#f28b82;border-color:transparent;background:none}
+.task .acts .mbtn{margin-left:auto;color:var(--muted);padding:3px 8px}
+.task .acts .del{color:#f28b82;border-color:transparent;background:none}
 .tk-empty{font-size:12px;color:var(--muted);padding:6px 2px}
 .modal{position:fixed;inset:0;background:rgba(3,15,10,.62);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}
 .modal.show{display:flex}
@@ -151,6 +152,13 @@
 .settingsmenu .menudrop button{display:block;width:100%;text-align:left;background:none;border:none;color:var(--txt);padding:10px 14px;font-size:13px;cursor:pointer}
 .settingsmenu .menudrop button:hover{background:rgba(47,215,113,.1)}
 
+.taskmenu{position:fixed;background:#0b2c1f;border:1px solid var(--line);border-radius:10px;z-index:200;min-width:190px;max-height:320px;overflow:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.taskmenu.show{display:block}
+.taskmenu button{display:block;width:100%;text-align:left;background:none;border:none;color:var(--txt);padding:9px 14px;font-size:13px;cursor:pointer;white-space:nowrap}
+.taskmenu button:hover{background:rgba(47,215,113,.1)}
+.taskmenu .tm-sep{border-top:1px solid var(--line);margin:4px 0}
+.taskmenu .tm-label{padding:8px 14px 3px;font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+
 .tk-more-toggle{background:none;border:1px dashed var(--line);color:var(--green-soft);border-radius:9px;padding:9px 14px;font-size:12.5px;cursor:pointer;white-space:nowrap}
 .tk-more-toggle:hover{border-color:var(--green)}
 .tk-add-extra{display:none;flex:1 1 100%;gap:8px;margin-top:2px}
@@ -188,7 +196,7 @@
 
 <h1><span class="g">Tasks</span></h1>
 <p class="sub">The company's shared to-do — write what needs doing and hit Add. Everything else is optional.</p>
-<details class="howto"><summary>How this works</summary><p>Assign one or more people, tag it by space, set a priority, break it into subtasks, and comment with @mentions. Set a cadence and completing it creates the next one automatically. Define <b>custom fields</b> (text, dropdown, date, money, and more) and every task can carry them. Group related work into a <b>project</b> with its own board and custom status columns — start one from a template, the same way ClickUp Folders and Lists are built. Build a form under <b>Forms</b> and submitting it creates and assigns a task automatically (shown with a 🗒️ so you can tell it came from a form), the same way Magic's ClickUp forms do today.</p></details>
+<details class="howto"><summary>How this works</summary><p>Assign one or more people, tag it by space, set a priority, break it into subtasks, and comment with @mentions. Set a cadence and completing it creates the next one automatically. Define <b>custom fields</b> (text, dropdown, date, money, and more) and every task can carry them. Group related work into a <b>project</b> with its own board and custom status columns — start one from a template, the same way ClickUp Folders and Lists are built. Build a form under <b>Forms</b> and submitting it creates and assigns a task automatically (shown with a 🗒️ so you can tell it came from a form), the same way Magic's ClickUp forms do today. Use the <b>⋮</b> menu on any card to duplicate a task or move it into a project (or back to the board).</p></details>
 
 <div class="callout" style="margin:0 0 18px">Saves to <b>your own browser</b> for now — teammates on a different computer won't see it yet.</div>
 
@@ -270,6 +278,7 @@
 </div>
 
 <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+<div class="taskmenu" id="taskMenu"></div>
 
 <script>
 var TEAM = ["Adrian Rodriguez Gonzalez","Agus Caruso","Alan Shilling","Andrea Lesmes","Angel Montejo","Angely Hernandez","Brayan Acebo","Bruno Brito","Carlos Sposito","Carmen Brandel","Chris Rodriguez","Danta & Co. Consulting LLC","David Caicedo","Delfina Valdez Martinez","Fabiano Oliveira","Giuliana Abras","Ivan Nuñez","JC Duran","Jeremias Espeche","Jonathan Montalvo","Julieta Ruber","Liz Irizarry","Lucas Arena","Maria Bautista","Maria Beltran","Maria Padron","Mili Bagaglio","Monica Rojas","Nahuel Canete","Natalia Ailen Dominguez Fernandez","Priscila Molina","Rigo B Castro","Roberto Dominguez","Sebastian Duque","Sebastian Rayo","Spencer Henry","Stefano Sanchez","Stephanie Kowalczuk","Thomas Arango","Tomás Noseda","Viviana Reales"];
@@ -500,7 +509,7 @@ return '<div class="task '+(t.status==="done"?"dn":"")+'" data-id="'+t.id+'"><p 
 '<div class="row">'+pric+vic+whoHtml(t.who)+
 (t.due?'<span class="due '+(over?"over":"")+'">'+ (over?"⚠ ":"") +fmtDue(t.due)+'</span>':'')+
 '<span class="cad">'+esc(CAD[t.cad]||"")+'</span></div>'+
-'<div class="acts">'+adv+back+'<button class="del" data-del="'+t.id+'">Delete</button></div></div>';
+'<div class="acts">'+adv+back+'<button class="mbtn" data-menu="'+t.id+'" type="button" title="More">⋮</button><button class="del" data-del="'+t.id+'">Delete</button></div></div>';
 }
 function dueMatch(due, f){
 if(!f) return true;
@@ -555,6 +564,8 @@ document.getElementById("tCad").addEventListener("change", function(){ if(this.v
 document.getElementById("fSearch").addEventListener("input", render);
 document.getElementById("fClear").addEventListener("click", function(){ ["fWho","fTag","fVis","fCad","fDue","fSearch","fPriority"].forEach(function(id){ document.getElementById(id).value=""; }); document.getElementById("fSort").value="due"; render(); });
 document.querySelector(".board").addEventListener("click", function(e){
+var menuBtn=e.target.closest("[data-menu]");
+if(menuBtn){ e.stopPropagation(); openTaskMenu(menuBtn.getAttribute("data-menu"), menuBtn); return; }
 var adv=e.target.closest("[data-adv]"), back=e.target.closest("[data-back]"), del=e.target.closest("[data-del]");
 var id=(adv&&adv.getAttribute("data-adv"))||(back&&back.getAttribute("data-back"))||(del&&del.getAttribute("data-del"));
 if(!id){ var card=e.target.closest(".task[data-id]"); if(card) openDetail(card.getAttribute("data-id")); return; }
@@ -950,7 +961,7 @@ var pr=PRI[t.priority||"normal"]; var pric='<span class="pri '+(t.priority||"nor
 var stOpts=(p.statuses||[]).map(function(s){return '<option value="'+esc(s.id)+'"'+(t.status===s.id?" selected":"")+'>'+esc(s.label)+'</option>';}).join("");
 return '<div class="task '+(isDoneCat?"dn":"")+'" data-id="'+t.id+'"><p class="tt">'+formIcon+esc(t.title)+'</p>'+
 '<div class="row">'+pric+whoHtml(t.who)+(t.due?'<span class="due '+(over&&!isDoneCat?"over":"")+'">'+(over&&!isDoneCat?"⚠ ":"")+fmtDue(t.due)+'</span>':'')+'</div>'+
-'<div class="acts"><select class="pstatus" data-pid="'+t.id+'" style="background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--txt);border-radius:7px;padding:3px 6px;font-size:11px">'+stOpts+'</select><button class="del" data-pdel="'+t.id+'">Delete</button></div></div>';
+'<div class="acts"><select class="pstatus" data-pid="'+t.id+'" style="background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--txt);border-radius:7px;padding:3px 6px;font-size:11px">'+stOpts+'</select><button class="mbtn" data-menu="'+t.id+'" type="button" title="More">⋮</button><button class="del" data-pdel="'+t.id+'">Delete</button></div></div>';
 }
 
 function renderProjectBoard(p){
@@ -974,6 +985,9 @@ b.addEventListener("click", function(e){ e.stopPropagation();
 var id=b.getAttribute("data-pdel"); state.tasks=state.tasks.filter(function(x){return x.id!==id;});
 save(state); renderProjectBoard(projectById(p.id)); renderProjects(); render();
 });
+});
+board.querySelectorAll("[data-menu]").forEach(function(b){
+b.addEventListener("click", function(e){ e.stopPropagation(); openTaskMenu(b.getAttribute("data-menu"), b); });
 });
 board.querySelectorAll(".task[data-id]").forEach(function(card){
 card.addEventListener("click", function(e){ if(e.target.closest("select")||e.target.closest("button")) return; openDetail(card.getAttribute("data-id")); });
@@ -1023,6 +1037,79 @@ document.getElementById("projectDetail").style.display="none";
 document.getElementById("projectListView").style.display="";
 renderProjects();
 }
+
+// ---- move & duplicate (the ⋮ menu on every card) ----
+var taskMenuEl=document.getElementById("taskMenu");
+function closeTaskMenu(){ taskMenuEl.classList.remove("show"); taskMenuEl.innerHTML=""; }
+function openTaskMenu(id, btn){
+var t=taskById(id); if(!t) return;
+var curProj = t.projectId ? projectById(t.projectId) : null;
+var items=['<button type="button" data-tmact="dup">⎘ Duplicate</button>'];
+if(curProj) items.push('<div class="tm-sep"></div><button type="button" data-tmact="toboard">↩ Move to Board</button>');
+var otherProjects=(state.projects||[]).filter(function(p){ return !curProj || p.id!==curProj.id; });
+if(otherProjects.length){
+items.push('<div class="tm-sep"></div><div class="tm-label">Move to project</div>');
+otherProjects.forEach(function(p){ items.push('<button type="button" data-tmact="toproj" data-tmproj="'+esc(p.id)+'">📁 '+esc(p.name)+'</button>'); });
+}
+taskMenuEl.innerHTML=items.join("");
+taskMenuEl.setAttribute("data-tmtask", id);
+taskMenuEl.classList.add("show");
+var r=btn.getBoundingClientRect(), mw=taskMenuEl.offsetWidth||190, mh=taskMenuEl.offsetHeight||60;
+var left=Math.min(r.left, window.innerWidth-mw-10); left=Math.max(8,left);
+var top=r.bottom+6; if(top+mh>window.innerHeight-8) top=Math.max(8, r.top-mh-6);
+taskMenuEl.style.left=left+"px"; taskMenuEl.style.top=top+"px";
+}
+document.addEventListener("click", function(e){
+if(taskMenuEl.classList.contains("show") && !taskMenuEl.contains(e.target) && !e.target.closest("[data-menu]")) closeTaskMenu();
+});
+function refreshAfterTaskMove(){
+render(); renderProjects();
+if(openProjectId){ var p=projectById(openProjectId); if(p) renderProjectBoard(p); }
+}
+function duplicateTask(t){
+var copy=JSON.parse(JSON.stringify(t));
+copy.id="t"+Date.now()+Math.random().toString(36).slice(2,5);
+copy.title=(t.title||"Task")+" (copy)";
+copy.notes=[];
+copy.recurred=false;
+state.tasks.push(copy);
+save(state); refreshAfterTaskMove();
+}
+function moveTaskToBoard(t){
+if(!t.projectId) return;
+var proj=projectById(t.projectId);
+var st=proj ? (proj.statuses||[]).filter(function(s){return s.id===t.status;})[0] : null;
+var cat=st?st.cat:"open";
+var catToBoard={open:"todo",active:"doing",done:"done",closed:"done"};
+t.status=catToBoard[cat]||"todo";
+t.projectId=null;
+}
+function moveTaskToProject(t, dest){
+var curCat;
+if(t.projectId){
+var src=projectById(t.projectId);
+var st=src?(src.statuses||[]).filter(function(s){return s.id===t.status;})[0]:null;
+curCat=st?st.cat:"open";
+} else {
+var boardToCat={todo:"open",doing:"active",done:"done"};
+curCat=boardToCat[t.status]||"open";
+}
+var destStatuses=dest.statuses||[];
+var target=destStatuses.filter(function(s){return s.cat===curCat;})[0]||destStatuses[0];
+t.projectId=dest.id;
+t.status=target?target.id:"todo";
+}
+taskMenuEl.addEventListener("click", function(e){
+var b=e.target.closest("[data-tmact]"); if(!b) return;
+var id=taskMenuEl.getAttribute("data-tmtask"), t=taskById(id);
+if(t){
+var act=b.getAttribute("data-tmact");
+if(act==="dup") duplicateTask(t);
+else if(act==="toboard"){ moveTaskToBoard(t); save(state); refreshAfterTaskMove(); }
+else if(act==="toproj"){ var dest=projectById(b.getAttribute("data-tmproj")); if(dest){ moveTaskToProject(t,dest); save(state); refreshAfterTaskMove(); } }
+}
+closeTaskMenu();
+});
 
 // ---- forms ----
 function formById(id){ return state.forms.filter(function(f){return f.id===id;})[0]; }
