@@ -188,7 +188,7 @@
 
 <h1><span class="g">Tasks</span></h1>
 <p class="sub">The company's shared to-do — write what needs doing and hit Add. Everything else is optional.</p>
-<details class="howto"><summary>How this works</summary><p>Assign one or more people, tag it by space, give it a <b>type</b> (Task, Milestone, Meeting notes…), set a priority, break it into subtasks, and comment with @mentions. Set a cadence and completing it creates the next one automatically. Define <b>custom fields</b> (text, dropdown, date, money, and more) and every task can carry them. Group related work into a <b>project</b> with its own board and custom status columns — start one from a template, the same way ClickUp Folders and Lists are built. Build a form under <b>Forms</b> and submitting it creates and assigns a task automatically, the same way Magic's ClickUp forms do today.</p></details>
+<details class="howto"><summary>How this works</summary><p>Assign one or more people, tag it by space, set a priority, break it into subtasks, and comment with @mentions. Set a cadence and completing it creates the next one automatically. Define <b>custom fields</b> (text, dropdown, date, money, and more) and every task can carry them. Group related work into a <b>project</b> with its own board and custom status columns — start one from a template, the same way ClickUp Folders and Lists are built. Build a form under <b>Forms</b> and submitting it creates and assigns a task automatically (shown with a 🗒️ so you can tell it came from a form), the same way Magic's ClickUp forms do today.</p></details>
 
 <div class="callout" style="margin:0 0 18px">Saves to <b>your own browser</b> for now — teammates on a different computer won't see it yet.</div>
 
@@ -208,7 +208,6 @@
 <button class="menubtn" id="settingsBtn" type="button">⚙ Settings</button>
 <div class="menudrop" id="settingsDrop">
 <button id="manageFieldsBtn" type="button">🧩 Custom fields <span class="amcount" id="cfCount">0</span></button>
-<button id="manageTypesBtn" type="button">🏷 Task types</button>
 </div>
 </div>
 </div>
@@ -216,9 +215,8 @@
 <div class="tk-add">
 <input class="title" id="tTitle" type="text" placeholder="What needs doing?" />
 <button class="add" id="tAdd">Add task</button>
-<button type="button" class="tk-more-toggle" id="tMoreToggle">+ Type, people, priority…</button>
+<button type="button" class="tk-more-toggle" id="tMoreToggle">+ People, priority…</button>
 <div class="tk-add-extra" id="tAddExtra">
-<select id="tType" title="Task type"></select>
 <div class="tk-assign" id="tAssign">
 <span id="tChips"></span>
 <input id="tWhoInput" type="text" placeholder="Assign people…" autocomplete="off" />
@@ -299,21 +297,9 @@ else if(cad==="annual") base.setFullYear(base.getFullYear()+1);
 return fmtDate(base);
 }
 function spawnNext(t){
-state.tasks.push({id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title:t.title, who:whoArr(t.who).slice(), tags:tagArr(t.tags).slice(), vis:t.vis||"company", due:nextDue(t.due,t.cad), cad:t.cad, status:"todo", brief:t.brief||"", priority:t.priority||"normal", type:t.type||"task", subtasks:[], notes:[], files:[]});
+state.tasks.push({id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title:t.title, who:whoArr(t.who).slice(), tags:tagArr(t.tags).slice(), vis:t.vis||"company", due:nextDue(t.due,t.cad), cad:t.cad, status:"todo", brief:t.brief||"", priority:t.priority||"normal", formId:t.formId, subtasks:[], notes:[], files:[]});
 }
 var STLBL = {todo:"To do",doing:"In motion",done:"Done"};
-
-// ---- task types ----
-function defaultTaskTypes(){
-return [
-{id:"task", icon:"✅", label:"Task"},
-{id:"milestone", icon:"🏁", label:"Milestone"},
-{id:"meeting", icon:"🗒", label:"Meeting notes"},
-{id:"bug", icon:"🐞", label:"Bug"}
-];
-}
-function taskTypeById(id){ var arr=state.taskTypes||[]; return arr.filter(function(x){return x.id===id;})[0] || arr[0] || {id:"task",icon:"✅",label:"Task"}; }
-function typeOptsHtml(selId){ return (state.taskTypes||[]).map(function(ty){ return '<option value="'+esc(ty.id)+'"'+(selId===ty.id?" selected":"")+'>'+ty.icon+' '+esc(ty.label)+'</option>'; }).join(""); }
 
 // ---- projects: statuses, templates, helpers ----
 function defaultStatuses(){
@@ -379,7 +365,6 @@ if(!Array.isArray(s.forms)){ s.forms = seedForms(); seeded=true; }
 if(!Array.isArray(s.fields)){ s.fields = []; seeded=true; }
 if(!Array.isArray(s.projects)){ s.projects = []; seeded=true; }
 if(!Array.isArray(s.projectTemplates)){ s.projectTemplates = defaultProjectTemplates(); seeded=true; }
-if(!Array.isArray(s.taskTypes)){ s.taskTypes = defaultTaskTypes(); seeded=true; }
 if(seeded) save(s);
 return s;
 }
@@ -410,7 +395,6 @@ var f=document.getElementById("fWho"); TEAM.forEach(function(n){ var o=document.
 var ft=document.getElementById("fTag"); TAGS.forEach(function(t){ var o=document.createElement("option"); o.value=t; o.textContent=t; ft.appendChild(o); });
 var ts=document.getElementById("tTagSel"); var d=document.createElement("option"); d.value=""; d.textContent="+ Space"; ts.appendChild(d); TAGS.forEach(function(t){ var o=document.createElement("option"); o.value=t; o.textContent=t; ts.appendChild(o); });
 var im=document.getElementById("idMe"); TEAM.forEach(function(n){ var o=document.createElement("option"); o.value=n; o.textContent=n; if(n===ME) o.selected=true; im.appendChild(o); });
-var tty=document.getElementById("tType"); if(tty) tty.innerHTML=typeOptsHtml("task");
 })();
 
 // ---- identity / assigned-to-me ----
@@ -420,7 +404,6 @@ var settingsDrop=document.getElementById("settingsDrop");
 document.getElementById("settingsBtn").addEventListener("click", function(e){ e.stopPropagation(); settingsDrop.classList.toggle("show"); });
 document.addEventListener("click", function(e){ if(!document.getElementById("settingsMenu").contains(e.target)) settingsDrop.classList.remove("show"); });
 document.getElementById("manageFieldsBtn").addEventListener("click", function(){ settingsDrop.classList.remove("show"); openFieldsManager(); });
-document.getElementById("manageTypesBtn").addEventListener("click", function(){ settingsDrop.classList.remove("show"); openTaskTypesManager(); });
 document.getElementById("idMe").addEventListener("change", function(){
 ME=this.value; saveMe(ME);
 if(!ME){ amOnly=false; saveAmOnly(false); document.getElementById("amToggle").classList.remove("on"); }
@@ -434,7 +417,7 @@ if(amOnly) document.getElementById("amToggle").classList.add("on");
 
 // ---- progressive disclosure: "more options" on add-task, and filters panel ----
 var tAddExtra=document.getElementById("tAddExtra"), tMoreToggle=document.getElementById("tMoreToggle");
-function setAddMore(open){ tAddExtra.classList.toggle("show", open); tMoreToggle.textContent = open ? "− Hide options" : "+ Type, people, priority…"; }
+function setAddMore(open){ tAddExtra.classList.toggle("show", open); tMoreToggle.textContent = open ? "− Hide options" : "+ People, priority…"; }
 setAddMore(loadBoolPref(ADDMORE_KEY));
 tMoreToggle.addEventListener("click", function(){ var open=!tAddExtra.classList.contains("show"); setAddMore(open); saveBoolPref(ADDMORE_KEY, open); });
 
@@ -500,7 +483,7 @@ var label = arr.length===1 ? esc(arr[0].split(" ")[0]) : arr.length+" people";
 return '<span class="who"><span class="avs">'+avs+'</span>'+label+(arr.length>4?' +'+(arr.length-4):'')+'</span>';
 }
 function taskHtml(t){
-var ty=taskTypeById(t.type||"task");
+var formIcon = t.formId ? '🗒️ ' : '';
 var over = t.status!=="done" && overdue(t.due);
 var adv = t.status==="todo" ? '<button data-adv="'+t.id+'">Start →</button>' : (t.status==="doing" ? '<button data-adv="'+t.id+'">Done ✓</button>' : '<button data-back="'+t.id+'">Reopen</button>');
 var back = t.status==="doing" ? '<button data-back="'+t.id+'">←</button>' : '';
@@ -513,7 +496,7 @@ if(t.files&&t.files.length) metaBits.push("📎"+t.files.length);
 if(t.subtasks&&t.subtasks.length){ var sd=t.subtasks.filter(function(s){return s.done;}).length; metaBits.push("☑"+sd+"/"+t.subtasks.length); }
 if(state.fields.length && t.cf){ var cfN=Object.keys(t.cf).filter(function(k){ var v=t.cf[k]; return Array.isArray(v)?v.length>0:(v!==undefined&&v!==null&&v!==""&&v!==false); }).length; if(cfN) metaBits.push("🧩"+cfN); }
 var meta=metaBits.join(" ");
-return '<div class="task '+(t.status==="done"?"dn":"")+'" data-id="'+t.id+'"><p class="tt">'+ty.icon+' '+esc(t.title)+(meta?' <span style="font-size:10.5px;color:var(--muted);font-weight:400">'+meta+'</span>':'')+'</p>'+tags+
+return '<div class="task '+(t.status==="done"?"dn":"")+'" data-id="'+t.id+'"><p class="tt">'+formIcon+esc(t.title)+(meta?' <span style="font-size:10.5px;color:var(--muted);font-weight:400">'+meta+'</span>':'')+'</p>'+tags+
 '<div class="row">'+pric+vic+whoHtml(t.who)+
 (t.due?'<span class="due '+(over?"over":"")+'">'+ (over?"⚠ ":"") +fmtDue(t.due)+'</span>':'')+
 '<span class="cad">'+esc(CAD[t.cad]||"")+'</span></div>'+
@@ -561,9 +544,9 @@ updateFilterCount();
 
 document.getElementById("tAdd").addEventListener("click", function(){
 var title=document.getElementById("tTitle").value.trim(); if(!title){ document.getElementById("tTitle").focus(); return; }
-state.tasks.push({id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title:title, who:picked.slice(), tags:ptags.slice(), vis:document.getElementById("tVis").value, due:document.getElementById("tDue").value, cad:document.getElementById("tCad").value, status:"todo", priority:document.getElementById("tPri").value, type:document.getElementById("tType").value||"task", subtasks:[], notes:[], files:[]});
+state.tasks.push({id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title:title, who:picked.slice(), tags:ptags.slice(), vis:document.getElementById("tVis").value, due:document.getElementById("tDue").value, cad:document.getElementById("tCad").value, status:"todo", priority:document.getElementById("tPri").value, subtasks:[], notes:[], files:[]});
 save(state);
-document.getElementById("tTitle").value=""; document.getElementById("tDue").value=""; picked=[]; renderChips(); inp.value=""; sug.style.display="none"; ptags=[]; renderTagChips(); document.getElementById("tPri").value="normal"; document.getElementById("tType").value="task";
+document.getElementById("tTitle").value=""; document.getElementById("tDue").value=""; picked=[]; renderChips(); inp.value=""; sug.style.display="none"; ptags=[]; renderTagChips(); document.getElementById("tPri").value="normal";
 render();
 });
 document.getElementById("tTitle").addEventListener("keydown", function(e){ if(e.key==="Enter") document.getElementById("tAdd").click(); });
@@ -606,7 +589,7 @@ function mAddWho(t,n){ var a=whoArr(t.who); if(a.indexOf(n)<0) a.push(n); t.who=
 function mTagChips(t){ var b=document.getElementById("mTagChips"); if(b) b.innerHTML=tagArr(t.tags).map(function(x){return '<span class="tchip">'+esc(x)+'<b data-rmt="'+esc(x)+'">×</b></span>';}).join(""); }
 function openDetail(id){
 var t=taskById(id); if(!t) return;
-t.notes=t.notes||[]; t.files=t.files||[]; t.tags=t.tags||[]; t.vis=t.vis||"company"; t.subtasks=t.subtasks||[]; t.priority=t.priority||"normal"; t.cf=t.cf||{}; t.type=t.type||"task";
+t.notes=t.notes||[]; t.files=t.files||[]; t.tags=t.tags||[]; t.vis=t.vis||"company"; t.subtasks=t.subtasks||[]; t.priority=t.priority||"normal"; t.cf=t.cf||{};
 var proj = t.projectId ? projectById(t.projectId) : null;
 var tagOpts='<option value="">+ Space</option>'+TAGS.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>';}).join("");
 var visOpts=Object.keys(VIS).map(function(k){return '<option value="'+k+'"'+(t.vis===k?' selected':'')+'>'+VIS[k].i+' '+VIS[k].l+'</option>';}).join("");
@@ -628,8 +611,8 @@ sheet.innerHTML =
 '<button class="x" id="mX">×</button>'+
 '<input id="mTitle" value="'+esc(t.title)+'" placeholder="Task title" style="width:100%;box-sizing:border-box;background:transparent;border:none;color:var(--txt);font-size:19px;font-weight:800;padding:0 34px 8px 0;outline:none" />'+
 (proj ? '<div class="m"><span>📁 '+esc(proj.name)+'</span></div>' : '')+
+(t.formId ? '<div class="m"><span>🗒️ Form response</span></div>' : '')+
 '<div class="propbar">'+
-'<select id="mType" title="Type">'+typeOptsHtml(t.type)+'</select>'+
 statusCtrl+
 '<select id="mPriority" title="Priority">'+priOpts+'</select>'+
 '<select id="mVis" title="Visibility">'+visOpts+'</select>'+
@@ -649,7 +632,6 @@ modal.classList.add("show");
 renderFiles(t); renderNotes(t); renderSubs(t); mChips(t); mTagChips(t); renderCf(t);
 document.getElementById("mX").onclick=closeModal;
 document.getElementById("mCfManageBtn").onclick=function(e){ e.preventDefault(); e.stopPropagation(); openFieldsManager(function(){ openDetail(t.id); }); };
-document.getElementById("mType").addEventListener("change", function(){ t.type=this.value; save(state); render(); if(proj) renderProjectBoard(projectById(proj.id)); });
 var mStatusEl=document.getElementById("mStatus");
 if(mStatusEl) mStatusEl.addEventListener("change", function(){ t.status=this.value; save(state); if(proj){ renderProjectBoard(projectById(proj.id)); renderProjects(); } render(); });
 document.getElementById("mTitle").addEventListener("input", function(){ t.title=this.value; save(state); render(); });
@@ -803,47 +785,6 @@ if(onDone) onDone();
 };
 }
 
-// ---- task types manager ----
-function openTaskTypesManager(){
-var list = (state.taskTypes||[]).map(function(t){ return {id:t.id, icon:t.icon, label:t.label}; });
-sheet.innerHTML =
-'<button class="x" id="ttmX">×</button>'+
-'<h2>Task types</h2>'+
-'<p style="color:var(--muted);font-size:13px;margin:0 0 14px">Give tasks a type — like ClickUp\'s Task, Milestone, or Meeting Notes types — so the board shows what kind of work each card is.</p>'+
-'<div id="ttmList"></div><button type="button" id="ttmAdd" style="background:none;border:1px solid var(--line);color:var(--green-soft);border-radius:8px;padding:7px 12px;font-size:12.5px;cursor:pointer">+ Add type</button>'+
-'<div style="display:flex;justify-content:flex-end;margin-top:18px"><button id="ttmSave" type="button" style="background:var(--green);color:#062018;font-weight:700;border:none;border-radius:9px;padding:9px 16px;font-size:13.5px;cursor:pointer">Save types</button></div>';
-modal.classList.add("show");
-document.getElementById("ttmX").onclick=closeModal;
-function rowHtml(t, idx){
-return '<div class="fbuild-field" data-idx="'+idx+'"><div class="fr">'+
-'<input type="text" class="ttico" placeholder="Icon" value="'+esc(t.icon)+'" style="max-width:52px;flex:0 0 52px;text-align:center" />'+
-'<input type="text" class="ttlabel" placeholder="Name, e.g. Milestone" value="'+esc(t.label)+'" />'+
-'<button type="button" class="remf">Remove</button>'+
-'</div></div>';
-}
-function renderList(){ document.getElementById("ttmList").innerHTML = list.length ? list.map(rowHtml).join("") : '<p class="tk-empty">No types yet — add one below.</p>'; }
-renderList();
-document.getElementById("ttmList").addEventListener("input", function(e){
-var row=e.target.closest("[data-idx]"); if(!row) return; var idx=parseInt(row.getAttribute("data-idx"),10); var t=list[idx]; if(!t) return;
-if(e.target.classList.contains("ttico")) t.icon=e.target.value;
-else if(e.target.classList.contains("ttlabel")) t.label=e.target.value;
-});
-document.getElementById("ttmList").addEventListener("click", function(e){
-var rem=e.target.closest(".remf"); if(!rem) return;
-if(list.length<=1){ alert("Keep at least one task type."); return; }
-var row=e.target.closest("[data-idx]"); var idx=parseInt(row.getAttribute("data-idx"),10);
-list.splice(idx,1); renderList();
-});
-document.getElementById("ttmAdd").onclick=function(){ list.push({id:"ty"+Date.now()+Math.random().toString(36).slice(2,4), icon:"•", label:""}); renderList(); };
-document.getElementById("ttmSave").onclick=function(){
-var types=list.map(function(t){ return {id:t.id, icon:(t.icon||"•").trim()||"•", label:(t.label||"").trim()}; }).filter(function(t){return t.label;});
-if(!types.length) types=defaultTaskTypes();
-state.taskTypes=types; save(state);
-var tSel=document.getElementById("tType"); if(tSel){ var cur=tSel.value; tSel.innerHTML=typeOptsHtml(cur); if(!tSel.value) tSel.value=types[0].id; }
-closeModal(); render();
-};
-}
-
 // ---- projects ----
 var openProjectId=null;
 function renderProjects(){
@@ -957,7 +898,7 @@ var proj={ id:"p"+Date.now(), name:name, area:document.getElementById("psArea").
 state.projects.push(proj);
 if(tp && tp.tasks && tp.tasks.length){
 tp.tasks.forEach(function(tt){
-state.tasks.push({id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title:tt.title, who:[], tags:[], vis:"company", due:"", cad:"once", status:tt.status, priority:"normal", subtasks:[], notes:[], files:[], projectId:proj.id, type:"task"});
+state.tasks.push({id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title:tt.title, who:[], tags:[], vis:"company", due:"", cad:"once", status:tt.status, priority:"normal", subtasks:[], notes:[], files:[], projectId:proj.id});
 });
 }
 save(state); closeModal(); renderProjects(); render();
@@ -1001,13 +942,13 @@ document.getElementById("pbMeta").innerHTML='<span>'+prog.done+'/'+prog.total+' 
 }
 
 function projectTaskHtml(t,p){
-var ty=taskTypeById(t.type||"task");
+var formIcon = t.formId ? '🗒️ ' : '';
 var over = overdue(t.due);
 var st=(p.statuses||[]).filter(function(s){return s.id===t.status;})[0];
 var isDoneCat = st && (st.cat==="done"||st.cat==="closed");
 var pr=PRI[t.priority||"normal"]; var pric='<span class="pri '+(t.priority||"normal")+'" title="'+pr.l+' priority">'+pr.i+' '+pr.l+'</span>';
 var stOpts=(p.statuses||[]).map(function(s){return '<option value="'+esc(s.id)+'"'+(t.status===s.id?" selected":"")+'>'+esc(s.label)+'</option>';}).join("");
-return '<div class="task '+(isDoneCat?"dn":"")+'" data-id="'+t.id+'"><p class="tt">'+ty.icon+' '+esc(t.title)+'</p>'+
+return '<div class="task '+(isDoneCat?"dn":"")+'" data-id="'+t.id+'"><p class="tt">'+formIcon+esc(t.title)+'</p>'+
 '<div class="row">'+pric+whoHtml(t.who)+(t.due?'<span class="due '+(over&&!isDoneCat?"over":"")+'">'+(over&&!isDoneCat?"⚠ ":"")+fmtDue(t.due)+'</span>':'')+'</div>'+
 '<div class="acts"><select class="pstatus" data-pid="'+t.id+'" style="background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--txt);border-radius:7px;padding:3px 6px;font-size:11px">'+stOpts+'</select><button class="del" data-pdel="'+t.id+'">Delete</button></div></div>';
 }
@@ -1058,7 +999,6 @@ box.innerHTML =
 '<div class="pbar-wrap" id="pbBarWrap"></div><div class="pmeta" id="pbMeta"></div>'+
 '<div class="tk-add" style="margin-top:16px">'+
 '<input class="title" id="pTitle" type="text" placeholder="What needs doing in this project?" />'+
-'<select id="pType"></select>'+
 '<select id="pPri" title="Priority"><option value="urgent">🔴 Urgent</option><option value="high">🟠 High</option><option value="normal" selected>🔵 Normal</option><option value="low">⚪ Low</option></select>'+
 '<input id="pDue" type="date" title="Due date" />'+
 '<button class="add" id="pAdd">Add task</button>'+
@@ -1066,11 +1006,10 @@ box.innerHTML =
 '<div class="pboard" id="pBoard"></div>';
 document.getElementById("pbBack").onclick=closeProjectBoard;
 document.getElementById("pbSettings").onclick=function(){ openProjectSettings(projectById(id)); };
-document.getElementById("pType").innerHTML=typeOptsHtml("task");
 document.getElementById("pAdd").onclick=function(){
 var title=document.getElementById("pTitle").value.trim(); if(!title){ document.getElementById("pTitle").focus(); return; }
 var pr=projectById(id); var firstStatus=(pr.statuses[0]||{}).id||"todo";
-state.tasks.push({id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title:title, who:[], tags:[], vis:"company", due:document.getElementById("pDue").value, cad:"once", status:firstStatus, priority:document.getElementById("pPri").value, subtasks:[], notes:[], files:[], projectId:id, type:document.getElementById("pType").value||"task"});
+state.tasks.push({id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title:title, who:[], tags:[], vis:"company", due:document.getElementById("pDue").value, cad:"once", status:firstStatus, priority:document.getElementById("pPri").value, subtasks:[], notes:[], files:[], projectId:id});
 save(state);
 document.getElementById("pTitle").value=""; document.getElementById("pDue").value=""; document.getElementById("pPri").value="normal";
 renderProjectBoard(projectById(id)); renderProjects();
@@ -1211,7 +1150,7 @@ if(el.hasAttribute("data-req") && !v) miss.push(f?f.label:el.getAttribute("data-
 lines.push((f?f.label:el.getAttribute("data-fk"))+": "+(v||"—"));
 });
 if(miss.length){ alert("Please fill in: "+miss.join(", ")); return; }
-var task={ id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title:form.name, who:whoArr(form.who).slice(), tags:tagArr(form.tags).slice(), vis:form.vis||"company", due:"", cad:"once", status:"todo", brief:lines.join("\n"), priority:form.priority||"normal", type:"task", subtasks:[], notes:[], files:[], formId:form.id };
+var task={ id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title:form.name, who:whoArr(form.who).slice(), tags:tagArr(form.tags).slice(), vis:form.vis||"company", due:"", cad:"once", status:"todo", brief:lines.join("\n"), priority:form.priority||"normal", subtasks:[], notes:[], files:[], formId:form.id };
 state.tasks.push(task); save(state); closeModal();
 document.querySelector('.pg-tab[data-tab="board"]').click();
 render();
