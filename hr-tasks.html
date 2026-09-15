@@ -124,7 +124,12 @@
 .fbuild-field select{min-width:110px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:7px 9px;color:var(--txt);font:inherit;font-size:13px}
 .fbuild-field label.req{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;white-space:nowrap}
 .fbuild-field .remf{background:none;border:none;color:#f28b82;cursor:pointer;font-weight:700;font-size:12px}
-.fbuild-field .fopts{width:100%;box-sizing:border-box;margin-top:7px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:7px 9px;color:var(--txt);font:inherit;font-size:12.5px}
+.optsbuild{width:100%;margin-top:7px}
+.optschips{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 6px}
+.optsnewrow{display:flex;gap:6px}
+.optsnewrow input{flex:1;min-width:0;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:7px 9px;color:var(--txt);font:inherit;font-size:12.5px}
+.optsnewrow button{background:none;border:1px solid var(--line);color:var(--green-soft);border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;white-space:nowrap}
+.optsnewrow button:hover{border-color:var(--green)}
 .fillrow{margin:0 0 14px}
 .fillrow label{display:block;font-size:12.5px;font-weight:600;color:var(--green-soft);margin:0 0 5px}
 .fillrow input,.fillrow textarea,.fillrow select{width:100%;box-sizing:border-box;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:9px 11px;color:var(--txt);font:inherit;font-size:13.5px}
@@ -291,6 +296,22 @@ var PRI_ORDER = {urgent:0,high:1,normal:2,low:3};
 var CF_TYPES = ["text","textarea","number","money","date","select","labels","checkbox","email","phone","url"];
 function cfTypeLabel(ty){ return {text:"Text",textarea:"Long text",number:"Number",money:"Money ($)",date:"Date",select:"Dropdown",labels:"Labels",checkbox:"Checkbox",email:"Email",phone:"Phone",url:"Website link"}[ty]||ty; }
 function cfTypeIcon(ty){ return {text:"🔤",textarea:"📄",number:"#️⃣",money:"💲",date:"📅",select:"▾",labels:"🏷",checkbox:"☑️",email:"✉️",phone:"📞",url:"🔗"}[ty]||"•"; }
+// ---- shared: chip-style options builder for Dropdown/Labels fields (custom fields + form fields) ----
+// Each option is added one at a time (type it, press Enter or click Add) instead of a fragile comma-separated
+// text box, so it's obvious an option was added and there's no ambiguity about typing "more than one".
+function optsChipsHtml(f){
+var chips=(f.opts||[]).map(function(o){return '<span class="tchip">'+esc(o)+'<b data-oprm="'+esc(o)+'">×</b></span>';}).join("");
+return '<div class="optsbuild"><div class="optschips">'+chips+'</div><div class="optsnewrow"><input type="text" class="optsnew" placeholder="Type an option and press Enter…" /><button type="button" class="optsadd">+ Add</button></div></div>';
+}
+function renderOptsChipsInRow(row, f){ var box=row&&row.querySelector(".optschips"); if(!box) return; box.innerHTML=(f.opts||[]).map(function(o){return '<span class="tchip">'+esc(o)+'<b data-oprm="'+esc(o)+'">×</b></span>';}).join(""); }
+function addOptFromInput(f, inputEl){
+var v=(inputEl.value||"").trim(); if(!v) return;
+f.opts=f.opts||[];
+if(f.opts.indexOf(v)<0) f.opts.push(v);
+inputEl.value="";
+renderOptsChipsInRow(inputEl.closest("[data-idx]"), f);
+inputEl.focus();
+}
 function fmtDate(d){ var mm=String(d.getMonth()+1),dd=String(d.getDate()); return d.getFullYear()+"-"+(mm.length<2?"0"+mm:mm)+"-"+(dd.length<2?"0"+dd:dd); }
 // nth weekday (Mon–Fri) of a month; used for the 10th business day close deadline. Ignores holidays.
 function nthBiz(y,m,n){ var d=new Date(y,m,1),c=0; for(var i=0;i<45;i++){ var w=d.getDay(); if(w!==0&&w!==6){ c++; if(c===n) return new Date(d.getFullYear(),d.getMonth(),d.getDate()); } d.setDate(d.getDate()+1); } return new Date(y,m,15); }
@@ -769,23 +790,31 @@ return '<div class="fbuild-field" data-idx="'+idx+'"><div class="fr">'+
 '<select class="cftype">'+typeOpts+'</select>'+
 '<button type="button" class="remf">Remove</button>'+
 '</div>'+
-((f.type==="select"||f.type==="labels") ? '<input type="text" class="fopts" placeholder="Options, comma separated" value="'+esc((f.opts||[]).join(", "))+'" />' : '')+
+((f.type==="select"||f.type==="labels") ? optsChipsHtml(f) : '')+
 '</div>';
 }
 function renderList(){ var box=document.getElementById("cfmList"); box.innerHTML = flist.length ? flist.map(rowHtml).join("") : '<p class="tk-empty">No fields yet — add one below.</p>'; }
 document.getElementById("cfmList").addEventListener("input", function(e){
 var row=e.target.closest("[data-idx]"); if(!row) return; var idx=parseInt(row.getAttribute("data-idx"),10); var f=flist[idx]; if(!f) return;
 if(e.target.classList.contains("cflabel")) f.label=e.target.value;
-else if(e.target.classList.contains("fopts")) f.opts=e.target.value.split(",").map(function(s){return s.trim();}).filter(Boolean);
+});
+document.getElementById("cfmList").addEventListener("keydown", function(e){
+if(!e.target.classList.contains("optsnew") || e.key!=="Enter") return;
+e.preventDefault();
+var row=e.target.closest("[data-idx]"); if(!row) return; var idx=parseInt(row.getAttribute("data-idx"),10); var f=flist[idx]; if(!f) return;
+addOptFromInput(f, e.target);
 });
 document.getElementById("cfmList").addEventListener("change", function(e){
 var row=e.target.closest("[data-idx]"); if(!row) return; var idx=parseInt(row.getAttribute("data-idx"),10); var f=flist[idx]; if(!f) return;
 if(e.target.classList.contains("cftype")){ f.type=e.target.value; renderList(); }
 });
 document.getElementById("cfmList").addEventListener("click", function(e){
-var rem=e.target.closest(".remf"); if(!rem) return;
-var row=e.target.closest("[data-idx]"); var idx=parseInt(row.getAttribute("data-idx"),10);
-flist.splice(idx,1); renderList();
+var rem=e.target.closest(".remf");
+if(rem){ var row=e.target.closest("[data-idx]"); var idx=parseInt(row.getAttribute("data-idx"),10); flist.splice(idx,1); renderList(); return; }
+var addBtn=e.target.closest(".optsadd");
+if(addBtn){ var row2=e.target.closest("[data-idx]"); var idx2=parseInt(row2.getAttribute("data-idx"),10); var f2=flist[idx2]; if(!f2) return; addOptFromInput(f2, row2.querySelector(".optsnew")); return; }
+var rmChip=e.target.closest("[data-oprm]");
+if(rmChip){ var row3=e.target.closest("[data-idx]"); var idx3=parseInt(row3.getAttribute("data-idx"),10); var f3=flist[idx3]; if(!f3) return; f3.opts=(f3.opts||[]).filter(function(x){return x!==rmChip.getAttribute("data-oprm");}); renderOptsChipsInRow(row3, f3); return; }
 });
 document.getElementById("cfmAdd").onclick=function(){ flist.push({id:"cf"+Date.now()+Math.random().toString(36).slice(2,4), label:"", type:"text", opts:[]}); renderList(); };
 renderList();
@@ -1178,14 +1207,19 @@ return '<div class="fbuild-field" data-idx="'+idx+'"><div class="fr">'+
 '<label class="req"><input type="checkbox" class="freq" '+(f.req?"checked":"")+' />Required</label>'+
 '<button type="button" class="remf">Remove</button>'+
 '</div>'+
-(f.type==="select" ? '<input type="text" class="fopts" placeholder="Options, comma separated" value="'+esc((f.opts||[]).join(", "))+'" />' : '')+
+(f.type==="select" ? optsChipsHtml(f) : '')+
 '</div>';
 }
 function renderFieldList(){ var box=document.getElementById("fbFieldList"); box.innerHTML = fbFields.length ? fbFields.map(renderFieldRow).join("") : '<p class="tk-empty">No fields yet — add at least one.</p>'; }
 document.getElementById("fbFieldList").addEventListener("input", function(e){
 var row=e.target.closest("[data-idx]"); if(!row) return; var idx=parseInt(row.getAttribute("data-idx"),10); var f=fbFields[idx]; if(!f) return;
 if(e.target.classList.contains("flabel")) f.label=e.target.value;
-else if(e.target.classList.contains("fopts")) f.opts=e.target.value.split(",").map(function(s){return s.trim();}).filter(Boolean);
+});
+document.getElementById("fbFieldList").addEventListener("keydown", function(e){
+if(!e.target.classList.contains("optsnew") || e.key!=="Enter") return;
+e.preventDefault();
+var row=e.target.closest("[data-idx]"); if(!row) return; var idx=parseInt(row.getAttribute("data-idx"),10); var f=fbFields[idx]; if(!f) return;
+addOptFromInput(f, e.target);
 });
 document.getElementById("fbFieldList").addEventListener("change", function(e){
 var row=e.target.closest("[data-idx]"); if(!row) return; var idx=parseInt(row.getAttribute("data-idx"),10); var f=fbFields[idx]; if(!f) return;
@@ -1193,9 +1227,12 @@ if(e.target.classList.contains("ftype")){ f.type=e.target.value; renderFieldList
 else if(e.target.classList.contains("freq")) f.req=e.target.checked;
 });
 document.getElementById("fbFieldList").addEventListener("click", function(e){
-var rem=e.target.closest(".remf"); if(!rem) return;
-var row=e.target.closest("[data-idx]"); var idx=parseInt(row.getAttribute("data-idx"),10);
-fbFields.splice(idx,1); renderFieldList();
+var rem=e.target.closest(".remf");
+if(rem){ var row=e.target.closest("[data-idx]"); var idx=parseInt(row.getAttribute("data-idx"),10); fbFields.splice(idx,1); renderFieldList(); return; }
+var addBtn=e.target.closest(".optsadd");
+if(addBtn){ var row2=e.target.closest("[data-idx]"); var idx2=parseInt(row2.getAttribute("data-idx"),10); var f2=fbFields[idx2]; if(!f2) return; addOptFromInput(f2, row2.querySelector(".optsnew")); return; }
+var rmChip=e.target.closest("[data-oprm]");
+if(rmChip){ var row3=e.target.closest("[data-idx]"); var idx3=parseInt(row3.getAttribute("data-idx"),10); var f3=fbFields[idx3]; if(!f3) return; f3.opts=(f3.opts||[]).filter(function(x){return x!==rmChip.getAttribute("data-oprm");}); renderOptsChipsInRow(row3, f3); return; }
 });
 document.getElementById("fbAddField").onclick=function(){ fbFields.push({id:"q"+Date.now()+Math.random().toString(36).slice(2,4), label:"", type:"text", req:false, opts:[]}); renderFieldList(); };
 renderFieldList();
