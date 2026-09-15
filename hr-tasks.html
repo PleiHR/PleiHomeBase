@@ -135,6 +135,46 @@
 .pbar-fill{height:100%;background:var(--green);border-radius:999px}
 .pmeta{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-top:5px}
 .pboard{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:16px}
+
+/* --- new: lighter, more progressive-disclosure UI pass --- */
+.howto{margin:8px 0 18px}
+.howto summary{cursor:pointer;color:var(--green-soft);font-size:12.5px;list-style:none;display:inline-flex;align-items:center;gap:5px;user-select:none}
+.howto summary::-webkit-details-marker{display:none}
+.howto summary:before{content:"▸";font-size:10px;display:inline-block;transition:transform .15s}
+.howto[open] summary:before{transform:rotate(90deg)}
+.howto p{color:var(--muted);font-size:13px;line-height:1.55;margin:9px 0 0;max-width:920px}
+
+.settingsmenu{position:relative}
+.settingsmenu .menubtn{background:none;border:1px solid var(--line);color:var(--txt);border-radius:999px;padding:6px 14px;font-size:12.5px;cursor:pointer}
+.settingsmenu .menudrop{position:absolute;top:100%;right:0;margin-top:6px;background:#0b2c1f;border:1px solid var(--line);border-radius:10px;z-index:30;min-width:190px;display:none;box-shadow:0 8px 24px rgba(0,0,0,.35);overflow:hidden}
+.settingsmenu .menudrop.show{display:block}
+.settingsmenu .menudrop button{display:block;width:100%;text-align:left;background:none;border:none;color:var(--txt);padding:10px 14px;font-size:13px;cursor:pointer}
+.settingsmenu .menudrop button:hover{background:rgba(47,215,113,.1)}
+
+.tk-more-toggle{background:none;border:1px dashed var(--line);color:var(--green-soft);border-radius:9px;padding:9px 14px;font-size:12.5px;cursor:pointer;white-space:nowrap}
+.tk-more-toggle:hover{border-color:var(--green)}
+.tk-add-extra{display:none;flex:1 1 100%;gap:8px;margin-top:2px}
+.tk-add-extra.show{display:flex;flex-wrap:wrap}
+
+.tk-filter-toggle{background:none;border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:8px 13px;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+.tk-filter-toggle:hover{border-color:var(--green)}
+.tk-filter-toggle .fcount{background:rgba(47,215,113,.16);color:var(--green-soft);border-radius:999px;padding:0 7px;font-size:11px;font-weight:700}
+.tk-filter-extra{display:none;flex:1 1 100%;gap:8px;flex-wrap:wrap;margin-top:2px}
+.tk-filter-extra.show{display:flex}
+
+.propbar{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 14px}
+.propbar select,.propbar input[type=date],.propbar .stpill{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:7px 10px;color:var(--txt);font:inherit;font-size:12.5px}
+.propbar .stpill{color:var(--muted);white-space:nowrap}
+.proprow{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 4px}
+.proprow>*{flex:1 1 200px;min-width:0}
+
+.sheet details{border:1px solid var(--line);border-radius:10px;margin:0 0 10px;overflow:hidden;background:rgba(255,255,255,.012)}
+.sheet details summary{cursor:pointer;list-style:none;padding:10px 12px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--green-soft);display:flex;align-items:center;gap:8px;user-select:none}
+.sheet details summary::-webkit-details-marker{display:none}
+.sheet details summary:before{content:"▸";font-size:10px;color:var(--muted);transition:transform .15s;flex:0 0 auto}
+.sheet details[open] summary:before{transform:rotate(90deg)}
+.sheet details summary .cnt{background:rgba(255,255,255,.06);border-radius:999px;padding:1px 8px;font-size:11px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--muted)}
+.sheet details .dbody{padding:2px 12px 12px}
 </style>
 </head>
 <body>
@@ -147,9 +187,10 @@
 </nav>
 
 <h1><span class="g">Tasks</span></h1>
-<p class="sub">The company's shared to-do, built to match how the team already works in ClickUp. Add a task, assign one or more people, tag it by space, give it a <b>type</b> (Task, Milestone, Meeting notes…), set a priority, break it into subtasks, and comment with @mentions. Set a cadence and completing it creates the next one automatically. Define <b>custom fields</b> (text, dropdown, date, money, and more) and every task can carry them. Group related work into a <b>project</b> with its own board and custom status columns — start one from a template, the same way ClickUp Folders and Lists are built. Build a form under <b>Forms</b> and submitting it creates and assigns a task automatically, the same way Magic's ClickUp forms do today.</p>
+<p class="sub">The company's shared to-do — write what needs doing and hit Add. Everything else is optional.</p>
+<details class="howto"><summary>How this works</summary><p>Assign one or more people, tag it by space, give it a <b>type</b> (Task, Milestone, Meeting notes…), set a priority, break it into subtasks, and comment with @mentions. Set a cadence and completing it creates the next one automatically. Define <b>custom fields</b> (text, dropdown, date, money, and more) and every task can carry them. Group related work into a <b>project</b> with its own board and custom status columns — start one from a template, the same way ClickUp Folders and Lists are built. Build a form under <b>Forms</b> and submitting it creates and assigns a task automatically, the same way Magic's ClickUp forms do today.</p></details>
 
-<div class="callout" style="margin:0 0 18px">Tasks, comments and forms you add here save to <b>your own browser</b> for now, so teammates on a different computer won't see them yet — Private and Team visibility, and real sharing across everyone's browser, are enforced once the hub is deployed with login.</div>
+<div class="callout" style="margin:0 0 18px">Saves to <b>your own browser</b> for now — teammates on a different computer won't see it yet.</div>
 
 <div class="pg-tabs" id="pgTabs">
 <button class="pg-tab on" data-tab="board" type="button">Board</button>
@@ -163,12 +204,20 @@
 <span>You are:</span>
 <select id="idMe"><option value="">Select your name…</option></select>
 <button class="amtoggle" id="amToggle" type="button"><span class="dotsw"><i></i></span>Assigned to me only<span class="amcount" id="amCount">0</span></button>
-<button id="manageFieldsBtn" type="button" style="background:none;border:1px solid var(--line);color:var(--txt);border-radius:999px;padding:6px 14px;font-size:12.5px;cursor:pointer">⚙ Custom fields <span class="amcount" id="cfCount">0</span></button>
-<button id="manageTypesBtn" type="button" style="background:none;border:1px solid var(--line);color:var(--txt);border-radius:999px;padding:6px 14px;font-size:12.5px;cursor:pointer">🏷 Task types</button>
+<div class="settingsmenu" id="settingsMenu">
+<button class="menubtn" id="settingsBtn" type="button">⚙ Settings</button>
+<div class="menudrop" id="settingsDrop">
+<button id="manageFieldsBtn" type="button">🧩 Custom fields <span class="amcount" id="cfCount">0</span></button>
+<button id="manageTypesBtn" type="button">🏷 Task types</button>
+</div>
+</div>
 </div>
 
 <div class="tk-add">
 <input class="title" id="tTitle" type="text" placeholder="What needs doing?" />
+<button class="add" id="tAdd">Add task</button>
+<button type="button" class="tk-more-toggle" id="tMoreToggle">+ Type, people, priority…</button>
+<div class="tk-add-extra" id="tAddExtra">
 <select id="tType" title="Task type"></select>
 <div class="tk-assign" id="tAssign">
 <span id="tChips"></span>
@@ -180,11 +229,12 @@
 <input id="tDue" type="date" title="Due date" />
 <select id="tCad"><option value="once">One-time</option><option value="daily">Daily</option><option value="weekdays">Weekdays (Mon–Fri)</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="close">Monthly · 10th biz day</option><option value="annual">Annual</option></select>
 <select id="tVis"><option value="company">Company</option><option value="team">Team</option><option value="private">Private</option></select>
-<button class="add" id="tAdd">Add task</button>
+</div>
 </div>
 <input id="fSearch" type="text" placeholder="Search tasks by title, note, person, or space…" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:9px 12px;color:var(--txt);font:inherit;font-size:13.5px;margin:12px 0 0" />
 <div class="tk-filter">
-<span style="font-size:12.5px;color:var(--muted)">Filter:</span>
+<button type="button" class="tk-filter-toggle" id="fToggle">🔍 Filters &amp; sort <span class="fcount" id="fCount" style="display:none">0</span></button>
+<div class="tk-filter-extra" id="fExtra">
 <select id="fWho"><option value="">Everyone</option></select>
 <select id="fTag"><option value="">All spaces</option></select>
 <select id="fPriority"><option value="">Any priority</option><option value="urgent">🔴 Urgent</option><option value="high">🟠 High</option><option value="normal">🔵 Normal</option><option value="low">⚪ Low</option></select>
@@ -193,6 +243,7 @@
 <select id="fDue"><option value="">Any due date</option><option value="overdue">Overdue</option><option value="today">Due today</option><option value="week">Next 7 days</option><option value="month">This month</option><option value="none">No date</option></select>
 <select id="fSort"><option value="due">Sort: due date</option><option value="priority">Sort: priority</option><option value="new">Sort: newest</option><option value="title">Sort: A–Z</option></select>
 <button id="fClear" style="background:none;border:1px solid var(--line);color:var(--muted);border-radius:9px;padding:7px 12px;font:inherit;font-size:12.5px;cursor:pointer">Clear</button>
+</div>
 </div>
 
 <div class="board">
@@ -295,6 +346,8 @@ return {done:doneCount, total:ts.length, pct: Math.round(doneCount/ts.length*100
 var KEY="plei_hr_tasks_v1";
 var ME_KEY="plei_tasks_me";
 var AM_KEY="plei_tasks_amonly";
+var ADDMORE_KEY="plei_tasks_addmore";
+var FILTERS_KEY="plei_tasks_filtersopen";
 function seedForms(){
 return [
 {id:"f_game_cancel_"+Date.now(), name:"Game Cancellation Form", desc:"A game was canceled and a payment or credit is needed.", who:["Carmen Brandel"], tags:["Magic"], vis:"company", priority:"high", fields:[
@@ -335,6 +388,8 @@ function loadMe(){ try{ return localStorage.getItem(ME_KEY)||""; }catch(e){ retu
 function saveMe(v){ try{ localStorage.setItem(ME_KEY, v||""); }catch(e){} }
 function loadAmOnly(){ try{ return localStorage.getItem(AM_KEY)==="1"; }catch(e){ return false; } }
 function saveAmOnly(v){ try{ localStorage.setItem(AM_KEY, v?"1":"0"); }catch(e){} }
+function loadBoolPref(key){ try{ return localStorage.getItem(key)==="1"; }catch(e){ return false; } }
+function saveBoolPref(key,v){ try{ localStorage.setItem(key, v?"1":"0"); }catch(e){} }
 var state=load();
 var ME=loadMe();
 var amOnly=loadAmOnly() && !!ME;
@@ -361,8 +416,11 @@ var tty=document.getElementById("tType"); if(tty) tty.innerHTML=typeOptsHtml("ta
 // ---- identity / assigned-to-me ----
 function updateAmCount(){ var c = ME ? state.tasks.filter(function(t){ return whoArr(t.who).indexOf(ME)>=0; }).length : 0; document.getElementById("amCount").textContent=c; }
 function updateCfCount(){ var el=document.getElementById("cfCount"); if(el) el.textContent=(state.fields||[]).length; }
-document.getElementById("manageFieldsBtn").addEventListener("click", function(){ openFieldsManager(); });
-document.getElementById("manageTypesBtn").addEventListener("click", function(){ openTaskTypesManager(); });
+var settingsDrop=document.getElementById("settingsDrop");
+document.getElementById("settingsBtn").addEventListener("click", function(e){ e.stopPropagation(); settingsDrop.classList.toggle("show"); });
+document.addEventListener("click", function(e){ if(!document.getElementById("settingsMenu").contains(e.target)) settingsDrop.classList.remove("show"); });
+document.getElementById("manageFieldsBtn").addEventListener("click", function(){ settingsDrop.classList.remove("show"); openFieldsManager(); });
+document.getElementById("manageTypesBtn").addEventListener("click", function(){ settingsDrop.classList.remove("show"); openTaskTypesManager(); });
 document.getElementById("idMe").addEventListener("change", function(){
 ME=this.value; saveMe(ME);
 if(!ME){ amOnly=false; saveAmOnly(false); document.getElementById("amToggle").classList.remove("on"); }
@@ -373,6 +431,21 @@ if(!ME){ document.getElementById("idMe").focus(); return; }
 amOnly=!amOnly; saveAmOnly(amOnly); this.classList.toggle("on", amOnly); render();
 });
 if(amOnly) document.getElementById("amToggle").classList.add("on");
+
+// ---- progressive disclosure: "more options" on add-task, and filters panel ----
+var tAddExtra=document.getElementById("tAddExtra"), tMoreToggle=document.getElementById("tMoreToggle");
+function setAddMore(open){ tAddExtra.classList.toggle("show", open); tMoreToggle.textContent = open ? "− Hide options" : "+ Type, people, priority…"; }
+setAddMore(loadBoolPref(ADDMORE_KEY));
+tMoreToggle.addEventListener("click", function(){ var open=!tAddExtra.classList.contains("show"); setAddMore(open); saveBoolPref(ADDMORE_KEY, open); });
+
+var fExtra=document.getElementById("fExtra"), fToggle=document.getElementById("fToggle");
+function setFiltersOpen(open){ fExtra.classList.toggle("show", open); }
+setFiltersOpen(loadBoolPref(FILTERS_KEY));
+fToggle.addEventListener("click", function(){ var open=!fExtra.classList.contains("show"); setFiltersOpen(open); saveBoolPref(FILTERS_KEY, open); });
+function updateFilterCount(){
+var n=0; ["fWho","fTag","fPriority","fVis","fCad","fDue"].forEach(function(id){ if(document.getElementById(id).value) n++; });
+var el=document.getElementById("fCount"); el.textContent=n; el.style.display = n ? "" : "none";
+}
 
 // ---- page tabs ----
 document.getElementById("pgTabs").addEventListener("click", function(e){
@@ -483,6 +556,7 @@ document.getElementById("cDoing").textContent=cols.doing.length;
 document.getElementById("cDone").textContent=cols.done.length;
 updateAmCount();
 updateCfCount();
+updateFilterCount();
 }
 
 document.getElementById("tAdd").addEventListener("click", function(){
@@ -516,13 +590,15 @@ document.addEventListener("keydown", function(e){ if(e.key==="Escape") closeModa
 function taskById(id){ return state.tasks.filter(function(x){return x.id===id;})[0]; }
 function renderFiles(t){ var box=document.getElementById("mFiles"); if(!box) return;
 box.innerHTML = t.files.length ? t.files.map(function(f,i){ return '<div class="filerow"><a href="'+esc(f.url)+'" target="_blank" rel="noopener">📎 '+esc(f.name)+'</a><b data-fi="'+i+'">×</b></div>'; }).join("") : '<p class="tk-empty">No documents linked.</p>';
-box.querySelectorAll("[data-fi]").forEach(function(b){ b.onclick=function(){ t.files.splice(parseInt(b.getAttribute("data-fi"),10),1); save(state); renderFiles(t); render(); }; }); }
+box.querySelectorAll("[data-fi]").forEach(function(b){ b.onclick=function(){ t.files.splice(parseInt(b.getAttribute("data-fi"),10),1); save(state); renderFiles(t); render(); }; });
+var fc=document.getElementById("mFilesCnt"); if(fc) fc.textContent=t.files.length; }
 function renderNotes(t){ var box=document.getElementById("mNotes"); if(!box) return;
 box.innerHTML = (t.notes&&t.notes.length) ? t.notes.slice().reverse().map(function(n){ var d=new Date(n.ts); var who=n.by? esc(n.by.split(" ")[0])+" · " : ""; return '<div class="noterow"><div class="nt">'+highlightMentions(esc(n.t))+'<div class="nd">'+who+(isNaN(d)?"":d.toLocaleString())+'</div></div></div>'; }).join("") : '<p class="tk-empty">No comments yet.</p>'; }
 function renderSubs(t){ var box=document.getElementById("mSubs"); if(!box) return;
 box.innerHTML = (t.subtasks&&t.subtasks.length) ? t.subtasks.map(function(s,i){ return '<div class="subrow '+(s.done?"done":"")+'"><input type="checkbox" data-si="'+i+'" '+(s.done?"checked":"")+' /><span class="st">'+esc(s.title)+'</span><b data-sd="'+i+'">×</b></div>'; }).join("") : '<p class="tk-empty">No subtasks yet.</p>';
 box.querySelectorAll("[data-si]").forEach(function(cb){ cb.onchange=function(){ var i=parseInt(this.getAttribute("data-si"),10); t.subtasks[i].done=this.checked; save(state); renderSubs(t); render(); }; });
 box.querySelectorAll("[data-sd]").forEach(function(b){ b.onclick=function(){ var i=parseInt(this.getAttribute("data-sd"),10); t.subtasks.splice(i,1); save(state); renderSubs(t); render(); }; });
+var sc=document.getElementById("mSubsCnt"); if(sc){ var d=(t.subtasks||[]).filter(function(s){return s.done;}).length; sc.textContent = (t.subtasks&&t.subtasks.length) ? (d+"/"+t.subtasks.length) : "0"; }
 }
 function mChips(t){ var b=document.getElementById("mChips"); if(b) b.innerHTML=whoArr(t.who).map(function(n){return '<span class="chip">'+esc(n.split(" ")[0])+'<b data-rm="'+esc(n)+'">×</b></span>';}).join(""); }
 function mSug(t){ var inp=document.getElementById("mWhoInput"), sg=document.getElementById("mSuggest"); if(!inp) return; var q=inp.value.trim().toLowerCase(); if(!q){ sg.style.display="none"; sg.innerHTML=""; return; } var cur=whoArr(t.who); var m=TEAM.filter(function(n){return n.toLowerCase().indexOf(q)>=0 && cur.indexOf(n)<0;}).slice(0,8); if(!m.length){ sg.style.display="none"; return; } sg.innerHTML=m.map(function(n,i){return '<div class="sg'+(i===0?" hi":"")+'" data-add="'+esc(n)+'"><span class="av">'+esc(initials(n))+'</span>'+esc(n)+'</div>';}).join(""); sg.style.display="block"; }
@@ -535,30 +611,44 @@ var proj = t.projectId ? projectById(t.projectId) : null;
 var tagOpts='<option value="">+ Space</option>'+TAGS.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>';}).join("");
 var visOpts=Object.keys(VIS).map(function(k){return '<option value="'+k+'"'+(t.vis===k?' selected':'')+'>'+VIS[k].i+' '+VIS[k].l+'</option>';}).join("");
 var priOpts=Object.keys(PRI).map(function(k){return '<option value="'+k+'"'+(t.priority===k?' selected':'')+'>'+PRI[k].i+' '+PRI[k].l+'</option>';}).join("");
-var statusBlock;
+var statusCtrl;
 if(proj){
 var stOpts=(proj.statuses||[]).map(function(s){return '<option value="'+esc(s.id)+'"'+(t.status===s.id?" selected":"")+'>'+esc(s.label)+'</option>';}).join("");
-statusBlock = '<div class="m"><span>📁 '+esc(proj.name)+'</span></div><div class="lbl">Status</div><select id="mStatus">'+stOpts+'</select>';
+statusCtrl = '<select id="mStatus" title="Status">'+stOpts+'</select>';
 } else {
-statusBlock = '<div class="m"><span>'+esc(STLBL[t.status]||"")+'</span></div>';
+statusCtrl = '<span class="stpill" title="Status">'+esc(STLBL[t.status]||"")+'</span>';
 }
+var cadOptsHtml='<option value="once">One-time</option><option value="daily">Daily</option><option value="weekdays">Weekdays (Mon–Fri)</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="close">Monthly · 10th biz day</option><option value="annual">Annual</option>';
+var subsDone=(t.subtasks||[]).filter(function(s){return s.done;}).length, subsTotal=(t.subtasks||[]).length;
+var subsCountTxt = subsTotal ? (subsDone+"/"+subsTotal) : "0";
+var filesCountTxt = (t.files||[]).length;
+var cfFilled = state.fields.length ? Object.keys(t.cf||{}).filter(function(k){ var v=t.cf[k]; return Array.isArray(v)?v.length>0:(v!==undefined&&v!==null&&v!==""&&v!==false); }).length : 0;
+var cfCountTxt = state.fields.length ? (cfFilled+"/"+state.fields.length) : "0";
 sheet.innerHTML =
 '<button class="x" id="mX">×</button>'+
-'<input id="mTitle" value="'+esc(t.title)+'" placeholder="Task title" style="width:100%;box-sizing:border-box;background:transparent;border:none;color:var(--txt);font-size:19px;font-weight:800;padding:0 34px 6px 0;outline:none" />'+
-statusBlock+
-'<div class="lbl">Type</div><select id="mType">'+typeOptsHtml(t.type)+'</select>'+
-'<div class="lbl">Assigned to</div><div class="tk-assign" id="mAssign"><span id="mChips"></span><input id="mWhoInput" type="text" placeholder="Add people…" autocomplete="off" /><div class="suggest" id="mSuggest"></div></div>'+
-'<div class="lbl">Spaces</div><div class="tagbox" id="mTagBox"><span id="mTagChips"></span><select id="mTagSel">'+tagOpts+'</select></div>'+
-'<div class="lbl">Priority, visibility &amp; due</div><div class="addrow"><select id="mPriority">'+priOpts+'</select><select id="mVis">'+visOpts+'</select><input id="mDue" type="date" value="'+esc(t.due||"")+'" /><select id="mCad"><option value="once">One-time</option><option value="daily">Daily</option><option value="weekdays">Weekdays (Mon–Fri)</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="close">Monthly · 10th biz day</option><option value="annual">Annual</option></select></div>'+
-'<div class="lbl">Custom fields <button id="mCfManageBtn" type="button" style="float:right;background:none;border:1px solid var(--line);color:var(--muted);border-radius:7px;padding:2px 9px;font-size:11px;cursor:pointer;text-transform:none;letter-spacing:0;font-weight:600">⚙ Manage</button></div><div id="mCf"></div>'+
-'<div class="lbl">Brief</div><textarea class="brief" id="mBrief" placeholder="What is this task about? Context, goal, links…">'+esc(t.brief||"")+'</textarea>'+
-'<div class="lbl">Subtasks</div><div class="sublist" id="mSubs"></div><div class="addrow"><input id="mSubIn" type="text" placeholder="Add a subtask…" /><button id="mSubAdd">Add</button></div>'+
-'<div class="lbl">Documents</div><div class="filelist" id="mFiles"></div><div class="addrow"><input id="mFileName" type="text" placeholder="Label (optional)" /><input id="mFileUrl" type="url" placeholder="Paste a document link…" /><button id="mFileAdd">Attach</button></div>'+
-'<div class="lbl">Comments</div><div class="notelist" id="mNotes"></div><div style="position:relative;margin-top:6px"><textarea class="note-in" id="mNoteIn" placeholder="Add a comment… type @ to mention someone"></textarea><div class="suggest" id="mMentionSug"></div></div><div style="display:flex;justify-content:flex-end;margin-top:6px"><button class="addnote" id="mNoteAdd">Add comment</button></div>';
+'<input id="mTitle" value="'+esc(t.title)+'" placeholder="Task title" style="width:100%;box-sizing:border-box;background:transparent;border:none;color:var(--txt);font-size:19px;font-weight:800;padding:0 34px 8px 0;outline:none" />'+
+(proj ? '<div class="m"><span>📁 '+esc(proj.name)+'</span></div>' : '')+
+'<div class="propbar">'+
+'<select id="mType" title="Type">'+typeOptsHtml(t.type)+'</select>'+
+statusCtrl+
+'<select id="mPriority" title="Priority">'+priOpts+'</select>'+
+'<select id="mVis" title="Visibility">'+visOpts+'</select>'+
+'<input id="mDue" type="date" title="Due date" value="'+esc(t.due||"")+'" />'+
+'<select id="mCad" title="Cadence">'+cadOptsHtml+'</select>'+
+'</div>'+
+'<div class="proprow">'+
+'<div class="tk-assign" id="mAssign"><span id="mChips"></span><input id="mWhoInput" type="text" placeholder="Assign people…" autocomplete="off" /><div class="suggest" id="mSuggest"></div></div>'+
+'<div class="tagbox" id="mTagBox"><span id="mTagChips"></span><select id="mTagSel">'+tagOpts+'</select></div>'+
+'</div>'+
+'<textarea class="brief" id="mBrief" placeholder="What is this task about? Context, goal, links…" style="margin-top:12px">'+esc(t.brief||"")+'</textarea>'+
+'<details id="dSubs"'+(subsTotal?" open":"")+'><summary>Subtasks <span class="cnt" id="mSubsCnt">'+subsCountTxt+'</span></summary><div class="dbody"><div class="sublist" id="mSubs"></div><div class="addrow"><input id="mSubIn" type="text" placeholder="Add a subtask…" /><button id="mSubAdd">Add</button></div></div></details>'+
+'<details id="dCf"'+(cfFilled?" open":"")+'><summary>Custom fields <span class="cnt" id="mCfCnt">'+cfCountTxt+'</span><span style="margin-left:auto"></span><button id="mCfManageBtn" type="button" style="background:none;border:1px solid var(--line);color:var(--muted);border-radius:7px;padding:2px 9px;font-size:11px;cursor:pointer;text-transform:none;letter-spacing:0;font-weight:600">⚙ Manage</button></summary><div class="dbody" id="mCf"></div></details>'+
+'<details id="dFiles"'+(filesCountTxt?" open":"")+'><summary>Documents <span class="cnt" id="mFilesCnt">'+filesCountTxt+'</span></summary><div class="dbody"><div class="filelist" id="mFiles"></div><div class="addrow"><input id="mFileName" type="text" placeholder="Label (optional)" /><input id="mFileUrl" type="url" placeholder="Paste a document link…" /><button id="mFileAdd">Attach</button></div></div></details>'+
+'<div class="lbl" style="margin-top:14px">Comments</div><div class="notelist" id="mNotes"></div><div style="position:relative;margin-top:6px"><textarea class="note-in" id="mNoteIn" placeholder="Add a comment… type @ to mention someone"></textarea><div class="suggest" id="mMentionSug"></div></div><div style="display:flex;justify-content:flex-end;margin-top:6px"><button class="addnote" id="mNoteAdd">Add comment</button></div>';
 modal.classList.add("show");
 renderFiles(t); renderNotes(t); renderSubs(t); mChips(t); mTagChips(t); renderCf(t);
 document.getElementById("mX").onclick=closeModal;
-document.getElementById("mCfManageBtn").onclick=function(){ openFieldsManager(function(){ openDetail(t.id); }); };
+document.getElementById("mCfManageBtn").onclick=function(e){ e.preventDefault(); e.stopPropagation(); openFieldsManager(function(){ openDetail(t.id); }); };
 document.getElementById("mType").addEventListener("change", function(){ t.type=this.value; save(state); render(); if(proj) renderProjectBoard(projectById(proj.id)); });
 var mStatusEl=document.getElementById("mStatus");
 if(mStatusEl) mStatusEl.addEventListener("change", function(){ t.status=this.value; save(state); if(proj){ renderProjectBoard(projectById(proj.id)); renderProjects(); } render(); });
@@ -625,12 +715,18 @@ ctrl = '<input class="cfval" type="'+itype+'"'+step+' data-cf="'+esc(f.id)+'" da
 }
 return lbl+ctrl;
 }
+function updateCfCntBadge(t){
+var c=document.getElementById("mCfCnt"); if(!c) return;
+var filled = state.fields.length ? Object.keys(t.cf||{}).filter(function(k){ var v=t.cf[k]; return Array.isArray(v)?v.length>0:(v!==undefined&&v!==null&&v!==""&&v!==false); }).length : 0;
+c.textContent = state.fields.length ? (filled+"/"+state.fields.length) : "0";
+}
 function renderCf(t){
 var box=document.getElementById("mCf"); if(!box) return;
 t.cf = t.cf||{};
 if(!state.fields.length){
 box.innerHTML='<p class="tk-empty">No custom fields yet — <button id="mCfManage" type="button" style="background:none;border:none;color:var(--green-soft);text-decoration:underline;cursor:pointer;font:inherit;padding:0">add one</button> (like ClickUp\'s Location, Job Role, or Budget fields).</p>';
 var mb=document.getElementById("mCfManage"); if(mb) mb.onclick=function(){ openFieldsManager(function(){ openDetail(t.id); }); };
+updateCfCntBadge(t);
 return;
 }
 box.innerHTML = state.fields.map(function(f){ return cfRowHtml(f,t); }).join("");
@@ -641,9 +737,11 @@ el.addEventListener(evt, function(){
 var v = ty==="checkbox" ? el.checked : el.value;
 t.cf[fid]=v; save(state);
 if(ty==="checkbox") renderCf(t);
+updateCfCntBadge(t);
 render();
 });
 });
+updateCfCntBadge(t);
 box.querySelectorAll("[data-cfladd]").forEach(function(sel){
 sel.addEventListener("change", function(){
 var fid=sel.getAttribute("data-cfladd"), v=sel.value; if(!v) return;
