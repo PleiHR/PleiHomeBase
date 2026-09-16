@@ -6,21 +6,144 @@
 <title>Candidate Pipeline · Plei Hub</title>
 <link rel="stylesheet" href="styles.css" />
 <style>
-  .board-row{margin:0 0 34px}
-  .board-row-head{display:flex;align-items:baseline;gap:10px;margin:0 0 12px}
-  .board-row-head h3{margin:0;font-size:15px;color:var(--green-soft)}
-  .board-row-head span{font-size:12.5px;color:var(--muted)}
-  .board{display:flex;gap:14px;overflow-x:auto;padding-bottom:6px}
-  .col{flex:0 0 220px;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:12px}
-  .col-head{display:flex;align-items:center;gap:8px;margin:0 0 10px}
-  .dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto}
-  .col-head b{font-size:12.5px;letter-spacing:.02em}
-  .col-count{margin-left:auto;font-size:12px;color:var(--muted);background:rgba(255,255,255,.04);border-radius:999px;padding:1px 8px}
-  .ccard{background:var(--card1);border:1px solid var(--line);border-radius:10px;padding:10px 11px;margin:0 0 8px;font-size:12.5px}
-  .ccard .fill{color:var(--green-soft)}
-  .ccard p{margin:3px 0 0;color:var(--muted);font-size:11.5px}
-  .cadd{border:1px dashed var(--line);border-radius:10px;padding:9px 11px;font-size:12px;color:var(--muted);text-align:center}
-  .col-link{display:block;margin-top:8px;font-size:11.5px;color:var(--green);text-decoration:none}
+.hire-row{margin:0 0 32px}
+.hire-row-head{display:flex;align-items:baseline;gap:10px;margin:0 0 12px;flex-wrap:wrap}
+.hire-row-head h3{margin:0;font-size:15px;color:var(--green-soft)}
+.hire-row-head span{font-size:12.5px;color:var(--muted)}
+.hire-board{display:flex;gap:14px;overflow-x:auto;padding-bottom:6px}
+.hire-board .col{flex:0 0 240px}
+.col{background:rgba(255,255,255,.015);border:1px solid var(--line);border-top:3px solid var(--line);border-radius:14px;padding:12px;min-height:110px}
+.col h3{margin:0 0 10px;font-size:12.5px;text-transform:uppercase;letter-spacing:.06em;color:var(--green-soft);display:flex;justify-content:space-between;align-items:center}
+.col h3 .c{color:var(--muted)}
+.col h3 .hleft{display:inline-flex;align-items:center;gap:7px}
+.col h3 .dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex:0 0 auto}
+.col.cat-open h3{color:#9aa6ad} .col.cat-open{border-top-color:#9aa6ad}
+.col.cat-active h3{color:#e6c66a} .col.cat-active{border-top-color:#e6c66a}
+.col.cat-done h3{color:#8ff0bd} .col.cat-done{border-top-color:#59d98f}
+.col.cat-closed h3{color:#e5a3a0} .col.cat-closed{border-top-color:#e5a3a0}
+.task{background:rgba(255,255,255,.03);border:1px solid var(--line);border-left:3px solid var(--line);border-radius:11px;padding:10px 12px;margin-bottom:9px;cursor:pointer;transition:transform .12s ease,box-shadow .12s ease,border-color .12s ease}
+.task:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.4);border-color:rgba(255,255,255,.2)}
+.task[data-pri="urgent"]{border-left-color:#f6928d}
+.task[data-pri="high"]{border-left-color:#e8c66a}
+.task[data-pri="normal"]{border-left-color:#7aa8ff}
+.task[data-pri="low"]{border-left-color:rgba(255,255,255,.16)}
+.task .tt{font-size:13.5px;font-weight:600;margin:0 0 6px;line-height:1.35}
+.task.dn .tt{text-decoration:line-through;color:var(--muted)}
+.task .row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11.5px;color:var(--muted)}
+.task .who{display:inline-flex;align-items:center;gap:4px}
+.task .avs{display:inline-flex}
+.task .avs .av{width:20px;height:20px;border-radius:50%;background:#123;color:var(--green-soft);font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;border:1.5px solid #0b2c1f;margin-left:-5px}
+.task .avs .av:first-child{margin-left:0}
+.task .due.over{color:#f28b82;font-weight:600}
+.task .acts{display:flex;gap:6px;margin-top:8px;align-items:center}
+.task .acts select{background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--txt);border-radius:7px;padding:3px 6px;font-size:11px;font:inherit}
+.task .acts .del{margin-left:auto;color:#f28b82;border-color:transparent;background:none;border-radius:7px;padding:3px 8px;font-size:11px;cursor:pointer}
+.tk-empty{font-size:12px;color:var(--muted);padding:6px 2px}
+.pri{display:inline-flex;align-items:center;gap:3px;font-size:11px;border-radius:6px;padding:1px 7px;white-space:nowrap}
+.pri.urgent{background:rgba(242,88,82,.16);color:#f6928d}
+.pri.high{background:rgba(232,181,71,.16);color:#e8c66a}
+.pri.normal{background:rgba(120,170,255,.14);color:#bcd4ff}
+.pri.low{background:rgba(255,255,255,.06);color:var(--muted)}
+
+.tk-add{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 22px}
+.tk-add input,.tk-add select{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:8px 10px;color:var(--txt);font:inherit;font-size:13px}
+.tk-add input[type=date]{color-scheme:dark}
+.tk-add input.title{flex:1;min-width:200px}
+.tk-add button.add{background:var(--green);color:#062018;font-weight:700;border:none;border-radius:9px;padding:9px 15px;font-size:13.5px;cursor:pointer}
+.tk-more-toggle{background:none;border:1px dashed var(--line);color:var(--green-soft);border-radius:9px;padding:9px 14px;font-size:12.5px;cursor:pointer;white-space:nowrap}
+.tk-add-extra{display:none;flex:1 1 100%;gap:8px;margin-top:2px}
+.tk-add-extra.show{display:flex;flex-wrap:wrap}
+.tk-assign{position:relative;display:flex;flex-wrap:wrap;align-items:center;gap:5px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:5px 8px;min-width:200px;flex:1 1 210px}
+.tk-assign .chip{display:inline-flex;align-items:center;gap:3px;background:rgba(47,215,113,.14);color:var(--green-soft);border-radius:7px;padding:2px 4px 2px 8px;font-size:12px;white-space:nowrap}
+.tk-assign .chip b{cursor:pointer;font-weight:700;padding:0 2px}
+.tk-assign input{border:none;background:transparent;color:var(--txt);font:inherit;font-size:13px;flex:1;min-width:90px;padding:4px 2px;outline:none}
+.suggest{position:absolute;top:100%;left:0;right:0;margin-top:5px;background:#0b2c1f;border:1px solid var(--line);border-radius:10px;z-index:20;max-height:230px;overflow:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.sg{padding:8px 12px;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:8px}
+.sg:hover,.sg.hi{background:rgba(47,215,113,.1)}
+.sg .av{width:22px;height:22px;border-radius:50%;background:#123;color:var(--green-soft);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.tagbox{display:flex;flex-wrap:wrap;align-items:center;gap:5px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:5px 8px;min-width:160px}
+.tagbox select{border:none;background:transparent;color:var(--muted);font:inherit;font-size:13px;outline:none;cursor:pointer}
+.tchip{display:inline-flex;align-items:center;gap:3px;background:rgba(120,170,255,.14);color:#bcd4ff;border-radius:7px;padding:2px 4px 2px 8px;font-size:11.5px;white-space:nowrap}
+.tchip b{cursor:pointer;font-weight:700;padding:0 2px}
+
+.idbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 18px;font-size:13px;color:var(--muted)}
+.idbar select{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:6px 9px;color:var(--txt);font:inherit;font-size:13px}
+.idbar .amtoggle{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;padding:6px 12px 6px 6px;cursor:pointer;font-size:12.5px;color:var(--txt);background:none}
+.idbar .amtoggle .dotsw{width:30px;height:17px;border-radius:999px;background:rgba(255,255,255,.12);position:relative;transition:background .15s;flex:0 0 auto}
+.idbar .amtoggle .dotsw i{position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#cfd8d4;transition:left .15s;font-style:normal}
+.idbar .amtoggle.on .dotsw{background:var(--green)}
+.idbar .amtoggle.on .dotsw i{left:15px;background:#062018}
+.idbar .amcount{background:rgba(255,255,255,.06);border-radius:999px;padding:1px 8px;font-size:11px}
+.settingsmenu{position:relative}
+.settingsmenu .menubtn{background:none;border:1px solid var(--line);color:var(--txt);border-radius:999px;padding:6px 14px;font-size:12.5px;cursor:pointer}
+.settingsmenu .menudrop{position:absolute;top:100%;right:0;margin-top:6px;background:#0b2c1f;border:1px solid var(--line);border-radius:10px;z-index:30;min-width:190px;display:none;box-shadow:0 8px 24px rgba(0,0,0,.35);overflow:hidden}
+.settingsmenu .menudrop.show{display:block}
+.settingsmenu .menudrop button{display:block;width:100%;text-align:left;background:none;border:none;color:var(--txt);padding:10px 14px;font-size:13px;cursor:pointer}
+.settingsmenu .menudrop button:hover{background:rgba(47,215,113,.1)}
+
+.formcard{background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:0 0 24px}
+.formcard h3{margin:0 0 5px;font-size:14.5px}
+.formcard p{margin:0;font-size:12.5px;color:var(--muted)}
+.formcard .fmeta{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.formcard .tg{background:rgba(120,170,255,.14);color:#bcd4ff;border-radius:6px;padding:1px 8px;font-size:11px}
+.formcard .facts{display:flex;gap:7px;margin-top:12px;flex-wrap:wrap}
+.formcard .facts button{border-radius:7px;padding:6px 11px;font-size:12px;cursor:pointer;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--txt)}
+.formcard .facts button.fillbtn{background:var(--green);color:#062018;font-weight:700;border:none}
+
+.modal{position:fixed;inset:0;background:rgba(3,15,10,.62);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}
+.modal.show{display:flex}
+.sheet{width:100%;max-width:560px;background:#0c2a1f;border:1px solid var(--line);border-radius:16px;padding:22px 24px}
+.sheet .x{float:right;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1}
+.sheet h2{margin:0 30px 4px 0;font-size:19px}
+.sheet .m{font-size:12.5px;color:var(--muted);margin:0 0 8px;display:flex;gap:8px;flex-wrap:wrap}
+.sheet .lbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--green-soft);margin:16px 0 6px}
+.sheet textarea,.sheet select{width:100%;box-sizing:border-box;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:9px 11px;color:var(--txt);font:inherit;font-size:13.5px;resize:vertical}
+.sheet .brief{min-height:66px}
+.sheet .note-in{min-height:42px;width:100%;box-sizing:border-box}
+.sheet .cfval{width:100%;box-sizing:border-box;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:9px 11px;color:var(--txt);font:inherit;font-size:13.5px;margin:0 0 4px}
+.filelist,.notelist{display:flex;flex-direction:column;gap:6px;margin:2px 0 4px}
+.filerow,.noterow{display:flex;gap:8px;align-items:flex-start;font-size:13px;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+.filerow a{color:var(--green);text-decoration:none;flex:1;word-break:break-all}
+.filerow b{color:#f28b82;cursor:pointer;font-weight:700}
+.noterow .nt{flex:1}
+.noterow .nd{font-size:11px;color:var(--muted);margin-top:2px}
+.mention{color:var(--green-soft);font-weight:600}
+.addrow{display:flex;gap:8px;margin-top:6px}
+.addrow input{flex:1;min-width:0;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--txt);font:inherit;font-size:13px}
+.addrow input[type=date]{color-scheme:dark}
+.addrow button,.addrow .addnote{background:var(--green);color:#062018;font-weight:700;border:none;border-radius:8px;padding:8px 13px;font-size:13px;cursor:pointer;white-space:nowrap}
+.sublist{display:flex;flex-direction:column;gap:5px;margin:2px 0 4px}
+.subrow{display:flex;align-items:center;gap:8px;font-size:13px;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:8px;padding:6px 9px}
+.subrow input[type=checkbox]{accent-color:var(--green)}
+.subrow .st{flex:1}
+.subrow.done .st{text-decoration:line-through;color:var(--muted)}
+.subrow b{cursor:pointer;color:#f28b82;font-weight:700}
+.sheet details{border:1px solid var(--line);border-radius:10px;margin:0 0 10px;overflow:hidden;background:rgba(255,255,255,.012)}
+.sheet details summary{cursor:pointer;list-style:none;padding:10px 12px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--green-soft);display:flex;align-items:center;gap:8px;user-select:none}
+.sheet details summary::-webkit-details-marker{display:none}
+.sheet details summary:before{content:"▸";font-size:10px;color:var(--muted);transition:transform .15s;flex:0 0 auto}
+.sheet details[open] summary:before{transform:rotate(90deg)}
+.sheet details summary .cnt{background:rgba(255,255,255,.06);border-radius:999px;padding:1px 8px;font-size:11px;font-weight:600;text-transform:none;letter-spacing:0;color:var(--muted)}
+.sheet .dbody{padding:2px 12px 12px}
+.propbar{display:flex;flex-wrap:wrap;gap:7px;margin:12px 0 14px}
+.propbar select,.propbar input[type=date]{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:7px 10px;color:var(--txt);font:inherit;font-size:12.5px}
+.proprow{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 4px}
+.proprow>*{flex:1 1 200px;min-width:0}
+.fbuild-field{background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:0 0 8px}
+.fbuild-field .fr{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fbuild-field input[type=text]{flex:1;min-width:120px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:7px 9px;color:var(--txt);font:inherit;font-size:13px}
+.fbuild-field select{min-width:110px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:7px 9px;color:var(--txt);font:inherit;font-size:13px}
+.fbuild-field label.req{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;white-space:nowrap}
+.fbuild-field .remf{background:none;border:none;color:#f28b82;cursor:pointer;font-weight:700;font-size:12px}
+.optsbuild{width:100%;margin-top:7px}
+.optschips{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 6px}
+.optsnewrow{display:flex;gap:6px}
+.optsnewrow input{flex:1;min-width:0;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:7px 9px;color:var(--txt);font:inherit;font-size:12.5px}
+.optsnewrow button{background:none;border:1px solid var(--line);color:var(--green-soft);border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;white-space:nowrap}
+.optsnewrow button:hover{border-color:var(--green)}
+.fillrow{margin:0 0 14px}
+.fillrow label{display:block;font-size:12.5px;font-weight:600;color:var(--green-soft);margin:0 0 5px}
+.fillrow input,.fillrow textarea,.fillrow select{width:100%;box-sizing:border-box;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:9px 11px;color:var(--txt);font:inherit;font-size:13.5px}
 </style>
 </head>
 <body>
@@ -33,138 +156,787 @@
     </nav>
 
     <h1>Candidate <span class="g">pipeline</span></h1>
-    <p class="sub">Every candidate, one board, from application to offer. Mirrors the stages we track today, reorganized and linked straight to the interview guides in the <a href="sop-hiring.html" style="color:var(--green);text-decoration:none">Hiring SOP</a>.</p>
+    <p class="sub">Every candidate, one board, application through offer — the real 13-stage pipeline Magic runs in ClickUp today, now live and editable right here inside <a href="hiring.html" style="color:var(--green);text-decoration:none">Hiring &amp; Recruiting</a>.</p>
 
-    <div class="callout"><b>This is a template, not live data yet.</b> The columns and stages below match what we track today; candidate cards are placeholders. Fill it in as we bring pipeline tracking in-house — see "How to fill this in" at the bottom.</div>
+    <div class="callout">This board is <b>live</b> — cards you move, edit, or add here are saved to your browser and are the same data as the rest of the Tasks tool. Candidates can also apply through a public link with no login; see "Open Rolls" below.</div>
 
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:22px 0 30px">
+    <div class="idbar">
+      <span>You are:</span>
+      <select id="idMe"><option value="">Select your name…</option></select>
+      <button class="amtoggle" id="amToggle" type="button"><span class="dotsw"><i></i></span>Assigned to me only<span class="amcount" id="amCount">0</span></button>
+      <div class="settingsmenu" id="settingsMenu">
+        <button class="menubtn" id="settingsBtn" type="button">⚙ Settings</button>
+        <div class="menudrop" id="settingsDrop">
+          <button id="manageFieldsBtn" type="button">🧩 Custom fields <span class="amcount" id="cfCount">0</span></button>
+          <button id="publicFormsBtn" type="button">🌐 Public forms</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 26px">
       <div style="background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:15px 18px">
-        <p style="margin:0;font-size:28px;font-weight:800;color:var(--green)">[ ]</p>
+        <p style="margin:0;font-size:28px;font-weight:800;color:var(--green)" id="stTotal">0</p>
         <p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">Total candidates</p>
       </div>
       <div style="background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:15px 18px">
-        <p style="margin:0;font-size:28px;font-weight:800;color:var(--green)">[ ]</p>
+        <p style="margin:0;font-size:28px;font-weight:800;color:var(--green)" id="stActive">0</p>
         <p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">In active pipeline</p>
       </div>
       <div style="background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:15px 18px">
-        <p style="margin:0;font-size:28px;font-weight:800;color:var(--green)">[ ]</p>
+        <p style="margin:0;font-size:28px;font-weight:800;color:var(--green)" id="stOffers">0</p>
         <p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">Offers out</p>
       </div>
       <div style="background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:15px 18px">
-        <p style="margin:0;font-size:28px;font-weight:800;color:var(--green)">[ ]%</p>
+        <p style="margin:0;font-size:28px;font-weight:800;color:var(--green)" id="stPct">0%</p>
         <p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">Barrier 1 → offer</p>
       </div>
     </div>
 
-    <div class="board-row">
-      <div class="board-row-head"><h3>Not started</h3><span>new, sourced, or paused before interviews</span></div>
-      <div class="board">
-        <div class="col">
-          <div class="col-head"><span class="dot" style="background:#8b8fa3"></span><b>NEW APPLICATION</b><span class="col-count">[ ]</span></div>
-          <div class="ccard"><span class="fill">[Candidate name]</span><p>[Role] · applied [date]</p></div>
-          <div class="cadd">+ add candidate</div>
-        </div>
-        <div class="col">
-          <div class="col-head"><span class="dot" style="background:#2fd771"></span><b>REACHED OUT</b><span class="col-count">[ ]</span></div>
-          <div class="ccard"><span class="fill">[Candidate name]</span><p>[Role] · sourced by [name]</p></div>
-          <div class="cadd">+ add candidate</div>
-        </div>
-        <div class="col">
-          <div class="col-head"><span class="dot" style="background:#e8c547"></span><b>MOVE TO INTERVIEWS</b><span class="col-count">[ ]</span></div>
-          <div class="ccard"><span class="fill">[Candidate name]</span><p>[Role] · CV screen passed</p></div>
-          <div class="cadd">+ add candidate</div>
-        </div>
-        <div class="col">
-          <div class="col-head"><span class="dot" style="background:#c77dd1"></span><b>ON HOLD</b><span class="col-count">[ ]</span></div>
-          <div class="ccard"><span class="fill">[Candidate name]</span><p>[Role] · on hold, [reason]</p></div>
-          <div class="cadd">+ add candidate</div>
-        </div>
-        <div class="col">
-          <div class="col-head"><span class="dot" style="background:#f28b82"></span><b>NOT MOVING FORWARD</b><span class="col-count">[ ]</span></div>
-          <div class="ccard"><span class="fill">[Candidate name]</span><p>[Role] · [reason]</p></div>
-          <div class="cadd">+ add candidate</div>
-        </div>
+    <div class="section"><h2>Open application form</h2><span class="rule"></span></div>
+    <div id="hireFormCard"></div>
+
+    <div class="section"><h2>Add a candidate</h2><span class="rule"></span></div>
+    <div class="tk-add">
+      <input class="title" id="cTitle" type="text" placeholder="Candidate name" />
+      <button class="add" id="cAdd">Add candidate</button>
+      <button type="button" class="tk-more-toggle" id="cMoreToggle">+ Interviewer, priority…</button>
+      <div class="tk-add-extra" id="cAddExtra">
+        <div class="tk-assign" id="cAssign"><span id="cChips"></span><input id="cWhoInput" type="text" placeholder="Assign interviewer…" autocomplete="off" /><div class="suggest" id="cSuggest"></div></div>
+        <select id="cPri" title="Priority"><option value="urgent">🔴 Urgent</option><option value="high">🟠 High</option><option value="normal" selected>🔵 Normal</option><option value="low">⚪ Low</option></select>
+        <input id="cDue" type="date" title="Next step date" />
       </div>
     </div>
 
-    <div class="board-row">
-      <div class="board-row-head"><h3>Active — the barriers</h3><span>pass/fail interview stages, see the Hiring SOP for what to evaluate at each</span></div>
-      <div class="board">
-        <div class="col">
-          <div class="col-head"><span class="dot" style="background:#ff8a3d"></span><b>BARRIER 1</b><span class="col-count">[ ]</span></div>
-          <div class="ccard"><span class="fill">[Candidate name]</span><p>[Role] · fit screen scheduled [date]</p></div>
-          <div class="cadd">+ add candidate</div>
-          <a class="col-link" href="sop-hiring.html">→ Barrier 1 guide</a>
-        </div>
-        <div class="col">
-          <div class="col-head"><span class="dot" style="background:#6c7bff"></span><b>BARRIER 2</b><span class="col-count">[ ]</span></div>
-          <div class="ccard"><span class="fill">[Candidate name]</span><p>[Role] · functional round</p></div>
-          <div class="cadd">+ add candidate</div>
-          <a class="col-link" href="sop-hiring.html">→ Barrier 2 guide</a>
-        </div>
-        <div class="col">
-          <div class="col-head"><span class="dot" style="background:#39a0ff"></span><b>BARRIER 3</b><span class="col-count">[ ]</span></div>
-          <div class="ccard"><span class="fill">[Candidate name]</span><p>[Role] · case / exercise stage</p></div>
-          <div class="cadd">+ add candidate</div>
-          <a class="col-link" href="sop-hiring.html">→ Barrier 3 guide</a>
-        </div>
-        <div class="col">
-          <div class="col-head"><span class="dot" style="background:#2fbfa0"></span><b>BARRIER 4</b><span class="col-count">[ ]</span></div>
-          <div class="ccard"><span class="fill">[Candidate name]</span><p>[Role] · final round (select roles)</p></div>
-          <div class="cadd">+ add candidate</div>
-          <a class="col-link" href="sop-hiring.html">→ Barrier 4 guide</a>
-        </div>
-        <div class="col">
-          <div class="col-head"><span class="dot" style="background:#2f6bd7"></span><b>PASSED</b><span class="col-count">[ ]</span></div>
-          <div class="ccard"><span class="fill">[Candidate name]</span><p>[Role] · cleared all barriers</p></div>
-          <div class="cadd">+ add candidate</div>
-        </div>
-      </div>
-    </div>
+    <div id="hireBoard"></div>
 
-    <div class="board-row">
-      <div class="board-row-head"><h3>Done</h3><span>offer out or closed</span></div>
-      <div class="board">
-        <div class="col">
-          <div class="col-head"><span class="dot" style="background:#39c2ff"></span><b>OFFER SENT</b><span class="col-count">[ ]</span></div>
-          <div class="ccard"><span class="fill">[Candidate name]</span><p>[Role] · offer sent [date]</p></div>
-          <div class="cadd">+ add candidate</div>
-        </div>
-        <div class="col">
-          <div class="col-head"><span class="dot" style="background:var(--green)"></span><b>SEND OFFER</b><span class="col-count">[ ]</span></div>
-          <div class="ccard"><span class="fill">[Candidate name]</span><p>[Role] · approved, drafting offer</p></div>
-          <div class="cadd">+ add candidate</div>
-        </div>
-        <div class="col">
-          <div class="col-head"><span class="dot" style="background:#e5484d"></span><b>REJECTED</b><span class="col-count">[ ]</span></div>
-          <div class="ccard"><span class="fill">[Candidate name]</span><p>[Role] · [stage] · [reason]</p></div>
-          <div class="cadd">+ add candidate</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section"><h2>What's improved vs. the ClickUp board</h2><span class="rule"></span></div>
+    <div class="section"><h2>What's tracked internally</h2><span class="rule"></span></div>
     <div class="prose">
-      <ul>
-        <li><b>Grouped by phase</b> (Not started / Active / Done) instead of one long row of 13 columns — easier to see where the funnel is thin.</li>
-        <li><b>Each Barrier links straight to its interview guide</b> in the Hiring SOP — no separate tab hunting for what to evaluate.</li>
-        <li><b>Stat tiles up top</b> for the numbers people actually ask for first: total candidates, active pipeline, offers out, and Barrier-1-to-offer conversion.</li>
-        <li>Same 13 stages as ClickUp today, so nothing gets lost in translation when we migrate the tracking in-house.</li>
-      </ul>
-    </div>
-
-    <div class="section"><h2>How to fill this in</h2><span class="rule"></span></div>
-    <div class="prose">
-      <ol>
-        <li>Open this file (<code>hiring-pipeline.html</code>) and find the column for the candidate's stage.</li>
-        <li>Copy one <code>.ccard</code> block, replace the bracketed fields (<code>[Candidate name]</code>, <code>[Role]</code>, etc.) with the real details.</li>
-        <li>Update the <code>[ ]</code> count next to the stage name, and the four stat tiles at the top.</li>
-        <li>When a candidate moves stage, cut their card from one column and paste it into the next.</li>
-      </ol>
-      <div class="callout warn">Before adding real candidate names: this repo is public on GitHub. Once committed, names stay in the git history even if later removed from the page. Confirm with Priscila how to handle this (real names, initials only, or keep it aggregate-only) before populating with live data.</div>
+      <p>Open a candidate card to see the parts that never appear on the public application form: the full 13-stage status (editable any time from the card), priority, interviewer notes for each Barrier, résumé link, subtasks, a checklist, and an internal comment thread with @mentions. Statuses themselves can be renamed or reordered from the Custom Fields / Settings area of the main <a href="hr-tasks.html" style="color:var(--green)">Tasks</a> tool if the pipeline shape ever changes.</p>
     </div>
 
     <footer><a href="hiring.html" style="color:var(--green);text-decoration:none">← Back to Hiring &amp; Recruiting</a></footer>
   </div>
+
+  <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
+
+<script>
+var TEAM = ["Adrian Rodriguez Gonzalez","Agus Caruso","Alan Shilling","Andrea Lesmes","Angel Montejo","Angely Hernandez","Brayan Acebo","Bruno Brito","Carlos Sposito","Carmen Brandel","Chris Rodriguez","Danta & Co. Consulting LLC","David Caicedo","Delfina Valdez Martinez","Fabiano Oliveira","Giuliana Abras","Ivan Nuñez","JC Duran","Jeremias Espeche","Jonathan Montalvo","Julieta Ruber","Liz Irizarry","Lucas Arena","Maria Bautista","Maria Beltran","Maria Padron","Mili Bagaglio","Monica Rojas","Nahuel Canete","Natalia Ailen Dominguez Fernandez","Priscila Molina","Rigo B Castro","Roberto Dominguez","Sebastian Duque","Sebastian Rayo","Spencer Henry","Stefano Sanchez","Stephanie Kowalczuk","Thomas Arango","Tomás Noseda","Viviana Reales"];
+var TAGS = ["HR","Finance","Compliance","Legal","Operations","Growth","Product","Engineering","Marketing","Magic","Partnership"];
+var VIS = {company:{l:"Company",i:"🌐"},team:{l:"Team",i:"👥"},private:{l:"Private",i:"🔒"}};
+var PRI = {urgent:{l:"Urgent",i:"🔴"},high:{l:"High",i:"🟠"},normal:{l:"Normal",i:"🔵"},low:{l:"Low",i:"⚪"}};
+var CF_TYPES = ["text","textarea","number","money","date","select","labels","checkbox","checklist","email","phone","url"];
+function cfTypeLabel(ty){ return {text:"Text",textarea:"Long text",number:"Number",money:"Money ($)",date:"Date",select:"Dropdown",labels:"Labels",checkbox:"Checkbox",checklist:"Checklist",email:"Email",phone:"Phone",url:"Website link"}[ty]||ty; }
+function cfTypeIcon(ty){ return {text:"🔤",textarea:"📄",number:"#️⃣",money:"💲",date:"📅",select:"▾",labels:"🏷",checkbox:"☑️",checklist:"📋",email:"✉️",phone:"📞",url:"🔗"}[ty]||"•"; }
+function optsChipsHtml(f){
+var chips=(f.opts||[]).map(function(o){return '<span class="tchip">'+esc(o)+'<b data-oprm="'+esc(o)+'">×</b></span>';}).join("");
+return '<div class="optsbuild"><div class="optschips">'+chips+'</div><div class="optsnewrow"><input type="text" class="optsnew" placeholder="Type an option and press Enter…" /><button type="button" class="optsadd">+ Add</button></div></div>';
+}
+function renderOptsChipsInRow(row, f){ var box=row&&row.querySelector(".optschips"); if(!box) return; box.innerHTML=(f.opts||[]).map(function(o){return '<span class="tchip">'+esc(o)+'<b data-oprm="'+esc(o)+'">×</b></span>';}).join(""); }
+function addOptFromInput(f, inputEl){
+var v=(inputEl.value||"").trim(); if(!v) return;
+f.opts=f.opts||[];
+if(f.opts.indexOf(v)<0) f.opts.push(v);
+inputEl.value="";
+renderOptsChipsInRow(inputEl.closest("[data-idx]"), f);
+inputEl.focus();
+}
+
+// ---- the real 13-stage ClickUp pipeline (must match hr-tasks.html's ids exactly so both pages share one dataset) ----
+var PROJECT_ID = "proj_hiring";
+var HIRING_FORM_ID = "form_hiring_public";
+function hiringStatuses(){
+return [
+{id:"new_app",label:"New Application",cat:"open"},
+{id:"reached_out",label:"Reached Out",cat:"open"},
+{id:"move_interviews",label:"Move to Interviews",cat:"open"},
+{id:"on_hold",label:"On Hold",cat:"open"},
+{id:"not_moving",label:"Not Moving Forward",cat:"open"},
+{id:"barrier1",label:"Barrier 1",cat:"active"},
+{id:"barrier2",label:"Barrier 2",cat:"active"},
+{id:"barrier3",label:"Barrier 3",cat:"active"},
+{id:"barrier4",label:"Barrier 4",cat:"active"},
+{id:"passed",label:"Passed",cat:"active"},
+{id:"offer_sent",label:"Offer Sent",cat:"done"},
+{id:"send_offer",label:"Send Offer",cat:"done"},
+{id:"rejected",label:"Rejected",cat:"closed"}
+];
+}
+function hiringProject(){
+return { id:PROJECT_ID, name:"Hiring Application Form", area:"HR", desc:"Every candidate, one board, application through offer — mirrors Magic's ClickUp hiring list.", statuses:hiringStatuses() };
+}
+function seedFields(){
+return [
+{ id:"cf_email", label:"Email Address", type:"email", opts:undefined },
+{ id:"cf_barrier1", label:"Barrier 1 notes", type:"textarea", opts:undefined },
+{ id:"cf_barrier2", label:"Barrier 2 notes", type:"textarea", opts:undefined },
+{ id:"cf_barrier3", label:"Barrier 3 notes", type:"textarea", opts:undefined }
+];
+}
+function hiringPublicForm(){
+return {id:HIRING_FORM_ID, name:"Open Rolls (Applications)", desc:"Candidates apply here — same form ClickUp uses today. Anyone with the link can fill it out, no login needed; each submission lands as a candidate task in the Hiring Application Form project, starting at New Application.", who:[], tags:["HR"], vis:"company", priority:"normal", projectId:PROJECT_ID, public:true, slug:"apply", lastSyncRow:0, fields:[
+{id:"h1",label:"Full name",type:"text",req:true},
+{id:"h2",label:"Email",type:"email",req:true},
+{id:"h3",label:"Role you're applying for",type:"select",req:true,opts:["Business Intelligence Engineer","QA Engineer","Frontend Engineer","Backend Engineer","Full-Stack Engineer","DevOps Engineer","AI Lead","Senior Product Designer","Organizer Success Manager","HR Operations Manager","Booking Agent","Other / not listed"]},
+{id:"h4",label:"Location",type:"text",req:false},
+{id:"h5",label:"Resume link (Drive, Dropbox, LinkedIn…)",type:"text",req:true},
+{id:"h6",label:"Anything else you'd like us to know?",type:"textarea",req:false}
+]};
+}
+
+// ---- shared storage: same localStorage key as hr-tasks.html, so a candidate's task is one dataset whichever
+// page you open it from. This page only ever touches the Hiring project's own tasks/form, and never removes
+// anything else already in state (other spaces' tasks, other forms, other projects, project templates). ----
+var KEY="plei_hr_tasks_v1";
+var ME_KEY="plei_tasks_me";
+var AM_KEY="plei_tasks_amonly";
+var ADDMORE_KEY="plei_hiring_addmore";
+function load(){
+var s;
+try{ s = JSON.parse(localStorage.getItem(KEY)); }catch(e){ s = null; }
+if(!s || typeof s!=="object") s = {};
+if(!Array.isArray(s.tasks)) s.tasks = [];
+if(!Array.isArray(s.forms)) s.forms = [];
+if(!Array.isArray(s.fields)) s.fields = [];
+if(!Array.isArray(s.projects)) s.projects = [];
+if(typeof s.relayUrl!=="string") s.relayUrl = "";
+var seeded=false;
+if(!s.projects.some(function(p){return p.id===PROJECT_ID;})){ s.projects.push(hiringProject()); seeded=true; }
+seedFields().forEach(function(f){ if(!s.fields.some(function(x){return x.id===f.id;})){ s.fields.push(f); seeded=true; } });
+if(!s.forms.some(function(f){return f.id===HIRING_FORM_ID;})){ s.forms.push(hiringPublicForm()); seeded=true; }
+if(seeded) save(s);
+return s;
+}
+function save(s){ try{ localStorage.setItem(KEY, JSON.stringify(s)); }catch(e){} }
+function loadMe(){ try{ return localStorage.getItem(ME_KEY)||""; }catch(e){ return ""; } }
+function saveMe(v){ try{ localStorage.setItem(ME_KEY, v||""); }catch(e){} }
+function loadAmOnly(){ try{ return localStorage.getItem(AM_KEY)==="1"; }catch(e){ return false; } }
+function saveAmOnly(v){ try{ localStorage.setItem(AM_KEY, v?"1":"0"); }catch(e){} }
+function loadBoolPref(key){ try{ return localStorage.getItem(key)==="1"; }catch(e){ return false; } }
+function saveBoolPref(key,v){ try{ localStorage.setItem(key, v?"1":"0"); }catch(e){} }
+var state=load();
+var ME=loadMe();
+var amOnly=loadAmOnly() && !!ME;
+
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+function initials(n){ var p=String(n||"").trim().split(/\s+/); return (((p[0]||"")[0]||"")+((p[1]||"")[0]||"")).toUpperCase()||"?"; }
+var SWATCHES=["#7B68EE","#FF6B9D","#FF9142","#E0A62E","#3DCB83","#14B8A6","#4C9AFF","#6C5CE7","#F2726C","#8B98A5"];
+function hashColor(s){ s=String(s||""); var h=0; for(var i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))>>>0; } return SWATCHES[h%SWATCHES.length]; }
+function hexToRgba(hex,a){ var h=hex.replace("#",""); var r=parseInt(h.substring(0,2),16),g=parseInt(h.substring(2,4),16),b=parseInt(h.substring(4,6),16); return "rgba("+r+","+g+","+b+","+a+")"; }
+var FLAG_SVG='<svg viewBox="0 0 24 24" width="11" height="11" style="vertical-align:-1px;flex:0 0 auto" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3v18"/><path d="M5 4h13l-3 4 3 4H5"/></svg>';
+function whoArr(w){ return Array.isArray(w)?w:(w?[w]:[]); }
+function tagArr(t){ return Array.isArray(t)?t:[]; }
+function escRegex(s){ return String(s).replace(/[.*+?^${}()|[\]\\]/g,"\\$&"); }
+function mentionRegex(){ var names=TEAM.slice().sort(function(a,b){return b.length-a.length;}).map(escRegex); return new RegExp("@("+names.join("|")+")","g"); }
+function highlightMentions(escapedText){ return escapedText.replace(mentionRegex(), function(m,p1){ return '<span class="mention">@'+p1+'</span>'; }); }
+function extractMentions(rawText){ var re=mentionRegex(), out=[], m; while((m=re.exec(rawText))){ if(out.indexOf(m[1])<0) out.push(m[1]); } return out; }
+function getMentionQuery(ta){ var pos=ta.selectionStart, val=ta.value; var at=val.lastIndexOf("@", pos-1); if(at<0) return null; var between=val.slice(at+1,pos); if(/\s/.test(between)) return null; return {at:at, q:between}; }
+function overdue(due){ if(!due) return false; var d=new Date(due+"T23:59:59"); return !isNaN(d) && d < new Date(); }
+function fmtDue(due){ if(!due) return ""; var d=new Date(due+"T00:00:00"); return isNaN(d)?due:d.toLocaleDateString(undefined,{month:"short",day:"numeric"}); }
+function whoHtml(w){
+var arr=whoArr(w); if(!arr.length) return '<span class="who">Unassigned</span>';
+var avs=arr.slice(0,4).map(function(n){ return '<span class="av" title="'+esc(n)+'" style="background:'+hashColor(n)+';color:#fff">'+esc(initials(n))+'</span>'; }).join("");
+var label = arr.length===1 ? esc(arr[0].split(" ")[0]) : arr.length+" people";
+return '<span class="who"><span class="avs">'+avs+'</span>'+label+(arr.length>4?' +'+(arr.length-4):'')+'</span>';
+}
+function PROJ(){ return state.projects.filter(function(p){return p.id===PROJECT_ID;})[0]; }
+function candidateTasks(){ return state.tasks.filter(function(t){ return t.projectId===PROJECT_ID; }); }
+function taskById(id){ return state.tasks.filter(function(x){return x.id===id;})[0]; }
+function firstOpenStatus(p){ if(!p) return null; var s=(p.statuses||[]).filter(function(x){return x.cat==="open";})[0]; return s || (p.statuses||[])[0] || null; }
+
+// ---- identity / assigned-to-me ----
+(function(){ var im=document.getElementById("idMe"); TEAM.forEach(function(n){ var o=document.createElement("option"); o.value=n; o.textContent=n; if(n===ME) o.selected=true; im.appendChild(o); }); })();
+function updateAmCount(){ var c = ME ? candidateTasks().filter(function(t){ return whoArr(t.who).indexOf(ME)>=0; }).length : 0; document.getElementById("amCount").textContent=c; }
+function updateCfCount(){ document.getElementById("cfCount").textContent=(state.fields||[]).length; }
+var settingsDrop=document.getElementById("settingsDrop");
+document.getElementById("settingsBtn").addEventListener("click", function(e){ e.stopPropagation(); settingsDrop.classList.toggle("show"); });
+document.addEventListener("click", function(e){ if(!document.getElementById("settingsMenu").contains(e.target)) settingsDrop.classList.remove("show"); });
+document.getElementById("manageFieldsBtn").addEventListener("click", function(){ settingsDrop.classList.remove("show"); openFieldsManager(); });
+document.getElementById("publicFormsBtn").addEventListener("click", function(){ settingsDrop.classList.remove("show"); openPublicFormsSettings(); });
+document.getElementById("idMe").addEventListener("change", function(){
+ME=this.value; saveMe(ME);
+if(!ME){ amOnly=false; saveAmOnly(false); document.getElementById("amToggle").classList.remove("on"); }
+renderAll();
+});
+document.getElementById("amToggle").addEventListener("click", function(){
+if(!ME){ document.getElementById("idMe").focus(); return; }
+amOnly=!amOnly; saveAmOnly(amOnly); this.classList.toggle("on", amOnly); renderAll();
+});
+if(amOnly) document.getElementById("amToggle").classList.add("on");
+
+// ---- add-candidate bar ----
+var cAddExtra=document.getElementById("cAddExtra"), cMoreToggle=document.getElementById("cMoreToggle");
+function setAddMore(open){ cAddExtra.classList.toggle("show", open); cMoreToggle.textContent = open ? "− Hide options" : "+ Interviewer, priority…"; }
+setAddMore(loadBoolPref(ADDMORE_KEY));
+cMoreToggle.addEventListener("click", function(){ var open=!cAddExtra.classList.contains("show"); setAddMore(open); saveBoolPref(ADDMORE_KEY, open); });
+var picked=[];
+var cInp=document.getElementById("cWhoInput"), cSug=document.getElementById("cSuggest"), cChipbox=document.getElementById("cChips"), cAssignWrap=document.getElementById("cAssign");
+function cRenderChips(){ cChipbox.innerHTML = picked.map(function(n){ return '<span class="chip">'+esc(n.split(" ")[0])+'<b data-rm="'+esc(n)+'">×</b></span>'; }).join(""); }
+function cRenderSug(){
+var q=cInp.value.trim().toLowerCase();
+if(!q){ cSug.style.display="none"; cSug.innerHTML=""; return; }
+var matches=TEAM.filter(function(n){ return n.toLowerCase().indexOf(q)>=0 && picked.indexOf(n)<0; }).slice(0,8);
+if(!matches.length){ cSug.style.display="none"; return; }
+cSug.innerHTML=matches.map(function(n,i){ return '<div class="sg'+(i===0?' hi':'')+'" data-add="'+esc(n)+'"><span class="av" style="background:'+hashColor(n)+';color:#fff">'+esc(initials(n))+'</span>'+esc(n)+'</div>'; }).join("");
+cSug.style.display="block";
+}
+function cAddPerson(n){ if(picked.indexOf(n)<0) picked.push(n); cInp.value=""; cRenderChips(); cRenderSug(); cInp.focus(); }
+cInp.addEventListener("input", cRenderSug);
+cInp.addEventListener("keydown", function(e){
+if(e.key==="Enter"){ e.preventDefault(); var hi=cSug.querySelector(".sg.hi")||cSug.querySelector(".sg"); if(hi) cAddPerson(hi.getAttribute("data-add")); }
+else if(e.key==="Backspace" && !cInp.value && picked.length){ picked.pop(); cRenderChips(); }
+});
+cSug.addEventListener("click", function(e){ var a=e.target.closest("[data-add]"); if(a) cAddPerson(a.getAttribute("data-add")); });
+cChipbox.addEventListener("click", function(e){ var r=e.target.closest("[data-rm]"); if(r){ picked=picked.filter(function(x){return x!==r.getAttribute("data-rm");}); cRenderChips(); } });
+document.addEventListener("click", function(e){ if(!cAssignWrap.contains(e.target)) cSug.style.display="none"; });
+document.getElementById("cAdd").addEventListener("click", function(){
+var title=document.getElementById("cTitle").value.trim(); if(!title){ document.getElementById("cTitle").focus(); return; }
+var status=(firstOpenStatus(PROJ())||{}).id||"new_app";
+state.tasks.push({id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title:title, who:picked.slice(), tags:[], vis:"company", due:document.getElementById("cDue").value, cad:"once", status:status, priority:document.getElementById("cPri").value, subtasks:[], notes:[], files:[], checklist:[], cf:{}, projectId:PROJECT_ID});
+save(state);
+document.getElementById("cTitle").value=""; document.getElementById("cDue").value=""; picked=[]; cRenderChips(); document.getElementById("cPri").value="normal";
+renderAll();
+});
+document.getElementById("cTitle").addEventListener("keydown", function(e){ if(e.key==="Enter") document.getElementById("cAdd").click(); });
+
+// ---- stats ----
+function renderStats(){
+var all=candidateTasks(), proj=PROJ();
+function catOf(t){ var s=(proj.statuses||[]).filter(function(x){return x.id===t.status;})[0]; return s?s.cat:"open"; }
+var total=all.length;
+var active=all.filter(function(t){return catOf(t)==="active";}).length;
+var offers=all.filter(function(t){return catOf(t)==="done";}).length;
+var reached=all.filter(function(t){return ["barrier1","barrier2","barrier3","barrier4","passed","offer_sent","send_offer"].indexOf(t.status)>=0;}).length;
+document.getElementById("stTotal").textContent=total;
+document.getElementById("stActive").textContent=active;
+document.getElementById("stOffers").textContent=offers;
+document.getElementById("stPct").textContent=(reached?Math.round(offers/reached*100):0)+"%";
+}
+
+// ---- board, grouped like the real pipeline: Not started / Active — the barriers / Done ----
+function candidateCardHtml(t){
+var proj=PROJ();
+var over=overdue(t.due);
+var st=(proj.statuses||[]).filter(function(s){return s.id===t.status;})[0];
+var isDoneCat = st && (st.cat==="done"||st.cat==="closed");
+var pr=PRI[t.priority||"normal"]; var pric='<span class="pri '+(t.priority||"normal")+'" title="'+pr.l+' priority">'+FLAG_SVG+' '+pr.l+'</span>';
+var stOpts=(proj.statuses||[]).map(function(s){return '<option value="'+esc(s.id)+'"'+(t.status===s.id?" selected":"")+'>'+esc(s.label)+'</option>';}).join("");
+var formIcon = t.formId ? '🗒️ ' : '';
+return '<div class="task '+(isDoneCat?"dn":"")+'" data-id="'+t.id+'" data-pri="'+(t.priority||"normal")+'"><p class="tt">'+formIcon+esc(t.title)+'</p>'+
+'<div class="row">'+pric+whoHtml(t.who)+(t.due?'<span class="due '+(over&&!isDoneCat?"over":"")+'">'+(over&&!isDoneCat?"⚠ ":"")+fmtDue(t.due)+'</span>':'')+'</div>'+
+'<div class="acts"><select class="cstatus" data-cid="'+t.id+'">'+stOpts+'</select><button class="del" data-cdel="'+t.id+'">Delete</button></div></div>';
+}
+function renderBoard(){
+var proj=PROJ(), all=candidateTasks();
+if(amOnly && ME) all=all.filter(function(t){return whoArr(t.who).indexOf(ME)>=0;});
+var groups=[
+{title:"Not started", sub:"new, sourced, or paused before interviews", cats:["open"]},
+{title:"Active — the barriers", sub:"pass/fail interview stages, see the Hiring SOP for what to evaluate at each", cats:["active"]},
+{title:"Done", sub:"offer out or closed", cats:["done","closed"]}
+];
+var html=groups.map(function(g){
+var statuses=(proj.statuses||[]).filter(function(s){return g.cats.indexOf(s.cat)>=0;});
+var cols=statuses.map(function(s){
+var ts=all.filter(function(t){return t.status===s.id;});
+return '<div class="col cat-'+esc(s.cat)+'"><h3><span class="hleft"><span class="dot"></span>'+esc(s.label)+'</span><span class="c">'+ts.length+'</span></h3><div>'+
+(ts.length? ts.map(candidateCardHtml).join("") : '<p class="tk-empty">Nothing here.</p>')+
+'</div></div>';
+}).join("");
+return '<div class="hire-row"><div class="hire-row-head"><h3>'+esc(g.title)+'</h3><span>'+esc(g.sub)+'</span></div><div class="hire-board">'+cols+'</div></div>';
+}).join("");
+var box=document.getElementById("hireBoard");
+box.innerHTML=html;
+box.querySelectorAll(".cstatus").forEach(function(sel){
+sel.addEventListener("click", function(e){ e.stopPropagation(); });
+sel.addEventListener("change", function(){
+var t=taskById(sel.getAttribute("data-cid")); if(!t) return;
+t.status=sel.value; save(state); renderAll();
+});
+});
+box.querySelectorAll("[data-cdel]").forEach(function(b){
+b.addEventListener("click", function(e){ e.stopPropagation();
+if(!confirm("Delete this candidate's card? This can't be undone.")) return;
+var id=b.getAttribute("data-cdel"); state.tasks=state.tasks.filter(function(x){return x.id!==id;});
+save(state); renderAll();
+});
+});
+box.querySelectorAll(".task[data-id]").forEach(function(card){
+card.addEventListener("click", function(e){ if(e.target.closest("select")||e.target.closest("button")) return; openDetail(card.getAttribute("data-id")); });
+});
+}
+function renderAll(){ renderStats(); renderBoard(); renderHireFormCard(); updateAmCount(); updateCfCount(); }
+
+// ---- detail modal (full-featured: status, priority, due, assignees, description, checklist, subtasks,
+// custom fields, documents, comments) ----
+var modal=document.getElementById("modal"), sheet=document.getElementById("sheet");
+function closeModal(){ modal.classList.remove("show"); }
+modal.addEventListener("click", function(e){ if(e.target===modal) closeModal(); });
+document.addEventListener("keydown", function(e){ if(e.key==="Escape") closeModal(); });
+function renderFiles(t){ var box=document.getElementById("mFiles"); if(!box) return;
+box.innerHTML = t.files.length ? t.files.map(function(f,i){ return '<div class="filerow"><a href="'+esc(f.url)+'" target="_blank" rel="noopener">📎 '+esc(f.name)+'</a><b data-fi="'+i+'">×</b></div>'; }).join("") : '<p class="tk-empty">No documents linked.</p>';
+box.querySelectorAll("[data-fi]").forEach(function(b){ b.onclick=function(){ t.files.splice(parseInt(b.getAttribute("data-fi"),10),1); save(state); renderFiles(t); renderAll(); }; });
+var fc=document.getElementById("mFilesCnt"); if(fc) fc.textContent=t.files.length; }
+function renderNotes(t){ var box=document.getElementById("mNotes"); if(!box) return;
+box.innerHTML = (t.notes&&t.notes.length) ? t.notes.slice().reverse().map(function(n){ var d=new Date(n.ts); var who=n.by? esc(n.by.split(" ")[0])+" · " : ""; return '<div class="noterow"><div class="nt">'+highlightMentions(esc(n.t))+'<div class="nd">'+who+(isNaN(d)?"":d.toLocaleString())+'</div></div></div>'; }).join("") : '<p class="tk-empty">No comments yet.</p>'; }
+function renderSubs(t){ var box=document.getElementById("mSubs"); if(!box) return;
+box.innerHTML = (t.subtasks&&t.subtasks.length) ? t.subtasks.map(function(s,i){ return '<div class="subrow '+(s.done?"done":"")+'"><input type="checkbox" data-si="'+i+'" '+(s.done?"checked":"")+' /><span class="st">'+esc(s.title)+'</span><b data-sd="'+i+'">×</b></div>'; }).join("") : '<p class="tk-empty">No subtasks yet.</p>';
+box.querySelectorAll("[data-si]").forEach(function(cb){ cb.onchange=function(){ var i=parseInt(this.getAttribute("data-si"),10); t.subtasks[i].done=this.checked; save(state); renderSubs(t); renderAll(); }; });
+box.querySelectorAll("[data-sd]").forEach(function(b){ b.onclick=function(){ var i=parseInt(this.getAttribute("data-sd"),10); t.subtasks.splice(i,1); save(state); renderSubs(t); renderAll(); }; });
+var sc=document.getElementById("mSubsCnt"); if(sc){ var d=(t.subtasks||[]).filter(function(s){return s.done;}).length; sc.textContent = (t.subtasks&&t.subtasks.length) ? (d+"/"+t.subtasks.length) : "0"; }
+}
+function renderChecklist(t){ var box=document.getElementById("mChecklist"); if(!box) return;
+box.innerHTML = (t.checklist&&t.checklist.length) ? t.checklist.map(function(s,i){ return '<div class="subrow '+(s.done?"done":"")+'"><input type="checkbox" data-cli="'+i+'" '+(s.done?"checked":"")+' /><span class="st">'+esc(s.title)+'</span><b data-cld="'+i+'">×</b></div>'; }).join("") : '<p class="tk-empty">No checklist items yet.</p>';
+box.querySelectorAll("[data-cli]").forEach(function(cb){ cb.onchange=function(){ var i=parseInt(this.getAttribute("data-cli"),10); t.checklist[i].done=this.checked; save(state); renderChecklist(t); renderAll(); }; });
+box.querySelectorAll("[data-cld]").forEach(function(b){ b.onclick=function(){ var i=parseInt(this.getAttribute("data-cld"),10); t.checklist.splice(i,1); save(state); renderChecklist(t); renderAll(); }; });
+var cc=document.getElementById("mChecklistCnt"); if(cc){ var d2=(t.checklist||[]).filter(function(s){return s.done;}).length; cc.textContent = (t.checklist&&t.checklist.length) ? (d2+"/"+t.checklist.length) : "0"; }
+}
+function mChips(t){ var b=document.getElementById("mChips"); if(b) b.innerHTML=whoArr(t.who).map(function(n){return '<span class="chip">'+esc(n.split(" ")[0])+'<b data-rm="'+esc(n)+'">×</b></span>';}).join(""); }
+function mSug(t){ var inp=document.getElementById("mWhoInput"), sg=document.getElementById("mSuggest"); if(!inp) return; var q=inp.value.trim().toLowerCase(); if(!q){ sg.style.display="none"; sg.innerHTML=""; return; } var cur=whoArr(t.who); var m=TEAM.filter(function(n){return n.toLowerCase().indexOf(q)>=0 && cur.indexOf(n)<0;}).slice(0,8); if(!m.length){ sg.style.display="none"; return; } sg.innerHTML=m.map(function(n,i){return '<div class="sg'+(i===0?" hi":"")+'" data-add="'+esc(n)+'"><span class="av">'+esc(initials(n))+'</span>'+esc(n)+'</div>';}).join(""); sg.style.display="block"; }
+function mAddWho(t,n){ var a=whoArr(t.who); if(a.indexOf(n)<0) a.push(n); t.who=a; save(state); document.getElementById("mWhoInput").value=""; mChips(t); mSug(t); renderAll(); document.getElementById("mWhoInput").focus(); }
+function cfRowHtml(f, t){
+var val = (t.cf && t.cf[f.id]!==undefined) ? t.cf[f.id] : ((f.type==="labels"||f.type==="checklist")?[]:"");
+var cnt = (f.type==="checklist" && (f.opts||[]).length) ? ' <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">'+(Array.isArray(val)?val.length:0)+'/'+(f.opts||[]).length+'</span>' : '';
+var lbl = '<div class="lbl">'+cfTypeIcon(f.type)+' '+esc(f.label)+cnt+'</div>';
+var ctrl;
+if(f.type==="checklist"){
+var curc=Array.isArray(val)?val:[];
+var items=(f.opts||[]).map(function(o){ var checked=curc.indexOf(o)>=0; return '<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin:0 0 4px"><input type="checkbox" data-cfchk="'+esc(f.id)+'" data-cfchkval="'+esc(o)+'" '+(checked?"checked":"")+' style="width:15px;height:15px;accent-color:var(--green)" /><span'+(checked?' style="text-decoration:line-through;color:var(--muted)"':'')+'>'+esc(o)+'</span></label>'; }).join("");
+ctrl = items || '<p class="tk-empty" style="margin:0">No items in this checklist yet — add some under ⚙ Manage.</p>';
+} else if(f.type==="textarea"){
+ctrl = '<textarea class="cfval" data-cf="'+esc(f.id)+'" data-cfty="textarea" style="min-height:60px" placeholder="—">'+esc(val)+'</textarea>';
+} else if(f.type==="select"){
+var opts='<option value="">—</option>'+(f.opts||[]).map(function(o){return '<option value="'+esc(o)+'"'+(val===o?" selected":"")+'>'+esc(o)+'</option>';}).join("");
+ctrl = '<select class="cfval" data-cf="'+esc(f.id)+'" data-cfty="select">'+opts+'</select>';
+} else if(f.type==="checkbox"){
+ctrl = '<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin:0 0 4px"><input type="checkbox" data-cf="'+esc(f.id)+'" data-cfty="checkbox" style="width:16px;height:16px;accent-color:var(--green)" '+(val?"checked":"")+' /> '+(val?"Yes":"No")+'</label>';
+} else if(f.type==="labels"){
+var cur=Array.isArray(val)?val:[];
+var chips=cur.map(function(o){return '<span class="tchip">'+esc(o)+'<b data-cflrm="'+esc(o)+'" data-cf="'+esc(f.id)+'">×</b></span>';}).join("");
+var addOpts='<option value="">+ Add</option>'+(f.opts||[]).filter(function(o){return cur.indexOf(o)<0;}).map(function(o){return '<option value="'+esc(o)+'">'+esc(o)+'</option>';}).join("");
+ctrl = '<div class="tagbox"><span>'+chips+'</span><select data-cfladd="'+esc(f.id)+'">'+addOpts+'</select></div>';
+} else {
+var itype = f.type==="number"?"number":(f.type==="money"?"number":(f.type==="date"?"date":(f.type==="email"?"email":(f.type==="phone"?"tel":(f.type==="url"?"url":"text")))));
+var step = f.type==="money" ? ' step="0.01"' : "";
+ctrl = '<input class="cfval" type="'+itype+'"'+step+' data-cf="'+esc(f.id)+'" data-cfty="'+f.type+'" value="'+esc(val)+'" placeholder="'+(f.type==="money"?"0.00":"—")+'" />';
+}
+return lbl+ctrl;
+}
+function updateCfCntBadge(t){
+var c=document.getElementById("mCfCnt"); if(!c) return;
+var filled = state.fields.length ? Object.keys(t.cf||{}).filter(function(k){ var v=t.cf[k]; return Array.isArray(v)?v.length>0:(v!==undefined&&v!==null&&v!==""&&v!==false); }).length : 0;
+c.textContent = state.fields.length ? (filled+"/"+state.fields.length) : "0";
+}
+function renderCf(t){
+var box=document.getElementById("mCf"); if(!box) return;
+t.cf = t.cf||{};
+if(!state.fields.length){
+box.innerHTML='<p class="tk-empty">No custom fields yet — <button id="mCfManage" type="button" style="background:none;border:none;color:var(--green-soft);text-decoration:underline;cursor:pointer;font:inherit;padding:0">add one</button>.</p>';
+var mb=document.getElementById("mCfManage"); if(mb) mb.onclick=function(){ openFieldsManager(function(){ openDetail(t.id); }); };
+updateCfCntBadge(t);
+return;
+}
+box.innerHTML = state.fields.map(function(f){ return cfRowHtml(f,t); }).join("");
+box.querySelectorAll("[data-cf][data-cfty]").forEach(function(el){
+var fid=el.getAttribute("data-cf"), ty=el.getAttribute("data-cfty");
+var evt = (ty==="select"||ty==="date"||ty==="checkbox") ? "change" : "input";
+el.addEventListener(evt, function(){
+var v = ty==="checkbox" ? el.checked : el.value;
+t.cf[fid]=v; save(state);
+if(ty==="checkbox") renderCf(t);
+updateCfCntBadge(t);
+});
+});
+updateCfCntBadge(t);
+box.querySelectorAll("[data-cfchk]").forEach(function(cb){
+cb.addEventListener("change", function(){
+var fid=cb.getAttribute("data-cfchk"), v=cb.getAttribute("data-cfchkval");
+var cur=Array.isArray(t.cf[fid])?t.cf[fid]:[];
+if(cb.checked){ if(cur.indexOf(v)<0) cur=cur.concat([v]); } else { cur=cur.filter(function(x){return x!==v;}); }
+t.cf[fid]=cur; save(state); renderCf(t);
+});
+});
+box.querySelectorAll("[data-cfladd]").forEach(function(sel){
+sel.addEventListener("change", function(){
+var fid=sel.getAttribute("data-cfladd"), v=sel.value; if(!v) return;
+var cur=Array.isArray(t.cf[fid])?t.cf[fid]:[]; if(cur.indexOf(v)<0) cur=cur.concat([v]);
+t.cf[fid]=cur; save(state); renderCf(t);
+});
+});
+box.querySelectorAll("[data-cflrm]").forEach(function(b){
+b.addEventListener("click", function(){
+var fid=b.getAttribute("data-cf"), v=b.getAttribute("data-cflrm");
+var cur=Array.isArray(t.cf[fid])?t.cf[fid]:[]; t.cf[fid]=cur.filter(function(x){return x!==v;});
+save(state); renderCf(t);
+});
+});
+}
+function openFieldsManager(onDone){
+var flist = state.fields.map(function(f){ return {id:f.id, label:f.label, type:f.type, opts:(f.opts||[]).slice()}; });
+sheet.innerHTML =
+'<button class="x" id="cfmX">×</button>'+
+'<h2>Custom fields</h2>'+
+'<p style="color:var(--muted);font-size:13px;margin:0 0 14px">Define fields every candidate card can carry (Text, Dropdown, Date, Long text, and more) — these are shared with the main Tasks tool, so they show up there too.</p>'+
+'<div id="cfmList"></div><button type="button" id="cfmAdd" style="background:none;border:1px solid var(--line);color:var(--green-soft);border-radius:8px;padding:7px 12px;font-size:12.5px;cursor:pointer">+ Add field</button>'+
+'<div style="display:flex;justify-content:flex-end;margin-top:18px"><button id="cfmSave" type="button" style="background:var(--green);color:#062018;font-weight:700;border:none;border-radius:9px;padding:9px 16px;font-size:13.5px;cursor:pointer">Save fields</button></div>';
+modal.classList.add("show");
+document.getElementById("cfmX").onclick=function(){ closeModal(); if(onDone) onDone(); };
+function rowHtml(f, idx){
+var typeOpts = CF_TYPES.map(function(ty){ return '<option value="'+ty+'"'+(f.type===ty?" selected":"")+'>'+cfTypeLabel(ty)+'</option>'; }).join("");
+return '<div class="fbuild-field" data-idx="'+idx+'"><div class="fr">'+
+'<input type="text" class="cflabel" placeholder="Field name, e.g. Budget" value="'+esc(f.label)+'" />'+
+'<select class="cftype">'+typeOpts+'</select>'+
+'<button type="button" class="remf">Remove</button>'+
+'</div>'+
+((f.type==="select"||f.type==="labels"||f.type==="checklist") ? optsChipsHtml(f) : '')+
+'</div>';
+}
+function renderList(){ var box=document.getElementById("cfmList"); box.innerHTML = flist.length ? flist.map(rowHtml).join("") : '<p class="tk-empty">No fields yet — add one below.</p>'; }
+document.getElementById("cfmList").addEventListener("input", function(e){
+var row=e.target.closest("[data-idx]"); if(!row) return; var idx=parseInt(row.getAttribute("data-idx"),10); var f=flist[idx]; if(!f) return;
+if(e.target.classList.contains("cflabel")) f.label=e.target.value;
+});
+document.getElementById("cfmList").addEventListener("keydown", function(e){
+if(!e.target.classList.contains("optsnew") || e.key!=="Enter") return;
+e.preventDefault();
+var row=e.target.closest("[data-idx]"); if(!row) return; var idx=parseInt(row.getAttribute("data-idx"),10); var f=flist[idx]; if(!f) return;
+addOptFromInput(f, e.target);
+});
+document.getElementById("cfmList").addEventListener("change", function(e){
+var row=e.target.closest("[data-idx]"); if(!row) return; var idx=parseInt(row.getAttribute("data-idx"),10); var f=flist[idx]; if(!f) return;
+if(e.target.classList.contains("cftype")){ f.type=e.target.value; renderList(); }
+});
+document.getElementById("cfmList").addEventListener("click", function(e){
+var rem=e.target.closest(".remf");
+if(rem){ var row=e.target.closest("[data-idx]"); var idx=parseInt(row.getAttribute("data-idx"),10); flist.splice(idx,1); renderList(); return; }
+var addBtn=e.target.closest(".optsadd");
+if(addBtn){ var row2=e.target.closest("[data-idx]"); var idx2=parseInt(row2.getAttribute("data-idx"),10); var f2=flist[idx2]; if(!f2) return; addOptFromInput(f2, row2.querySelector(".optsnew")); return; }
+var rmChip=e.target.closest("[data-oprm]");
+if(rmChip){ var row3=e.target.closest("[data-idx]"); var idx3=parseInt(row3.getAttribute("data-idx"),10); var f3=flist[idx3]; if(!f3) return; f3.opts=(f3.opts||[]).filter(function(x){return x!==rmChip.getAttribute("data-oprm");}); renderOptsChipsInRow(row3, f3); return; }
+});
+document.getElementById("cfmAdd").onclick=function(){ flist.push({id:"cf"+Date.now()+Math.random().toString(36).slice(2,4), label:"", type:"text", opts:[]}); renderList(); };
+renderList();
+document.getElementById("cfmSave").onclick=function(){
+var fields = flist.map(function(f){ return {id:f.id, label:(f.label||"").trim(), type:f.type, opts:(f.type==="select"||f.type==="labels"||f.type==="checklist") ? (f.opts||[]) : undefined}; }).filter(function(f){ return f.label; });
+state.fields = fields; save(state); closeModal(); updateCfCount(); renderAll();
+if(onDone) onDone();
+};
+}
+function openDetail(id){
+var t=taskById(id); if(!t) return;
+t.notes=t.notes||[]; t.files=t.files||[]; t.subtasks=t.subtasks||[]; t.checklist=t.checklist||[]; t.priority=t.priority||"normal"; t.cf=t.cf||{};
+var proj=PROJ();
+var priOpts=Object.keys(PRI).map(function(k){return '<option value="'+k+'"'+(t.priority===k?' selected':'')+'>'+PRI[k].i+' '+PRI[k].l+'</option>';}).join("");
+var stOpts=(proj.statuses||[]).map(function(s){return '<option value="'+esc(s.id)+'"'+(t.status===s.id?" selected":"")+'>'+esc(s.label)+'</option>';}).join("");
+var subsDone=(t.subtasks||[]).filter(function(s){return s.done;}).length, subsTotal=(t.subtasks||[]).length;
+var subsCountTxt = subsTotal ? (subsDone+"/"+subsTotal) : "0";
+var clDone=(t.checklist||[]).filter(function(s){return s.done;}).length, clTotal=(t.checklist||[]).length;
+var clCountTxt = clTotal ? (clDone+"/"+clTotal) : "0";
+var filesCountTxt = (t.files||[]).length;
+var cfFilled = state.fields.length ? Object.keys(t.cf||{}).filter(function(k){ var v=t.cf[k]; return Array.isArray(v)?v.length>0:(v!==undefined&&v!==null&&v!==""&&v!==false); }).length : 0;
+var cfCountTxt = state.fields.length ? (cfFilled+"/"+state.fields.length) : "0";
+sheet.innerHTML =
+'<button class="x" id="mX">×</button>'+
+'<input id="mTitle" value="'+esc(t.title)+'" placeholder="Candidate name" style="width:100%;box-sizing:border-box;background:transparent;border:none;color:var(--txt);font-size:19px;font-weight:800;padding:0 34px 8px 0;outline:none" />'+
+(t.formId ? '<div class="m"><span>🗒️ Public application</span></div>' : '')+
+'<div class="propbar">'+
+'<select id="mStatus" title="Status">'+stOpts+'</select>'+
+'<select id="mPriority" title="Priority">'+priOpts+'</select>'+
+'<input id="mDue" type="date" title="Next step date" value="'+esc(t.due||"")+'" />'+
+'</div>'+
+'<div class="proprow">'+
+'<div class="tk-assign" id="mAssign"><span id="mChips"></span><input id="mWhoInput" type="text" placeholder="Assign interviewer…" autocomplete="off" /><div class="suggest" id="mSuggest"></div></div>'+
+'</div>'+
+'<textarea class="brief" id="mBrief" placeholder="Notes about this candidate — location, role, source, links…" style="margin-top:12px">'+esc(t.brief||"")+'</textarea>'+
+'<details id="dChecklist"'+(clTotal?" open":"")+'><summary>Checklist <span class="cnt" id="mChecklistCnt">'+clCountTxt+'</span></summary><div class="dbody"><div class="sublist" id="mChecklist"></div><div class="addrow"><input id="mChecklistIn" type="text" placeholder="Add a checklist item…" /><button id="mChecklistAdd">Add</button></div></div></details>'+
+'<details id="dSubs"'+(subsTotal?" open":"")+'><summary>Subtasks <span class="cnt" id="mSubsCnt">'+subsCountTxt+'</span></summary><div class="dbody"><div class="sublist" id="mSubs"></div><div class="addrow"><input id="mSubIn" type="text" placeholder="Add a subtask…" /><button id="mSubAdd">Add</button></div></div></details>'+
+'<details id="dCf"'+(cfFilled?" open":"")+'><summary>Custom fields <span class="cnt" id="mCfCnt">'+cfCountTxt+'</span><span style="margin-left:auto"></span><button id="mCfManageBtn" type="button" style="background:none;border:1px solid var(--line);color:var(--muted);border-radius:7px;padding:2px 9px;font-size:11px;cursor:pointer;text-transform:none;letter-spacing:0;font-weight:600">⚙ Manage</button></summary><div class="dbody" id="mCf"></div></details>'+
+'<details id="dFiles"'+(filesCountTxt?" open":"")+'><summary>Documents <span class="cnt" id="mFilesCnt">'+filesCountTxt+'</span></summary><div class="dbody"><div class="filelist" id="mFiles"></div><div class="addrow"><input id="mFileName" type="text" placeholder="Label, e.g. Résumé" /><input id="mFileUrl" type="url" placeholder="Paste a document link…" /><button id="mFileAdd">Attach</button></div></div></details>'+
+'<div class="lbl" style="margin-top:14px">Comments</div><div class="notelist" id="mNotes"></div><div style="position:relative;margin-top:6px"><textarea class="note-in" id="mNoteIn" placeholder="Add a comment… type @ to mention someone"></textarea><div class="suggest" id="mMentionSug"></div></div><div style="display:flex;justify-content:flex-end;margin-top:6px"><button class="addnote" id="mNoteAdd">Add comment</button></div>';
+modal.classList.add("show");
+renderFiles(t); renderNotes(t); renderSubs(t); renderChecklist(t); mChips(t); renderCf(t);
+document.getElementById("mX").onclick=function(){ closeModal(); renderAll(); };
+document.getElementById("mCfManageBtn").onclick=function(e){ e.preventDefault(); e.stopPropagation(); openFieldsManager(function(){ openDetail(t.id); }); };
+document.getElementById("mStatus").addEventListener("change", function(){ t.status=this.value; save(state); renderAll(); });
+document.getElementById("mTitle").addEventListener("input", function(){ t.title=this.value; save(state); renderBoard(); });
+var mi=document.getElementById("mWhoInput");
+mi.addEventListener("input", function(){ mSug(t); });
+mi.addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); var hi=document.querySelector("#mSuggest .sg.hi")||document.querySelector("#mSuggest .sg"); if(hi) mAddWho(t, hi.getAttribute("data-add")); } else if(e.key==="Backspace" && !mi.value){ var a=whoArr(t.who); if(a.length){ a.pop(); t.who=a; save(state); mChips(t); renderBoard(); } } });
+document.getElementById("mSuggest").addEventListener("click", function(e){ var a=e.target.closest("[data-add]"); if(a) mAddWho(t, a.getAttribute("data-add")); });
+document.getElementById("mChips").addEventListener("click", function(e){ var r=e.target.closest("[data-rm]"); if(r){ t.who=whoArr(t.who).filter(function(x){return x!==r.getAttribute("data-rm");}); save(state); mChips(t); renderBoard(); } });
+document.getElementById("mPriority").addEventListener("change", function(){ t.priority=this.value; save(state); renderBoard(); });
+document.getElementById("mDue").addEventListener("change", function(){ t.due=this.value; save(state); renderBoard(); });
+document.getElementById("mBrief").addEventListener("input", function(){ t.brief=this.value; save(state); });
+document.getElementById("mSubAdd").onclick=function(){ var v=document.getElementById("mSubIn").value.trim(); if(!v) return; t.subtasks=t.subtasks||[]; t.subtasks.push({title:v, done:false}); save(state); document.getElementById("mSubIn").value=""; renderSubs(t); };
+document.getElementById("mSubIn").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); document.getElementById("mSubAdd").click(); } });
+document.getElementById("mChecklistAdd").onclick=function(){ var v=document.getElementById("mChecklistIn").value.trim(); if(!v) return; t.checklist=t.checklist||[]; t.checklist.push({title:v, done:false}); save(state); document.getElementById("mChecklistIn").value=""; renderChecklist(t); };
+document.getElementById("mChecklistIn").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); document.getElementById("mChecklistAdd").click(); } });
+document.getElementById("mFileAdd").onclick=function(){ var url=document.getElementById("mFileUrl").value.trim(); if(!url) return; var name=document.getElementById("mFileName").value.trim()||url; t.files.push({name:name,url:url}); save(state); document.getElementById("mFileName").value=""; document.getElementById("mFileUrl").value=""; renderFiles(t); };
+var mNoteIn=document.getElementById("mNoteIn"), mSugBox=document.getElementById("mMentionSug"), mentionInfo=null;
+mNoteIn.addEventListener("input", function(){
+mentionInfo=getMentionQuery(mNoteIn);
+if(mentionInfo){
+var q=mentionInfo.q.toLowerCase();
+var matches=TEAM.filter(function(n){return n.toLowerCase().indexOf(q)>=0;}).slice(0,8);
+if(matches.length){ mSugBox.innerHTML=matches.map(function(n,i){return '<div class="sg'+(i===0?" hi":"")+'" data-mn="'+esc(n)+'"><span class="av" style="background:'+hashColor(n)+';color:#fff">'+esc(initials(n))+'</span>'+esc(n)+'</div>';}).join(""); mSugBox.style.display="block"; }
+else { mSugBox.style.display="none"; }
+} else { mSugBox.style.display="none"; }
+});
+mSugBox.addEventListener("click", function(e){
+var el=e.target.closest("[data-mn]"); if(!el||!mentionInfo) return;
+var name=el.getAttribute("data-mn"); var val=mNoteIn.value; var pos=mNoteIn.selectionStart;
+var newVal=val.slice(0,mentionInfo.at)+"@"+name+" "+val.slice(pos);
+mNoteIn.value=newVal;
+var newPos=mentionInfo.at+name.length+2;
+mNoteIn.focus(); mNoteIn.setSelectionRange(newPos,newPos);
+mSugBox.style.display="none"; mentionInfo=null;
+});
+document.getElementById("mNoteAdd").onclick=function(){ var v=mNoteIn.value.trim(); if(!v) return; t.notes=t.notes||[]; t.notes.push({t:v, ts:new Date().toISOString(), by:ME||"", mentions:extractMentions(v)}); save(state); mNoteIn.value=""; mSugBox.style.display="none"; renderNotes(t); };
+}
+
+// ---- the public application form: one card here (not a grid), same engine as the main Tasks tool's Forms
+// feature, since it's the same shared "form_hiring_public" record either way. ----
+function fieldTypeLabel(ty){ return {text:"Short text",textarea:"Paragraph",date:"Date",email:"Email",select:"Dropdown"}[ty]||ty; }
+function slugify(s){ return String(s||"").toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,40); }
+function titleFromFormValues(form, vals){
+var nameField=(form.fields||[]).filter(function(f){ return /\bname\b/i.test(f.label||""); })[0];
+if(nameField){ var v=(vals[nameField.id]||"").trim(); if(v) return v; }
+return form.name;
+}
+function hiringForm(){ return state.forms.filter(function(f){return f.id===HIRING_FORM_ID;})[0]; }
+function renderHireFormCard(){
+var f=hiringForm(); var box=document.getElementById("hireFormCard"); if(!f||!box) return;
+var pubBtns = '<button data-pubpage type="button">⬇ Public page</button>' + (state.relayUrl ? '<button data-sync type="button">🔄 Sync</button>' : '');
+box.innerHTML = '<div class="formcard"><h3>'+esc(f.name)+'</h3><p>'+esc(f.desc||"")+'</p>'+
+'<div class="fmeta"><span class="tg" style="background:rgba(47,215,113,.16);color:var(--green-soft)">🌐 Public</span></div>'+
+'<div class="facts"><button class="fillbtn" data-fill type="button">Fill out manually</button><button data-editf type="button">Edit questions</button>'+pubBtns+'</div></div>';
+box.querySelector("[data-fill]").onclick=function(){ openFormFill(f); };
+box.querySelector("[data-editf]").onclick=function(){ openFormBuilder(f); };
+var pp=box.querySelector("[data-pubpage]"); if(pp) pp.onclick=function(){ downloadPublicFormPage(f); };
+var sy=box.querySelector("[data-sync]"); if(sy) sy.onclick=function(){ syncPublicSubmissions(f); };
+}
+function openFormBuilder(existing){
+var fbFields=(existing?existing.fields:[]).map(function(f){ return {id:f.id,label:f.label,type:f.type,req:!!f.req,opts:(f.opts||[]).slice()}; });
+sheet.innerHTML =
+'<button class="x" id="fbX">×</button>'+
+'<h2>Edit application form</h2>'+
+'<div class="lbl">Form name</div><input id="fbName" type="text" value="'+esc(existing?existing.name:"")+'" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:9px 11px;color:var(--txt);font:inherit;font-size:13.5px" />'+
+'<div class="lbl">Description</div><textarea id="fbDesc" style="min-height:50px">'+esc(existing?existing.desc:"")+'</textarea>'+
+'<div class="lbl">Questions candidates answer publicly</div><div id="fbFieldList"></div><button type="button" id="fbAddField" style="background:none;border:1px solid var(--line);color:var(--green-soft);border-radius:8px;padding:7px 12px;font-size:12.5px;cursor:pointer">+ Add question</button>'+
+'<div class="lbl">URL slug</div><div class="addrow"><input id="fbSlug" type="text" value="'+esc(existing&&existing.slug?existing.slug:"apply")+'" /></div>'+
+'<div style="display:flex;justify-content:flex-end;margin-top:18px"><button id="fbSave" type="button" style="background:var(--green);color:#062018;font-weight:700;border:none;border-radius:9px;padding:9px 16px;font-size:13.5px;cursor:pointer">Save form</button></div>';
+modal.classList.add("show");
+document.getElementById("fbX").onclick=closeModal;
+function renderFieldRow(f, idx){
+var typeOpts=["text","textarea","date","email","select"].map(function(ty){ return '<option value="'+ty+'"'+(f.type===ty?" selected":"")+'>'+fieldTypeLabel(ty)+'</option>'; }).join("");
+return '<div class="fbuild-field" data-idx="'+idx+'"><div class="fr">'+
+'<input type="text" class="flabel" placeholder="Question" value="'+esc(f.label)+'" />'+
+'<select class="ftype">'+typeOpts+'</select>'+
+'<label class="req"><input type="checkbox" class="freq" '+(f.req?"checked":"")+' />Required</label>'+
+'<button type="button" class="remf">Remove</button>'+
+'</div>'+
+(f.type==="select" ? optsChipsHtml(f) : '')+
+'</div>';
+}
+function renderFieldList(){ var box=document.getElementById("fbFieldList"); box.innerHTML = fbFields.length ? fbFields.map(renderFieldRow).join("") : '<p class="tk-empty">No questions yet — add at least one.</p>'; }
+document.getElementById("fbFieldList").addEventListener("input", function(e){
+var row=e.target.closest("[data-idx]"); if(!row) return; var idx=parseInt(row.getAttribute("data-idx"),10); var f=fbFields[idx]; if(!f) return;
+if(e.target.classList.contains("flabel")) f.label=e.target.value;
+});
+document.getElementById("fbFieldList").addEventListener("keydown", function(e){
+if(!e.target.classList.contains("optsnew") || e.key!=="Enter") return;
+e.preventDefault();
+var row=e.target.closest("[data-idx]"); if(!row) return; var idx=parseInt(row.getAttribute("data-idx"),10); var f=fbFields[idx]; if(!f) return;
+addOptFromInput(f, e.target);
+});
+document.getElementById("fbFieldList").addEventListener("change", function(e){
+var row=e.target.closest("[data-idx]"); if(!row) return; var idx=parseInt(row.getAttribute("data-idx"),10); var f=fbFields[idx]; if(!f) return;
+if(e.target.classList.contains("ftype")){ f.type=e.target.value; renderFieldList(); }
+else if(e.target.classList.contains("freq")) f.req=e.target.checked;
+});
+document.getElementById("fbFieldList").addEventListener("click", function(e){
+var rem=e.target.closest(".remf");
+if(rem){ var row=e.target.closest("[data-idx]"); var idx=parseInt(row.getAttribute("data-idx"),10); fbFields.splice(idx,1); renderFieldList(); return; }
+var addBtn=e.target.closest(".optsadd");
+if(addBtn){ var row2=e.target.closest("[data-idx]"); var idx2=parseInt(row2.getAttribute("data-idx"),10); var f2=fbFields[idx2]; if(!f2) return; addOptFromInput(f2, row2.querySelector(".optsnew")); return; }
+var rmChip=e.target.closest("[data-oprm]");
+if(rmChip){ var row3=e.target.closest("[data-idx]"); var idx3=parseInt(row3.getAttribute("data-idx"),10); var f3=fbFields[idx3]; if(!f3) return; f3.opts=(f3.opts||[]).filter(function(x){return x!==rmChip.getAttribute("data-oprm");}); renderOptsChipsInRow(row3, f3); return; }
+});
+document.getElementById("fbAddField").onclick=function(){ fbFields.push({id:"q"+Date.now()+Math.random().toString(36).slice(2,4), label:"", type:"text", req:false, opts:[]}); renderFieldList(); };
+renderFieldList();
+document.getElementById("fbSave").onclick=function(){
+var name=document.getElementById("fbName").value.trim();
+if(!name){ document.getElementById("fbName").focus(); return; }
+var fields=fbFields.map(function(f){ return {id:f.id, label:(f.label||"").trim(), type:f.type, req:!!f.req, opts: f.type==="select" ? (f.opts||[]) : undefined}; }).filter(function(f){ return f.label; });
+if(!fields.length){ alert("Add at least one question with a label."); return; }
+var slug = slugify(document.getElementById("fbSlug").value || "apply");
+var formObj={ id:HIRING_FORM_ID, name:name, desc:document.getElementById("fbDesc").value.trim(), who:existing.who||[], tags:existing.tags||["HR"], priority:existing.priority||"normal", vis:existing.vis||"company", fields:fields, projectId:PROJECT_ID, public:true, slug:slug, lastSyncRow:existing.lastSyncRow||0 };
+state.forms = state.forms.map(function(f){ return f.id===HIRING_FORM_ID ? formObj : f; });
+save(state); closeModal(); renderHireFormCard();
+};
+}
+function openFormFill(form){
+var rows = form.fields.map(function(f){
+var lab = esc(f.label) + (f.req?' <span style="color:#f28b82">*</span>':'');
+var inp;
+if(f.type==="textarea") inp = '<textarea data-fk="'+esc(f.id)+'" '+(f.req?"data-req":"")+'></textarea>';
+else if(f.type==="select") inp = '<select data-fk="'+esc(f.id)+'">'+(f.opts||[]).map(function(o){return '<option>'+esc(o)+'</option>';}).join("")+'</select>';
+else inp = '<input type="'+(f.type==="date"?"date":(f.type==="email"?"email":"text"))+'" data-fk="'+esc(f.id)+'" '+(f.req?"data-req":"")+' />';
+return '<div class="fillrow"><label>'+lab+'</label>'+inp+'</div>';
+}).join("");
+sheet.innerHTML =
+'<button class="x" id="ffX">×</button>'+
+'<h2>'+esc(form.name)+'</h2>'+
+(form.desc?'<p style="color:var(--muted);font-size:13px;margin:0 0 16px">'+esc(form.desc)+'</p>':'')+
+rows+
+'<div style="display:flex;justify-content:flex-end;margin-top:8px"><button id="ffSubmit" type="button" style="background:var(--green);color:#062018;font-weight:700;border:none;border-radius:9px;padding:9px 16px;font-size:13.5px;cursor:pointer">Submit — creates a candidate card</button></div>';
+modal.classList.add("show");
+document.getElementById("ffX").onclick=closeModal;
+document.getElementById("ffSubmit").onclick=function(){
+var miss=[], lines=[], vals={};
+sheet.querySelectorAll("[data-fk]").forEach(function(el){
+var f=form.fields.filter(function(x){return x.id===el.getAttribute("data-fk");})[0];
+var v=(el.value||"").trim();
+if(el.hasAttribute("data-req") && !v) miss.push(f?f.label:el.getAttribute("data-fk"));
+lines.push((f?f.label:el.getAttribute("data-fk"))+": "+(v||"—"));
+vals[el.getAttribute("data-fk")]=v;
+});
+if(miss.length){ alert("Please fill in: "+miss.join(", ")); return; }
+var status=(firstOpenStatus(PROJ())||{}).id||"new_app";
+var task={ id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title:titleFromFormValues(form,vals), who:whoArr(form.who).slice(), tags:[], vis:form.vis||"company", due:"", cad:"once", status:status, brief:lines.join("\n"), priority:form.priority||"normal", subtasks:[], notes:[], files:[], checklist:[], cf:{}, formId:form.id, projectId:PROJECT_ID };
+state.tasks.push(task); save(state); closeModal(); renderAll();
+alert('Candidate card created for "'+task.title+'".');
+};
+}
+function buildPublicFormHtml(form){
+var relay = state.relayUrl;
+var rows = (form.fields||[]).map(function(f){
+var lab = esc(f.label) + (f.req?' <span style="color:#f28b82">*</span>':'');
+var inp;
+if(f.type==="textarea") inp = '<textarea data-fk="'+esc(f.id)+'" '+(f.req?"data-req":"")+'></textarea>';
+else if(f.type==="select") inp = '<select data-fk="'+esc(f.id)+'">'+(f.opts||[]).map(function(o){return '<option>'+esc(o)+'</option>';}).join("")+'</select>';
+else inp = '<input type="'+(f.type==="date"?"date":(f.type==="email"?"email":"text"))+'" data-fk="'+esc(f.id)+'" '+(f.req?"data-req":"")+' />';
+return '<div class="fillrow"><label>'+lab+'</label>'+inp+'</div>';
+}).join("\n");
+return '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8" />\n<meta name="viewport" content="width=device-width, initial-scale=1" />\n<title>'+esc(form.name)+' · Plei</title>\n<link rel="stylesheet" href="styles.css" />\n<style>\n'+
+'.pf-wrap{max-width:560px;margin:0 auto;padding:48px 16px 60px}\n'+
+'.pf-card{background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:16px;padding:26px 28px}\n'+
+'.fillrow{margin:0 0 16px}\n.fillrow label{display:block;font-size:12.5px;font-weight:600;color:var(--green-soft);margin:0 0 6px}\n'+
+'.fillrow input,.fillrow textarea,.fillrow select{width:100%;box-sizing:border-box;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:10px 12px;color:var(--txt);font:inherit;font-size:14px}\n'+
+'.fillrow textarea{min-height:80px}\n'+
+'.pf-submit{background:var(--green);color:#062018;font-weight:700;border:none;border-radius:9px;padding:11px 20px;font-size:14px;cursor:pointer;width:100%;margin-top:6px}\n'+
+'.pf-submit:disabled{opacity:.6;cursor:default}\n'+
+'.pf-err{color:#f28b82;font-size:13px;margin:0 0 14px;display:none}\n'+
+'.pf-done{display:none;text-align:center;padding:20px 0}\n'+
+'.pf-done h2{margin:0 0 8px}\n'+
+'</style>\n</head>\n<body>\n<div class="wrap pf-wrap">\n'+
+'<a class="logo" href="#" style="pointer-events:none"><img src="logo-green.png" alt="Plei" style="width:26px;height:26px;vertical-align:middle" />plei<span class="dot">.</span></a>\n'+
+'<h1 style="margin:18px 0 4px">'+esc(form.name)+'</h1>\n'+
+(form.desc?'<p class="sub">'+esc(form.desc)+'</p>':'')+
+'<div class="pf-card">\n'+
+'<form id="pfForm">\n<p class="pf-err" id="pfErr"></p>\n'+rows+'\n<button type="submit" class="pf-submit" id="pfSubmit">Submit</button>\n</form>\n'+
+'<div class="pf-done" id="pfDone"><h2>Thank you!</h2><p style="color:var(--muted)">Your response has been received.</p></div>\n'+
+'</div>\n</div>\n'+
+'<script>\n'+
+'var RELAY_URL='+JSON.stringify(relay||"")+';\n'+
+'var FORM_SLUG='+JSON.stringify(form.slug||"")+';\n'+
+'document.getElementById("pfForm").addEventListener("submit", function(e){\n'+
+'e.preventDefault();\n'+
+'var errEl=document.getElementById("pfErr"); errEl.style.display="none";\n'+
+'if(!RELAY_URL){ errEl.textContent="This form isn\'t connected yet — contact Plei HR directly."; errEl.style.display="block"; return; }\n'+
+'var miss=[], values={};\n'+
+'document.querySelectorAll("[data-fk]").forEach(function(el){\n'+
+'var v=(el.value||"").trim();\n'+
+'if(el.hasAttribute("data-req") && !v) miss.push(el.getAttribute("data-fk"));\n'+
+'values[el.getAttribute("data-fk")]=v;\n'+
+'});\n'+
+'if(miss.length){ errEl.textContent="Please fill in all required fields."; errEl.style.display="block"; return; }\n'+
+'var btn=document.getElementById("pfSubmit"); btn.disabled=true; btn.textContent="Submitting…";\n'+
+'fetch(RELAY_URL, { method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body: JSON.stringify({form:FORM_SLUG, submittedAt:new Date().toISOString(), values:values}) })\n'+
+'.then(function(r){ return r.json(); })\n'+
+'.then(function(){ document.getElementById("pfForm").style.display="none"; document.getElementById("pfDone").style.display="block"; })\n'+
+'.catch(function(){ errEl.textContent="Couldn\'t submit right now — please check your connection and try again."; errEl.style.display="block"; btn.disabled=false; btn.textContent="Submit"; });\n'+
+'});\n'+
+'<\/script>\n</body>\n</html>\n';
+}
+function downloadPublicFormPage(form){
+if(!form.slug){ alert("Give this form a URL slug first (Edit questions) before downloading its page."); return; }
+if(!state.relayUrl){ if(!confirm("You haven't set up the public-forms relay yet (⚙ Settings → Public forms), so this page won't be able to deliver submissions until you do. Download it anyway?")) return; }
+var html=buildPublicFormHtml(form);
+var blob=new Blob([html], {type:"text/html"});
+var url=URL.createObjectURL(blob);
+var a=document.createElement("a"); a.href=url; a.download="apply-"+form.slug+".html"; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+}
+function syncPublicSubmissions(form){
+if(!state.relayUrl){ alert("Set up the public-forms relay first (⚙ Settings → Public forms)."); return; }
+if(!form.slug){ alert("This form has no slug set."); return; }
+var sep = state.relayUrl.indexOf("?")>=0 ? "&" : "?";
+var url = state.relayUrl+sep+"form="+encodeURIComponent(form.slug)+"&since="+encodeURIComponent(form.lastSyncRow||0);
+fetch(url).then(function(r){ return r.json(); }).then(function(data){
+var rows=data.rows||[];
+if(!rows.length){ alert("No new submissions."); form.lastSyncRow=data.total||form.lastSyncRow||0; save(state); return; }
+var status=(firstOpenStatus(PROJ())||{}).id||"new_app";
+rows.forEach(function(row){
+var vals=row.values||{};
+var lines=(form.fields||[]).map(function(f){ return f.label+": "+(vals[f.id]||"—"); });
+var task={ id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title:titleFromFormValues(form,vals), who:whoArr(form.who).slice(), tags:[], vis:form.vis||"company", due:"", cad:"once", status:status, brief:lines.join("\n"), priority:form.priority||"normal", subtasks:[], notes:[], files:[], checklist:[], cf:{}, formId:form.id, projectId:PROJECT_ID };
+state.tasks.push(task);
+});
+form.lastSyncRow = data.total || (form.lastSyncRow||0)+rows.length;
+save(state);
+renderAll();
+alert(rows.length+" new submission"+(rows.length===1?"":"s")+" imported.");
+}).catch(function(){
+alert("Couldn't reach the relay — check the URL in ⚙ Settings → Public forms, or try again in a moment.");
+});
+}
+var APPS_SCRIPT_CODE = "function doPost(e) {\n"+
+"  var data = JSON.parse(e.postData.contents);\n"+
+"  var slug = String(data.form || \"default\").replace(/[^a-z0-9_-]/gi, \"_\");\n"+
+"  var sheet = getOrCreateSheet(slug);\n"+
+"  var id = new Date().getTime() + \"_\" + Math.random().toString(36).slice(2, 7);\n"+
+"  sheet.appendRow([id, data.submittedAt || new Date().toISOString(), JSON.stringify(data.values || {})]);\n"+
+"  return ContentService.createTextOutput(JSON.stringify({ok:true, id:id})).setMimeType(ContentService.MimeType.JSON);\n"+
+"}\n"+
+"function doGet(e) {\n"+
+"  var slug = String(e.parameter.form || \"default\").replace(/[^a-z0-9_-]/gi, \"_\");\n"+
+"  var sinceRow = parseInt(e.parameter.since || \"0\", 10);\n"+
+"  var sheet = getOrCreateSheet(slug);\n"+
+"  var rows = sheet.getDataRange().getValues();\n"+
+"  var out = [];\n"+
+"  for (var i = sinceRow; i < rows.length; i++) {\n"+
+"    out.push({row:i+1, submittedAt: rows[i][1], values: JSON.parse(rows[i][2] || \"{}\")});\n"+
+"  }\n"+
+"  return ContentService.createTextOutput(JSON.stringify({rows: out, total: rows.length})).setMimeType(ContentService.MimeType.JSON);\n"+
+"}\n"+
+"function getOrCreateSheet(name) {\n"+
+"  var ss = SpreadsheetApp.getActiveSpreadsheet();\n"+
+"  var sheet = ss.getSheetByName(name);\n"+
+"  if (!sheet) sheet = ss.insertSheet(name);\n"+
+"  return sheet;\n"+
+"}";
+function openPublicFormsSettings(){
+sheet.innerHTML =
+'<button class="x" id="pfsX">×</button>'+
+'<h2>Public forms</h2>'+
+'<p style="color:var(--muted);font-size:13px;margin:0 0 14px">The "Open Rolls" application page is a real Plei Hub page — no ClickUp, no Google Forms. It just needs one small, invisible relay to carry a submission from a candidate\'s own browser back into this one. This setting is shared with the main Tasks tool\'s Public forms — set it up once.</p>'+
+'<div class="lbl">1 · Create the relay</div>'+
+'<p style="color:var(--muted);font-size:13px;margin:0 0 10px">Go to <a href="https://script.google.com" target="_blank" rel="noopener" style="color:var(--green)">script.google.com</a> → New project → paste the code below → Deploy → New deployment → type "Web app" → Execute as "Me" → Who has access "Anyone" → Deploy. Copy the Web app URL it gives you.</p>'+
+'<pre style="background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:11.5px;overflow:auto;max-height:220px;white-space:pre">'+esc(APPS_SCRIPT_CODE)+'</pre>'+
+'<button type="button" id="pfsCopy" style="background:none;border:1px solid var(--line);color:var(--green-soft);border-radius:8px;padding:7px 12px;font-size:12.5px;cursor:pointer;margin:8px 0 4px">📋 Copy code</button>'+
+'<div class="lbl">2 · Paste the Web app URL here</div>'+
+'<div class="addrow"><input id="pfsUrl" type="url" placeholder="https://script.google.com/macros/s/…/exec" value="'+esc(state.relayUrl||"")+'" /><button id="pfsSave" type="button">Save</button></div>'+
+'<p style="color:var(--muted);font-size:12px;margin:10px 0 0">Syncing new submissions is manual — click "🔄 Sync" whenever you want to pull in what has come in.</p>';
+modal.classList.add("show");
+document.getElementById("pfsX").onclick=closeModal;
+document.getElementById("pfsCopy").onclick=function(){
+try{ navigator.clipboard.writeText(APPS_SCRIPT_CODE); this.textContent="✓ Copied"; setTimeout(function(){ document.getElementById("pfsCopy").textContent="📋 Copy code"; },1500); }catch(e){ alert("Couldn't copy automatically — select the code above and copy it manually."); }
+};
+document.getElementById("pfsSave").onclick=function(){
+state.relayUrl=document.getElementById("pfsUrl").value.trim(); save(state); closeModal(); renderHireFormCard();
+};
+}
+
+renderAll();
+</script>
 </body>
 </html>

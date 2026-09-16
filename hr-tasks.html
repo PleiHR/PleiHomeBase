@@ -354,6 +354,11 @@ function statusCatLabel(c){ return {open:"Not started",active:"Active",done:"Don
 // The real 13-stage ClickUp "Hiring Application Form" pipeline, grouped the same way ClickUp groups them
 // (see claude/clickup-hiring-recruiting.md) — Rejected is mapped to our own "closed" category since that's
 // this app's convention for a negative/terminal outcome, a small deliberate deviation from ClickUp's own grouping.
+// The live candidate board now has its own dedicated page (hiring-pipeline.html) inside Hiring; this project/form
+// still seed here so the two pages share one dataset, but they're hidden from these generic Projects/Forms tabs
+// (with a pointer card instead) to avoid the same board appearing twice in two different UIs.
+var PROJ_HIRING_ID = "proj_hiring";
+var HIRING_FORM_ID = "form_hiring_public";
 function hiringStatuses(){
 return [
 {id:"new_app",label:"New Application",cat:"open"},
@@ -938,7 +943,7 @@ if(onDone) onDone();
 var openProjectId=null;
 function renderProjects(){
 var grid=document.getElementById("projectGrid");
-var cards=(state.projects||[]).map(function(p){
+var cards=(state.projects||[]).filter(function(p){return p.id!==PROJ_HIRING_ID;}).map(function(p){
 var prog=projectProgress(p);
 return '<div class="formcard" data-pid="'+p.id+'"><h3>'+esc(p.name)+'</h3><p>'+esc(p.desc||"")+'</p>'+
 '<div class="fmeta"><span class="tg">'+esc(p.area||"")+'</span></div>'+
@@ -946,7 +951,8 @@ return '<div class="formcard" data-pid="'+p.id+'"><h3>'+esc(p.name)+'</h3><p>'+e
 '<div class="pmeta"><span>'+prog.done+'/'+prog.total+' done</span><span>'+prog.pct+'%</span></div>'+
 '<div class="facts"><button class="fillbtn" data-openp="'+p.id+'" type="button">Open board</button><button data-editp="'+p.id+'" type="button">Settings</button><button class="delf" data-delp="'+p.id+'" type="button">Delete</button></div></div>';
 }).join("");
-grid.innerHTML = cards || '<p class="tk-empty">No projects yet — start one from a template or from blank.</p>';
+var hiringNote='<a class="formcard" href="hiring-pipeline.html" style="display:block;text-decoration:none;color:inherit"><h3>Hiring Application Form <span class="tg" style="background:rgba(47,215,113,.16);color:var(--green-soft)">→ Hiring page</span></h3><p>The candidate pipeline now lives on its own page inside Hiring — same data, dedicated board.</p></a>';
+grid.innerHTML = hiringNote + (cards || '<p class="tk-empty">No other projects yet — start one from a template or from blank.</p>');
 grid.querySelectorAll("[data-openp]").forEach(function(b){ b.onclick=function(){ openProjectBoard(b.getAttribute("data-openp")); }; });
 grid.querySelectorAll("[data-editp]").forEach(function(b){ b.onclick=function(){ var p=projectById(b.getAttribute("data-editp")); if(p) openProjectSettings(p); }; });
 grid.querySelectorAll("[data-delp]").forEach(function(b){ b.onclick=function(){
@@ -1262,7 +1268,7 @@ return form.name;
 }
 function renderForms(){
 var grid=document.getElementById("formGrid");
-var cards=(state.forms||[]).map(function(f){
+var cards=(state.forms||[]).filter(function(f){return f.id!==HIRING_FORM_ID;}).map(function(f){
 var tagsHtml = tagArr(f.tags).map(function(x){return '<span class="tg">'+esc(x)+'</span>';}).join("");
 var whoHtmlStr = (f.who&&f.who.length) ? '<span class="tg">→ '+esc(f.who.join(", "))+'</span>' : "";
 var proj = f.projectId ? projectById(f.projectId) : null;
@@ -1272,7 +1278,8 @@ var publicBtns = f.public ? ('<button data-pubpage="'+f.id+'" type="button">⬇ 
 return '<div class="formcard" data-id="'+f.id+'"><h3>'+esc(f.name)+'</h3><p>'+esc(f.desc||"")+'</p><div class="fmeta">'+pubBadge+projBadge+tagsHtml+whoHtmlStr+'</div>'+
 '<div class="facts"><button class="fillbtn" data-fill="'+f.id+'" type="button">Fill out</button><button data-editf="'+f.id+'" type="button">Edit</button>'+publicBtns+'<button class="delf" data-delf="'+f.id+'" type="button">Delete</button></div></div>';
 }).join("");
-grid.innerHTML = cards + '<button class="newformcard" id="newFormBtn" type="button">+ New form</button>';
+var hiringFormNote='<a class="formcard" href="hiring-pipeline.html" style="display:block;text-decoration:none;color:inherit"><h3>Open Rolls (Applications) <span class="tg" style="background:rgba(47,215,113,.16);color:var(--green-soft)">→ Hiring page</span></h3><p>The public hiring form now lives on its own page inside Hiring, alongside the candidate board.</p></a>';
+grid.innerHTML = hiringFormNote + cards + '<button class="newformcard" id="newFormBtn" type="button">+ New form</button>';
 document.getElementById("newFormBtn").onclick=function(){ openFormBuilder(null); };
 grid.querySelectorAll("[data-fill]").forEach(function(b){ b.onclick=function(){ var f=formById(b.getAttribute("data-fill")); if(f) openFormFill(f); }; });
 grid.querySelectorAll("[data-editf]").forEach(function(b){ b.onclick=function(){ var f=formById(b.getAttribute("data-editf")); if(f) openFormBuilder(f); }; });
