@@ -215,7 +215,7 @@
 
 <h1><span class="g">Tasks</span></h1>
 <p class="sub">The company's shared to-do — write what needs doing and hit Add. Everything else is optional.</p>
-<details class="howto"><summary>How this works</summary><p>Assign one or more people, tag it by space, set a priority, break it into subtasks, and comment with @mentions. Set a cadence and completing it creates the next one automatically. Define <b>custom fields</b> (text, dropdown, date, money, and more) and every task can carry them. Group related work into a <b>project</b> with its own board and custom status columns — start one from a template, the same way ClickUp Folders and Lists are built. Build a form under <b>Forms</b> and submitting it creates and assigns a task automatically (shown with a 🗒️ so you can tell it came from a form), the same way Magic's ClickUp forms do today. Use the <b>⋮</b> menu on any card to duplicate a task or move it into a project (or back to the board).</p></details>
+<details class="howto"><summary>How this works</summary><p>Assign one or more people, tag it by space, set a priority, break it into subtasks, and comment with @mentions. Add a quick <b>checklist</b> right under the description for simple steps that don't need their own assignee or due date. Set a cadence and completing it creates the next one automatically. Define <b>custom fields</b> (text, dropdown, date, money, checklist, and more) and every task can carry them. Group related work into a <b>project</b> with its own board and custom status columns — start one from a template, the same way ClickUp Folders and Lists are built. Build a form under <b>Forms</b> and submitting it creates and assigns a task automatically (shown with a 🗒️ so you can tell it came from a form), the same way Magic's ClickUp forms do today. Use the <b>⋮</b> menu on any card to duplicate a task or move it into a project (or back to the board).</p></details>
 
 <div class="callout" style="margin:0 0 18px">Saves to <b>your own browser</b> for now — teammates on a different computer won't see it yet.</div>
 
@@ -306,9 +306,9 @@ var VIS = {company:{l:"Company",i:"🌐"},team:{l:"Team",i:"👥"},private:{l:"P
 var CAD = {once:"One-time",daily:"Daily",weekdays:"Weekdays",weekly:"Weekly",monthly:"Monthly",close:"Monthly · 10th biz day",annual:"Annual"};
 var PRI = {urgent:{l:"Urgent",i:"🔴"},high:{l:"High",i:"🟠"},normal:{l:"Normal",i:"🔵"},low:{l:"Low",i:"⚪"}};
 var PRI_ORDER = {urgent:0,high:1,normal:2,low:3};
-var CF_TYPES = ["text","textarea","number","money","date","select","labels","checkbox","email","phone","url"];
-function cfTypeLabel(ty){ return {text:"Text",textarea:"Long text",number:"Number",money:"Money ($)",date:"Date",select:"Dropdown",labels:"Labels",checkbox:"Checkbox",email:"Email",phone:"Phone",url:"Website link"}[ty]||ty; }
-function cfTypeIcon(ty){ return {text:"🔤",textarea:"📄",number:"#️⃣",money:"💲",date:"📅",select:"▾",labels:"🏷",checkbox:"☑️",email:"✉️",phone:"📞",url:"🔗"}[ty]||"•"; }
+var CF_TYPES = ["text","textarea","number","money","date","select","labels","checkbox","checklist","email","phone","url"];
+function cfTypeLabel(ty){ return {text:"Text",textarea:"Long text",number:"Number",money:"Money ($)",date:"Date",select:"Dropdown",labels:"Labels",checkbox:"Checkbox",checklist:"Checklist",email:"Email",phone:"Phone",url:"Website link"}[ty]||ty; }
+function cfTypeIcon(ty){ return {text:"🔤",textarea:"📄",number:"#️⃣",money:"💲",date:"📅",select:"▾",labels:"🏷",checkbox:"☑️",checklist:"📋",email:"✉️",phone:"📞",url:"🔗"}[ty]||"•"; }
 // ---- shared: chip-style options builder for Dropdown/Labels fields (custom fields + form fields) ----
 // Each option is added one at a time (type it, press Enter or click Add) instead of a fragile comma-separated
 // text box, so it's obvious an option was added and there's no ambiguity about typing "more than one".
@@ -543,6 +543,7 @@ var metaBits=[]; if(t.brief) metaBits.push("📝");
 if(t.notes&&t.notes.length) metaBits.push("💬"+t.notes.length);
 if(t.files&&t.files.length) metaBits.push("📎"+t.files.length);
 if(t.subtasks&&t.subtasks.length){ var sd=t.subtasks.filter(function(s){return s.done;}).length; metaBits.push("☑"+sd+"/"+t.subtasks.length); }
+if(t.checklist&&t.checklist.length){ var cld=t.checklist.filter(function(s){return s.done;}).length; metaBits.push("📋"+cld+"/"+t.checklist.length); }
 if(state.fields.length && t.cf){ var cfN=Object.keys(t.cf).filter(function(k){ var v=t.cf[k]; return Array.isArray(v)?v.length>0:(v!==undefined&&v!==null&&v!==""&&v!==false); }).length; if(cfN) metaBits.push("🧩"+cfN); }
 var meta=metaBits.join(" ");
 return '<div class="task '+(t.status==="done"?"dn":"")+'" data-id="'+t.id+'" data-pri="'+(t.priority||"normal")+'"><p class="tt">'+formIcon+esc(t.title)+(meta?' <span style="font-size:10.5px;color:var(--muted);font-weight:400">'+meta+'</span>':'')+'</p>'+tags+
@@ -634,13 +635,19 @@ box.querySelectorAll("[data-si]").forEach(function(cb){ cb.onchange=function(){ 
 box.querySelectorAll("[data-sd]").forEach(function(b){ b.onclick=function(){ var i=parseInt(this.getAttribute("data-sd"),10); t.subtasks.splice(i,1); save(state); renderSubs(t); render(); }; });
 var sc=document.getElementById("mSubsCnt"); if(sc){ var d=(t.subtasks||[]).filter(function(s){return s.done;}).length; sc.textContent = (t.subtasks&&t.subtasks.length) ? (d+"/"+t.subtasks.length) : "0"; }
 }
+function renderChecklist(t){ var box=document.getElementById("mChecklist"); if(!box) return;
+box.innerHTML = (t.checklist&&t.checklist.length) ? t.checklist.map(function(s,i){ return '<div class="subrow '+(s.done?"done":"")+'"><input type="checkbox" data-cli="'+i+'" '+(s.done?"checked":"")+' /><span class="st">'+esc(s.title)+'</span><b data-cld="'+i+'">×</b></div>'; }).join("") : '<p class="tk-empty">No checklist items yet.</p>';
+box.querySelectorAll("[data-cli]").forEach(function(cb){ cb.onchange=function(){ var i=parseInt(this.getAttribute("data-cli"),10); t.checklist[i].done=this.checked; save(state); renderChecklist(t); render(); }; });
+box.querySelectorAll("[data-cld]").forEach(function(b){ b.onclick=function(){ var i=parseInt(this.getAttribute("data-cld"),10); t.checklist.splice(i,1); save(state); renderChecklist(t); render(); }; });
+var cc=document.getElementById("mChecklistCnt"); if(cc){ var d2=(t.checklist||[]).filter(function(s){return s.done;}).length; cc.textContent = (t.checklist&&t.checklist.length) ? (d2+"/"+t.checklist.length) : "0"; }
+}
 function mChips(t){ var b=document.getElementById("mChips"); if(b) b.innerHTML=whoArr(t.who).map(function(n){return '<span class="chip">'+esc(n.split(" ")[0])+'<b data-rm="'+esc(n)+'">×</b></span>';}).join(""); }
 function mSug(t){ var inp=document.getElementById("mWhoInput"), sg=document.getElementById("mSuggest"); if(!inp) return; var q=inp.value.trim().toLowerCase(); if(!q){ sg.style.display="none"; sg.innerHTML=""; return; } var cur=whoArr(t.who); var m=TEAM.filter(function(n){return n.toLowerCase().indexOf(q)>=0 && cur.indexOf(n)<0;}).slice(0,8); if(!m.length){ sg.style.display="none"; return; } sg.innerHTML=m.map(function(n,i){return '<div class="sg'+(i===0?" hi":"")+'" data-add="'+esc(n)+'"><span class="av">'+esc(initials(n))+'</span>'+esc(n)+'</div>';}).join(""); sg.style.display="block"; }
 function mAddWho(t,n){ var a=whoArr(t.who); if(a.indexOf(n)<0) a.push(n); t.who=a; save(state); document.getElementById("mWhoInput").value=""; mChips(t); mSug(t); render(); document.getElementById("mWhoInput").focus(); }
 function mTagChips(t){ var b=document.getElementById("mTagChips"); if(b) b.innerHTML=tagArr(t.tags).map(function(x){return '<span class="tchip">'+esc(x)+'<b data-rmt="'+esc(x)+'">×</b></span>';}).join(""); }
 function openDetail(id){
 var t=taskById(id); if(!t) return;
-t.notes=t.notes||[]; t.files=t.files||[]; t.tags=t.tags||[]; t.vis=t.vis||"company"; t.subtasks=t.subtasks||[]; t.priority=t.priority||"normal"; t.cf=t.cf||{};
+t.notes=t.notes||[]; t.files=t.files||[]; t.tags=t.tags||[]; t.vis=t.vis||"company"; t.subtasks=t.subtasks||[]; t.checklist=t.checklist||[]; t.priority=t.priority||"normal"; t.cf=t.cf||{};
 var proj = t.projectId ? projectById(t.projectId) : null;
 var tagOpts='<option value="">+ Space</option>'+TAGS.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>';}).join("");
 var visOpts=Object.keys(VIS).map(function(k){return '<option value="'+k+'"'+(t.vis===k?' selected':'')+'>'+VIS[k].i+' '+VIS[k].l+'</option>';}).join("");
@@ -655,6 +662,8 @@ statusCtrl = '<span class="stpill" title="Status">'+esc(STLBL[t.status]||"")+'</
 var cadOptsHtml='<option value="once">One-time</option><option value="daily">Daily</option><option value="weekdays">Weekdays (Mon–Fri)</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="close">Monthly · 10th biz day</option><option value="annual">Annual</option>';
 var subsDone=(t.subtasks||[]).filter(function(s){return s.done;}).length, subsTotal=(t.subtasks||[]).length;
 var subsCountTxt = subsTotal ? (subsDone+"/"+subsTotal) : "0";
+var clDone=(t.checklist||[]).filter(function(s){return s.done;}).length, clTotal=(t.checklist||[]).length;
+var clCountTxt = clTotal ? (clDone+"/"+clTotal) : "0";
 var filesCountTxt = (t.files||[]).length;
 var cfFilled = state.fields.length ? Object.keys(t.cf||{}).filter(function(k){ var v=t.cf[k]; return Array.isArray(v)?v.length>0:(v!==undefined&&v!==null&&v!==""&&v!==false); }).length : 0;
 var cfCountTxt = state.fields.length ? (cfFilled+"/"+state.fields.length) : "0";
@@ -675,12 +684,13 @@ statusCtrl+
 '<div class="tagbox" id="mTagBox"><span id="mTagChips"></span><select id="mTagSel">'+tagOpts+'</select></div>'+
 '</div>'+
 '<textarea class="brief" id="mBrief" placeholder="What is this task about? Context, goal, links…" style="margin-top:12px">'+esc(t.brief||"")+'</textarea>'+
+'<details id="dChecklist"'+(clTotal?" open":"")+'><summary>Checklist <span class="cnt" id="mChecklistCnt">'+clCountTxt+'</span></summary><div class="dbody"><div class="sublist" id="mChecklist"></div><div class="addrow"><input id="mChecklistIn" type="text" placeholder="Add a checklist item…" /><button id="mChecklistAdd">Add</button></div></div></details>'+
 '<details id="dSubs"'+(subsTotal?" open":"")+'><summary>Subtasks <span class="cnt" id="mSubsCnt">'+subsCountTxt+'</span></summary><div class="dbody"><div class="sublist" id="mSubs"></div><div class="addrow"><input id="mSubIn" type="text" placeholder="Add a subtask…" /><button id="mSubAdd">Add</button></div></div></details>'+
 '<details id="dCf"'+(cfFilled?" open":"")+'><summary>Custom fields <span class="cnt" id="mCfCnt">'+cfCountTxt+'</span><span style="margin-left:auto"></span><button id="mCfManageBtn" type="button" style="background:none;border:1px solid var(--line);color:var(--muted);border-radius:7px;padding:2px 9px;font-size:11px;cursor:pointer;text-transform:none;letter-spacing:0;font-weight:600">⚙ Manage</button></summary><div class="dbody" id="mCf"></div></details>'+
 '<details id="dFiles"'+(filesCountTxt?" open":"")+'><summary>Documents <span class="cnt" id="mFilesCnt">'+filesCountTxt+'</span></summary><div class="dbody"><div class="filelist" id="mFiles"></div><div class="addrow"><input id="mFileName" type="text" placeholder="Label (optional)" /><input id="mFileUrl" type="url" placeholder="Paste a document link…" /><button id="mFileAdd">Attach</button></div></div></details>'+
 '<div class="lbl" style="margin-top:14px">Comments</div><div class="notelist" id="mNotes"></div><div style="position:relative;margin-top:6px"><textarea class="note-in" id="mNoteIn" placeholder="Add a comment… type @ to mention someone"></textarea><div class="suggest" id="mMentionSug"></div></div><div style="display:flex;justify-content:flex-end;margin-top:6px"><button class="addnote" id="mNoteAdd">Add comment</button></div>';
 modal.classList.add("show");
-renderFiles(t); renderNotes(t); renderSubs(t); mChips(t); mTagChips(t); renderCf(t);
+renderFiles(t); renderNotes(t); renderSubs(t); renderChecklist(t); mChips(t); mTagChips(t); renderCf(t);
 document.getElementById("mX").onclick=closeModal;
 document.getElementById("mCfManageBtn").onclick=function(e){ e.preventDefault(); e.stopPropagation(); openFieldsManager(function(){ openDetail(t.id); }); };
 var mStatusEl=document.getElementById("mStatus");
@@ -701,6 +711,8 @@ document.getElementById("mCad").addEventListener("change", function(){ t.cad=thi
 document.getElementById("mBrief").addEventListener("input", function(){ t.brief=this.value; save(state); render(); });
 document.getElementById("mSubAdd").onclick=function(){ var v=document.getElementById("mSubIn").value.trim(); if(!v) return; t.subtasks=t.subtasks||[]; t.subtasks.push({title:v, done:false}); save(state); document.getElementById("mSubIn").value=""; renderSubs(t); render(); };
 document.getElementById("mSubIn").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); document.getElementById("mSubAdd").click(); } });
+document.getElementById("mChecklistAdd").onclick=function(){ var v=document.getElementById("mChecklistIn").value.trim(); if(!v) return; t.checklist=t.checklist||[]; t.checklist.push({title:v, done:false}); save(state); document.getElementById("mChecklistIn").value=""; renderChecklist(t); render(); };
+document.getElementById("mChecklistIn").addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); document.getElementById("mChecklistAdd").click(); } });
 document.getElementById("mFileAdd").onclick=function(){ var url=document.getElementById("mFileUrl").value.trim(); if(!url) return; var name=document.getElementById("mFileName").value.trim()||url; t.files.push({name:name,url:url}); save(state); document.getElementById("mFileName").value=""; document.getElementById("mFileUrl").value=""; renderFiles(t); render(); };
 var mNoteIn=document.getElementById("mNoteIn"), mSugBox=document.getElementById("mMentionSug"), mentionInfo=null;
 mNoteIn.addEventListener("input", function(){
@@ -726,10 +738,15 @@ document.getElementById("mNoteAdd").onclick=function(){ var v=mNoteIn.value.trim
 
 // ---- custom fields ----
 function cfRowHtml(f, t){
-var val = (t.cf && t.cf[f.id]!==undefined) ? t.cf[f.id] : (f.type==="labels"?[]:"");
-var lbl = '<div class="lbl">'+cfTypeIcon(f.type)+' '+esc(f.label)+'</div>';
+var val = (t.cf && t.cf[f.id]!==undefined) ? t.cf[f.id] : ((f.type==="labels"||f.type==="checklist")?[]:"");
+var cnt = (f.type==="checklist" && (f.opts||[]).length) ? ' <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">'+(Array.isArray(val)?val.length:0)+'/'+(f.opts||[]).length+'</span>' : '';
+var lbl = '<div class="lbl">'+cfTypeIcon(f.type)+' '+esc(f.label)+cnt+'</div>';
 var ctrl;
-if(f.type==="textarea"){
+if(f.type==="checklist"){
+var curc=Array.isArray(val)?val:[];
+var items=(f.opts||[]).map(function(o){ var checked=curc.indexOf(o)>=0; return '<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin:0 0 4px"><input type="checkbox" data-cfchk="'+esc(f.id)+'" data-cfchkval="'+esc(o)+'" '+(checked?"checked":"")+' style="width:15px;height:15px;accent-color:var(--green)" /><span'+(checked?' style="text-decoration:line-through;color:var(--muted)"':'')+'>'+esc(o)+'</span></label>'; }).join("");
+ctrl = items || '<p class="tk-empty" style="margin:0">No items in this checklist yet — add some under ⚙ Manage.</p>';
+} else if(f.type==="textarea"){
 ctrl = '<textarea class="cfval" data-cf="'+esc(f.id)+'" data-cfty="textarea" style="min-height:60px" placeholder="—">'+esc(val)+'</textarea>';
 } else if(f.type==="select"){
 var opts='<option value="">—</option>'+(f.opts||[]).map(function(o){return '<option value="'+esc(o)+'"'+(val===o?" selected":"")+'>'+esc(o)+'</option>';}).join("");
@@ -775,6 +792,14 @@ render();
 });
 });
 updateCfCntBadge(t);
+box.querySelectorAll("[data-cfchk]").forEach(function(cb){
+cb.addEventListener("change", function(){
+var fid=cb.getAttribute("data-cfchk"), v=cb.getAttribute("data-cfchkval");
+var cur=Array.isArray(t.cf[fid])?t.cf[fid]:[];
+if(cb.checked){ if(cur.indexOf(v)<0) cur=cur.concat([v]); } else { cur=cur.filter(function(x){return x!==v;}); }
+t.cf[fid]=cur; save(state); renderCf(t); render();
+});
+});
 box.querySelectorAll("[data-cfladd]").forEach(function(sel){
 sel.addEventListener("change", function(){
 var fid=sel.getAttribute("data-cfladd"), v=sel.value; if(!v) return;
@@ -808,7 +833,7 @@ return '<div class="fbuild-field" data-idx="'+idx+'"><div class="fr">'+
 '<select class="cftype">'+typeOpts+'</select>'+
 '<button type="button" class="remf">Remove</button>'+
 '</div>'+
-((f.type==="select"||f.type==="labels") ? optsChipsHtml(f) : '')+
+((f.type==="select"||f.type==="labels"||f.type==="checklist") ? optsChipsHtml(f) : '')+
 '</div>';
 }
 function renderList(){ var box=document.getElementById("cfmList"); box.innerHTML = flist.length ? flist.map(rowHtml).join("") : '<p class="tk-empty">No fields yet — add one below.</p>'; }
@@ -838,7 +863,7 @@ document.getElementById("cfmAdd").onclick=function(){ flist.push({id:"cf"+Date.n
 renderList();
 
 document.getElementById("cfmSave").onclick=function(){
-var fields = flist.map(function(f){ return {id:f.id, label:(f.label||"").trim(), type:f.type, opts:(f.type==="select"||f.type==="labels") ? (f.opts||[]) : undefined}; }).filter(function(f){ return f.label; });
+var fields = flist.map(function(f){ return {id:f.id, label:(f.label||"").trim(), type:f.type, opts:(f.type==="select"||f.type==="labels"||f.type==="checklist") ? (f.opts||[]) : undefined}; }).filter(function(f){ return f.label; });
 state.fields = fields; save(state); closeModal(); updateCfCount(); render();
 if(onDone) onDone();
 };
