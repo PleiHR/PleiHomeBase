@@ -458,6 +458,21 @@ if(!Array.isArray(s.fields)){ s.fields = seedFields(); seeded=true; }
 if(!Array.isArray(s.projects)){ s.projects = defaultProjects(); seeded=true; }
 if(!Array.isArray(s.projectTemplates)){ s.projectTemplates = defaultProjectTemplates(); seeded=true; }
 if(typeof s.relayUrl!=="string"){ s.relayUrl = ""; seeded=true; }
+// ---- migration: browsers that already had tasks saved before the Hiring pipeline / public-forms round
+// skip every "if(!Array.isArray(...))" seed above (their arrays already exist), so the new pieces need to be
+// added by id instead of relying on first-ever-load seeding. Runs every load; cheap and a no-op once caught up.
+if(!s.projects.some(function(p){return p.id==="proj_hiring";})){ s.projects.push(defaultProjects()[0]); seeded=true; }
+seedFields().forEach(function(f){ if(!s.fields.some(function(x){return x.id===f.id;})){ s.fields.push(f); seeded=true; } });
+if(!s.forms.some(function(f){return f.id==="form_hiring_public";})){
+var seededHiringForm = seedForms().filter(function(f){return f.id==="form_hiring_public";})[0];
+if(seededHiringForm){ s.forms.push(seededHiringForm); seeded=true; }
+}
+var freshHiringTpl = defaultProjectTemplates().filter(function(t){return t.id==="tpl_hiring";})[0];
+if(freshHiringTpl){
+var tplIdx=-1; (s.projectTemplates||[]).forEach(function(t,i){ if(t.id==="tpl_hiring") tplIdx=i; });
+if(tplIdx<0){ s.projectTemplates.push(freshHiringTpl); seeded=true; }
+else if(JSON.stringify(s.projectTemplates[tplIdx].statuses)!==JSON.stringify(freshHiringTpl.statuses)){ s.projectTemplates[tplIdx]=freshHiringTpl; seeded=true; }
+}
 if(seeded) save(s);
 return s;
 }
