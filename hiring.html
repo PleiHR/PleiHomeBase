@@ -16,70 +16,209 @@
     </nav>
 
     <h1>Hiring &amp; <span class="g">recruiting</span></h1>
-    <p class="sub">Open reqs, how we run a search, and where candidates go. This is the internal view. The public roles live on the <a href="careers.html" style="color:var(--green);text-decoration:none">careers page</a>.</p>
+    <p class="sub">Manage what we're hiring for and track every candidate through the pipeline. The public roles live on the <a href="careers.html" style="color:var(--green);text-decoration:none">careers page</a>; the step-by-step hiring playbook lives in the <a href="sop-hiring.html" style="color:var(--green);text-decoration:none">Hiring SOP</a>.</p>
 
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 26px">
-      <div style="background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:15px 18px">
-        <p style="margin:0;font-size:28px;font-weight:800;color:var(--green)">11</p>
-        <p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">Open Roles</p>
+    <a class="card" href="hiring-pipeline.html" style="display:flex;align-items:center;gap:18px;border-color:rgba(47,215,113,.4);margin-bottom:34px">
+      <div class="ic" style="margin-bottom:0;flex:0 0 auto"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11M8 6h6M8 10h4M8 14h3"/></svg></div>
+      <div style="flex:1;min-width:0">
+        <h3 style="margin:0 0 3px">Candidate Pipeline <span class="tag">Live</span></h3>
+        <p style="margin:0">Every candidate, one board, application through offer. Grouped by job role as applicants come in, with a general view of the whole hiring process.</p>
       </div>
-      <div style="background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:15px 18px">
-        <p style="margin:0;font-size:28px;font-weight:800;color:var(--green)">7</p>
-        <p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">Engineering</p>
-      </div>
-      <div style="background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:15px 18px">
-        <p style="margin:0;font-size:28px;font-weight:800;color:var(--green)">4</p>
-        <p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">Other teams</p>
-      </div>
+      <span class="open" style="white-space:nowrap">Open →</span>
+    </a>
+
+    <div class="section"><h2>Open Roles <span class="tag" id="rolesCount" style="margin-left:6px"></span></h2><span class="rule"></span></div>
+    <p style="color:var(--muted);font-size:13.5px;max-width:720px;margin:0 0 18px;line-height:1.5">Add, edit, close, or remove roles here — this list is the single source of truth for the public <a href="careers.html" style="color:var(--green);text-decoration:none">careers page</a> and for the Job Role field on every candidate. Toggle a role to <b style="color:var(--txt)">Closed</b> to pull it from the public page without losing its history.</p>
+
+    <div id="rolesList" style="display:flex;flex-direction:column;gap:9px;margin-bottom:14px"></div>
+
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:6px">
+      <button id="addRoleBtn" type="button" style="background:rgba(47,215,113,.14);border:1px solid rgba(47,215,113,.35);color:var(--green-soft);font-weight:700;border-radius:9px;padding:9px 16px;font-size:13.5px;cursor:pointer">+ Add role</button>
+      <button id="publishCareersBtn" type="button" style="background:var(--green);color:#062018;font-weight:700;border:none;border-radius:9px;padding:9px 16px;font-size:13.5px;cursor:pointer">⬇ Publish careers.html</button>
     </div>
-
-    <div class="section"><h2>Open Roles</h2><span class="rule"></span></div>
-    <div class="prose">
-      <table>
-        <tr><th>Role</th><th>Team</th><th>Location</th><th>Type</th></tr>
-        <tr><td>Business Intelligence Engineer</td><td>Engineering</td><td>LatAm (remote)</td><td>Intl contractor</td></tr>
-        <tr><td>QA Engineer</td><td>Engineering</td><td>LatAm (remote)</td><td>Intl contractor</td></tr>
-        <tr><td>Frontend Engineer</td><td>Engineering</td><td>LatAm (remote)</td><td>Intl contractor</td></tr>
-        <tr><td>Backend Engineer</td><td>Engineering</td><td>LatAm (remote)</td><td>Intl contractor</td></tr>
-        <tr><td>Full-Stack Engineer</td><td>Engineering</td><td>LatAm (remote)</td><td>Intl contractor</td></tr>
-        <tr><td>DevOps Engineer</td><td>Engineering</td><td>LatAm (remote)</td><td>Intl contractor</td></tr>
-        <tr><td>AI Lead</td><td>Engineering</td><td>LatAm (remote)</td><td>Intl contractor</td></tr>
-        <tr><td>Senior Product Designer</td><td>Product</td><td>LatAm (remote)</td><td>Intl contractor</td></tr>
-        <tr><td>Organizer Success Manager</td><td>Growth</td><td>United States</td><td>W2</td></tr>
-        <tr><td>HR Operations Manager</td><td>Operations</td><td>Miami (hybrid)</td><td>Full-time</td></tr>
-        <tr><td>Booking Agent</td><td>Magic</td><td>LatAm (remote)</td><td>Intl contractor</td></tr>
-      </table>
-    </div>
-
-    <div class="section"><h2>Where candidates go</h2><span class="rule"></span></div>
-    <div class="grid small">
-      <a class="card small" href="careers.html"><h3>Careers page</h3><p>Public roles, shareable</p></a>
-      <a class="card small" href="mailto:careers@plei.com"><h3>Applications</h3><p>careers@plei.com</p></a>
-      <a class="card small" href="hiring-pipeline.html"><h3>Candidate Pipeline <span class="tag">Live</span></h3><p>Board by stage, in-house</p></a>
-    </div>
-    <p style="color:var(--muted);font-size:13px;margin:8px 0 0">Candidate pipeline tracking is now in-house (out of ClickUp) — the <a href="hiring-pipeline.html" style="color:var(--green)">candidate board</a> mirrors the 13-stage hiring pipeline, with a public "Open Rolls" application form candidates can fill out directly, no login needed.</p>
-
-    <div class="section"><h2>How we hire</h2><span class="rule"></span></div>
-    <div class="prose">
-      <div class="callout">Every candidate clears <b>five barriers</b> before an offer. Each stage is a clear pass or fail, no "maybe" hires. This is the Operations template; other teams adapt the functional stage to their craft.</div>
-
-      <h3>Stage 0 · Role definition</h3>
-      <p><b>Lead:</b> Department head + HR. Write the job description (responsibilities, ownership, key stakeholders) and a role FAQ (scope, comp range, contract type, schedule/timezone). Align the interview to real scenarios the person will face.</p>
-
-      <h3>Barrier 1 · Fit screen (culture &amp; ownership)</h3>
-      <p><b>Lead:</b> Liz for lead roles, Elena for non-lead. 30–40 min video call. Motivation, ownership and accountability, comfort with ambiguity, communication clarity, cross-team collaboration, English fluency (Spanish a plus). We're weighing proactivity over a task-only mindset, clear thinking, and reliability. <b>Decision:</b> pass / fail.</p>
-
-      <h3>Barrier 2 · Functional capability</h3>
-      <p><b>Lead:</b> Department head + HR. 45–60 min structured interview plus a practical exercise. Execution and attention to detail, prioritization, managing stakeholders, structured problem-solving, process and systems thinking, and judgment with sensitive information. <b>Decision:</b> pass / fail.</p>
-
-      <h3>Barrier 3 · Ownership &amp; growth potential</h3>
-      <p><b>Lead:</b> CEO. 45–60 min. Ownership beyond assigned tasks, growth mindset, comfort in a scaling org, alignment with company values. The key question: will this person make the team stronger over time? <b>Decision:</b> pass / fail.</p>
-
-      <h3>Final decision &amp; debrief</h3>
-      <p><b>Leads:</b> HR + department head + CEO. Debrief within 24 hours of the final interview, written feedback submitted before the discussion, decision by consensus. If approved, offer sent within 48 hours.</p>
-    </div>
+    <p style="color:var(--muted);font-size:12px;margin:2px 0 40px">Publishing downloads an updated careers.html with today's open roles — commit it to GitHub (or hand it to whoever does) to make it live at plei.com/careers.</p>
 
     <footer><a href="hr.html" style="color:var(--green);text-decoration:none">← Back to HR dashboard</a></footer>
   </div>
+
+<script>
+var KEY="plei_hr_tasks_v1";
+// Same seed used by hiring-pipeline.html / hr-tasks.html — kept in sync so a fresh browser sees the same
+// 11 starting roles no matter which page it opens first. Once state.openRoles exists anywhere, every page
+// just reads/writes that shared array; nothing here ever re-seeds over real edits.
+function seedOpenRoles(){
+return [
+{id:"role_bie", title:"Business Intelligence Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
+{id:"role_qa", title:"QA Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
+{id:"role_fe", title:"Frontend Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
+{id:"role_be", title:"Backend Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
+{id:"role_fs", title:"Full-Stack Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
+{id:"role_devops", title:"DevOps Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
+{id:"role_ai", title:"AI Lead", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
+{id:"role_design", title:"Senior Product Designer", team:"Product", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
+{id:"role_osm", title:"Organizer Success Manager", team:"Growth", location:"United States", type:"W2", status:"open"},
+{id:"role_hrops", title:"HR Operations Manager", team:"Operations", location:"Miami (hybrid)", type:"Full-time", status:"open"},
+{id:"role_booking", title:"Booking Agent", team:"Magic", location:"LatAm (remote)", type:"Intl contractor", status:"open"}
+];
+}
+function loadFullState(){
+var s; try{ s=JSON.parse(localStorage.getItem(KEY)); }catch(e){ s=null; }
+if(!s || typeof s!=="object") s={};
+if(!Array.isArray(s.openRoles)) s.openRoles = seedOpenRoles();
+return s;
+}
+function saveFullState(s){ try{ localStorage.setItem(KEY, JSON.stringify(s)); }catch(e){} }
+var appState = loadFullState();
+saveFullState(appState);
+
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+var TEAMS=["Engineering","Product","Growth","Operations","Magic","Other"];
+var TYPES=["Intl contractor","W2","Full-time","Part-time"];
+var INPUT_CSS="background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--txt);font:inherit;font-size:13.5px";
+
+function selectHtml(field, opts, cur){
+var known = opts.indexOf(cur)>=0;
+var extra = (!known && cur) ? '<option value="'+esc(cur)+'" selected>'+esc(cur)+'</option>' : '';
+return '<select data-f="'+field+'" style="flex:1 1 140px;min-width:120px;'+INPUT_CSS+'">'+extra+opts.map(function(o){return '<option value="'+esc(o)+'"'+(cur===o?" selected":"")+'>'+esc(o)+'</option>';}).join("")+'</select>';
+}
+function renderRoles(){
+var list=document.getElementById("rolesList");
+var roles=appState.openRoles||[];
+document.getElementById("rolesCount").textContent = roles.filter(function(r){return r.status!=="closed";}).length + " open";
+if(!roles.length){
+list.innerHTML='<p style="color:var(--muted);font-size:13px;margin:0">No roles yet — add one below.</p>';
+return;
+}
+list.innerHTML = roles.map(function(r){
+var isOpen = r.status!=="closed";
+return '<div class="rowline" data-id="'+esc(r.id)+'">'+
+'<div class="rn" style="display:flex;gap:8px;flex-wrap:wrap">'+
+'<input data-f="title" value="'+esc(r.title)+'" placeholder="Role title" style="flex:1 1 190px;min-width:160px;'+INPUT_CSS+'" />'+
+selectHtml("team", TEAMS, r.team)+
+'<input data-f="location" value="'+esc(r.location)+'" placeholder="Location" style="flex:1 1 150px;min-width:130px;'+INPUT_CSS+'" />'+
+selectHtml("type", TYPES, r.type)+
+'</div>'+
+'<button data-act="toggle" style="white-space:nowrap;border-radius:999px;padding:5px 13px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid '+(isOpen?"rgba(47,215,113,.35)":"rgba(242,139,130,.35)")+';background:'+(isOpen?"rgba(47,215,113,.14)":"rgba(242,139,130,.12)")+';color:'+(isOpen?"var(--green-soft)":"#f6a9a2")+'">'+(isOpen?"Open":"Closed")+'</button>'+
+'<button data-act="del" title="Remove role" style="border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;width:30px;height:30px;font-size:16px;cursor:pointer;line-height:1">×</button>'+
+'</div>';
+}).join("");
+}
+function fieldFromEl(el){ return el.getAttribute && el.getAttribute("data-f"); }
+function handleFieldChange(e){
+var f=fieldFromEl(e.target); if(!f) return;
+var row=e.target.closest("[data-id]"); if(!row) return;
+var id=row.getAttribute("data-id");
+var role=(appState.openRoles||[]).filter(function(r){return r.id===id;})[0]; if(!role) return;
+role[f]=e.target.value;
+saveFullState(appState);
+document.getElementById("rolesCount").textContent = (appState.openRoles||[]).filter(function(r){return r.status!=="closed";}).length + " open";
+}
+var rolesListEl=document.getElementById("rolesList");
+rolesListEl.addEventListener("input", handleFieldChange);
+rolesListEl.addEventListener("change", handleFieldChange);
+rolesListEl.addEventListener("click", function(e){
+var actBtn=e.target.closest("[data-act]"); if(!actBtn) return;
+var row=actBtn.closest("[data-id]"); var id=row.getAttribute("data-id");
+var roles=appState.openRoles||[];
+var idx=-1; roles.forEach(function(r,i){ if(r.id===id) idx=i; });
+if(idx<0) return;
+if(actBtn.getAttribute("data-act")==="toggle"){
+roles[idx].status = roles[idx].status==="closed" ? "open" : "closed";
+saveFullState(appState); renderRoles();
+} else if(actBtn.getAttribute("data-act")==="del"){
+if(!confirm('Remove "'+(roles[idx].title||"this role")+'"? This can\'t be undone.')) return;
+roles.splice(idx,1);
+saveFullState(appState); renderRoles();
+}
+});
+document.getElementById("addRoleBtn").onclick=function(){
+var id="role_"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+appState.openRoles = appState.openRoles||[];
+appState.openRoles.push({id:id, title:"", team:"Engineering", location:"", type:"Intl contractor", status:"open"});
+saveFullState(appState);
+renderRoles();
+var inp=document.querySelector('[data-id="'+id+'"] input[data-f="title"]');
+if(inp) inp.focus();
+};
+renderRoles();
+
+// ---- publish: rebuild careers.html from today's open roles, in the exact same look as the live page ----
+function buildCareersHtml(){
+var openRoles=(appState.openRoles||[]).filter(function(r){return r.status!=="closed" && (r.title||"").trim();});
+var cardsHtml = openRoles.length ? openRoles.map(function(r){
+var href="apply-apply.html?role="+encodeURIComponent(r.title);
+var meta=[r.team,r.location].filter(Boolean).join(" · ");
+return '      <a class="card" href="'+href+'"><h3>'+esc(r.title)+'</h3><p>'+esc(meta)+'</p><div class="go"><span class="host">'+esc(r.type||"")+'</span><span class="open">Apply →</span></div></a>';
+}).join("\n") : '      <p style="color:var(--muted)">No open roles right now — check back soon.</p>';
+
+return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Careers · Plei</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a class="logo" href="index.html"><img src="logo-green.png" alt="Plei" style="width:26px;height:26px;vertical-align:middle" />plei<span class="dot">.</span></a>
+      <a class="link" href="index.html">Home</a>
+      <a class="link active" href="careers.html">Careers</a>
+      <span class="spacer"></span><span class="badge">We're hiring</span>
+    </nav>
+
+    <h1>Play a part in the <span class="g">beautiful game</span>.</h1>
+    <p class="sub">We're building the operating system for how the world plays soccer, a global marketplace connecting players, organizers, and brands. If you love the game and want to build something millions will use, you're in the right place.</p>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:4px 0 34px">
+      <div style="background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:15px 18px"><p style="margin:0;font-size:26px;font-weight:800;color:var(--green)">640K+</p><p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">Players and counting</p></div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:15px 18px"><p style="margin:0;font-size:26px;font-weight:800;color:var(--green)">183K+</p><p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">Games played</p></div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:15px 18px"><p style="margin:0;font-size:26px;font-weight:800;color:var(--green)">8</p><p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">Countries on the team</p></div>
+      <div style="background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:15px 18px"><p style="margin:0;font-size:26px;font-weight:800;color:var(--green)">Miami</p><p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">HQ, plus remote</p></div>
+    </div>
+
+    <div class="section"><h2>Why Plei</h2><span class="rule"></span></div>
+    <div class="grid">
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 21s-7-5.2-7-11a7 7 0 0114 0c0 5.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div><h3>People first, soccer follows</h3><p>We lead with empathy, inclusion, and joy, on and off the pitch. We build for the humans who power our ecosystem.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 3v18h18M7 15l4-4 3 3 5-6"/></svg></div><h3>A real movement, not just an app</h3><p>We're transforming how soccer is played, organized, and monetized worldwide. Your work reaches millions.</p></div>
+      <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2L12 16.8 5.7 21l2.3-7.2-6-4.4h7.6z"/></svg></div><h3>Team of owners</h3><p>We move fast, hold each other accountable, and chase excellence, with respect at the core. Global talent, local impact.</p></div>
+    </div>
+
+    <div class="section"><h2>Perks</h2><span class="rule"></span></div>
+    <div class="grid small">
+      <div class="card small"><h3>Equity</h3><p>Own a piece of what we build</p></div>
+      <div class="card small"><h3>Health, dental, vision</h3><p>Covered benefits</p></div>
+      <div class="card small"><h3>401(k)</h3><p>Plan for the future</p></div>
+      <div class="card small"><h3>Flexible hours</h3><p>Core hours 10–2, own your schedule</p></div>
+      <div class="card small"><h3>Coral Gables HQ</h3><p>Parking covered, plus remote</p></div>
+      <div class="card small"><h3>Global team</h3><p>Work across borders and cultures</p></div>
+    </div>
+
+    <div class="section"><h2>Open Roles</h2><span class="rule"></span></div>
+    <div class="grid">
+${cardsHtml}
+    </div>
+
+    <div style="background:linear-gradient(180deg,#0e3626,#0b2c1f);border:1px solid rgba(47,215,113,.28);border-radius:18px;padding:26px;margin-top:30px;text-align:center">
+      <h3 style="margin:0 0 6px;font-size:22px;font-weight:800">Don't see your role?</h3>
+      <p style="margin:0 0 16px;color:var(--muted)">We're always looking for great people who love the game. Tell us what you'd build.</p>
+      <a href="mailto:careers@plei.com" style="display:inline-block;background:var(--green);color:#062018;font-weight:700;text-decoration:none;padding:11px 22px;border-radius:10px">Get in touch</a>
+    </div>
+
+    <footer>Plei, Inc. · <a href="index.html" style="color:var(--green);text-decoration:none">back to hub</a></footer>
+  </div>
+</body>
+</html>
+`;
+}
+document.getElementById("publishCareersBtn").onclick=function(){
+var html=buildCareersHtml();
+var blob=new Blob([html], {type:"text/html"});
+var url=URL.createObjectURL(blob);
+var a=document.createElement("a"); a.href=url; a.download="careers.html"; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+setTimeout(function(){ URL.revokeObjectURL(url); }, 4000);
+};
+</script>
 </body>
 </html>

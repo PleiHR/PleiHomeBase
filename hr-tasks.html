@@ -396,9 +396,33 @@ return [
 { id:"proj_hiring", name:"Hiring Application Form", area:"HR", desc:"Every candidate, one board, application through offer — mirrors Magic's ClickUp hiring list.", statuses:hiringStatuses() }
 ];
 }
-// The exact 11 roles + "Other" from the real ClickUp "Job Role" field / Open Rolls dropdown — shared by the
-// public form's Role question and the Job Role custom field so a submitted value always matches an option.
-var HIRING_ROLES = ["Business Intelligence Engineer","QA Engineer","Frontend Engineer","Backend Engineer","Full-Stack Engineer","DevOps Engineer","AI Lead","Senior Product Designer","Organizer Success Manager","HR Operations Manager","Booking Agent","Other / not listed"];
+// Open Roles: the staff-editable list of what Plei is currently hiring for — added, edited, or closed from
+// hiring.html's "Open Roles" section, which writes into this same state.openRoles array. It is the single
+// source of truth for the public Careers page's role cards AND every candidate-facing "Job Role" dropdown
+// here (the public application form's Role question, the cf_role custom field) — closing or adding a role
+// in hiring.html is all it takes to update every one of those without re-seeding or migrating anything.
+// Seeded once from the original static 11-role table that used to live on hiring.html.
+function seedOpenRoles(){
+return [
+{id:"role_bie", title:"Business Intelligence Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
+{id:"role_qa", title:"QA Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
+{id:"role_fe", title:"Frontend Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
+{id:"role_be", title:"Backend Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
+{id:"role_fs", title:"Full-Stack Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
+{id:"role_devops", title:"DevOps Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
+{id:"role_ai", title:"AI Lead", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
+{id:"role_design", title:"Senior Product Designer", team:"Product", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
+{id:"role_osm", title:"Organizer Success Manager", team:"Growth", location:"United States", type:"W2", status:"open"},
+{id:"role_hrops", title:"HR Operations Manager", team:"Operations", location:"Miami (hybrid)", type:"Full-time", status:"open"},
+{id:"role_booking", title:"Booking Agent", team:"Magic", location:"LatAm (remote)", type:"Intl contractor", status:"open"}
+];
+}
+// Live role names for anything candidate-facing — always today's OPEN roles (never "closed" ones), so a
+// candidate can only apply to, or be tagged with, a role that's actually still being hired for. "Other / not
+// listed" is always appended as a fixed catch-all, independent of the editable list.
+function openRoleOptions(){
+return (state.openRoles||[]).filter(function(r){return r.status!=="closed";}).map(function(r){return r.title;}).concat(["Other / not listed"]);
+}
 // Global custom fields seeded to match the real ClickUp candidate fields (checked against the live
 // "Hiring Application Form" list: Email Address, Phone Number, Location, LinkedIn ("Content Link"), Job Role,
 // Referred By ("Referral"), Salary Expectations, plus the Barrier 1/2/3 notes staff fill in during interviews).
@@ -410,7 +434,7 @@ return [
 { id:"cf_phone", label:"Phone Number", type:"phone", opts:undefined },
 { id:"cf_location", label:"Location", type:"text", opts:undefined },
 { id:"cf_linkedin", label:"LinkedIn", type:"url", opts:undefined },
-{ id:"cf_role", label:"Job Role", type:"select", opts:HIRING_ROLES.slice() },
+{ id:"cf_role", label:"Job Role", type:"select", opts:seedOpenRoles().map(function(r){return r.title;}).concat(["Other / not listed"]) },
 { id:"cf_referral", label:"Referred By", type:"text", opts:undefined },
 { id:"cf_salary", label:"Salary Expectations", type:"text", opts:undefined },
 { id:"cf_barrier1", label:"Barrier 1 notes", type:"textarea", opts:undefined },
@@ -468,7 +492,7 @@ return [
 {id:"h8",label:"Phone Number",type:"text",req:true},
 {id:"h4",label:"Where are you located? (City, Country)",type:"text",req:true},
 {id:"h7",label:"LinkedIn",type:"text",req:true},
-{id:"h3",label:"Please select the role you are applying for:",type:"select",req:true,opts:HIRING_ROLES.slice()},
+{id:"h3",label:"Please select the role you are applying for:",type:"select",req:true,opts:seedOpenRoles().map(function(r){return r.title;}).concat(["Other / not listed"])},
 {id:"h9",label:"Did someone refer you? If yes, please share their name below so we can thank them!",type:"text",req:false},
 {id:"h5",label:"Resume",type:"file",req:true},
 {id:"h10",label:"Salary Expectations — what are your compensation expectations for this role? (USD/year, a range is fine)",type:"text",req:true}
@@ -486,6 +510,7 @@ if(!Array.isArray(s.fields)){ s.fields = seedFields(); seeded=true; }
 if(!Array.isArray(s.projects)){ s.projects = defaultProjects(); seeded=true; }
 if(!Array.isArray(s.projectTemplates)){ s.projectTemplates = defaultProjectTemplates(); seeded=true; }
 if(typeof s.relayUrl!=="string"){ s.relayUrl = ""; seeded=true; }
+if(!Array.isArray(s.openRoles)){ s.openRoles = seedOpenRoles(); seeded=true; }
 // ---- migration: browsers that already had tasks saved before the Hiring pipeline / public-forms round
 // skip every "if(!Array.isArray(...))" seed above (their arrays already exist), so the new pieces need to be
 // added by id instead of relying on first-ever-load seeding. Runs every load; cheap and a no-op once caught up.
@@ -850,7 +875,8 @@ ctrl = items || '<p class="tk-empty" style="margin:0">No items in this checklist
 } else if(f.type==="textarea"){
 ctrl = '<textarea class="cfval" data-cf="'+esc(f.id)+'" data-cfty="textarea" style="min-height:60px" placeholder="—">'+esc(val)+'</textarea>';
 } else if(f.type==="select"){
-var opts='<option value="">—</option>'+(f.opts||[]).map(function(o){return '<option value="'+esc(o)+'"'+(val===o?" selected":"")+'>'+esc(o)+'</option>';}).join("");
+var selOpts = (f.id==="cf_role") ? openRoleOptions() : (f.opts||[]);
+var opts='<option value="">—</option>'+selOpts.map(function(o){return '<option value="'+esc(o)+'"'+(val===o?" selected":"")+'>'+esc(o)+'</option>';}).join("");
 ctrl = '<select class="cfval" data-cf="'+esc(f.id)+'" data-cfty="select">'+opts+'</select>';
 } else if(f.type==="checkbox"){
 ctrl = '<label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer;margin:0 0 4px"><input type="checkbox" data-cf="'+esc(f.id)+'" data-cfty="checkbox" style="width:16px;height:16px;accent-color:var(--green)" '+(val?"checked":"")+' /> '+(val?"Yes":"No")+'</label>';
@@ -1432,7 +1458,7 @@ var rows = form.fields.map(function(f){
 var lab = esc(f.label) + (f.req?' <span style="color:#f28b82">*</span>':'');
 var inp;
 if(f.type==="textarea") inp = '<textarea data-fk="'+esc(f.id)+'" '+(f.req?"data-req":"")+'></textarea>';
-else if(f.type==="select") inp = '<select data-fk="'+esc(f.id)+'">'+(f.opts||[]).map(function(o){return '<option>'+esc(o)+'</option>';}).join("")+'</select>';
+else if(f.type==="select") inp = '<select data-fk="'+esc(f.id)+'">'+((f.id==="h3"?openRoleOptions():(f.opts||[]))).map(function(o){return '<option>'+esc(o)+'</option>';}).join("")+'</select>';
 else if(f.type==="file") inp = '<input type="file" data-fk="'+esc(f.id)+'" '+(f.req?"data-req":"")+' /><p style="color:var(--muted);font-size:11.5px;margin:4px 0 0">Filling this out yourself just notes the filename — attach the actual file to the task afterward, via Documents.</p>';
 else inp = '<input type="'+(f.type==="date"?"date":(f.type==="email"?"email":"text"))+'" data-fk="'+esc(f.id)+'" '+(f.req?"data-req":"")+' />';
 return '<div class="fillrow"><label>'+lab+'</label>'+inp+'</div>';
@@ -1486,7 +1512,7 @@ var rows = (form.fields||[]).map(function(f){
 var lab = esc(f.label) + (f.req?' <span style="color:#f28b82">*</span>':'');
 var inp;
 if(f.type==="textarea") inp = '<textarea data-fk="'+esc(f.id)+'" '+(f.req?"data-req":"")+'></textarea>';
-else if(f.type==="select") inp = '<select data-fk="'+esc(f.id)+'">'+(f.opts||[]).map(function(o){return '<option>'+esc(o)+'</option>';}).join("")+'</select>';
+else if(f.type==="select") inp = '<select data-fk="'+esc(f.id)+'">'+((f.id==="h3"?openRoleOptions():(f.opts||[]))).map(function(o){return '<option>'+esc(o)+'</option>';}).join("")+'</select>';
 else if(f.type==="file") inp = '<input type="file" data-fk="'+esc(f.id)+'" data-file="1" '+(f.req?"data-req":"")+' accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" />';
 else inp = '<input type="'+(f.type==="date"?"date":(f.type==="email"?"email":"text"))+'" data-fk="'+esc(f.id)+'" '+(f.req?"data-req":"")+' />';
 return '<div class="fillrow"><label>'+lab+'</label>'+inp+'</div>';
@@ -1544,6 +1570,19 @@ return '<!doctype html>\n<html lang="en">\n<head>\n<meta charset="utf-8" />\n<me
 '.then(function(){ document.getElementById("pfForm").style.display="none"; document.getElementById("pfDone").style.display="block"; })\n'+
 '.catch(function(){ errEl.textContent="Couldn\'t submit right now — please check your connection and try again."; errEl.style.display="block"; btn.disabled=false; btn.textContent="Submit"; });\n'+
 '});\n'+
+'(function(){\n'+
+'try{\n'+
+'var qp=new URLSearchParams(location.search);\n'+
+'var wantedRole=qp.get("role");\n'+
+'if(wantedRole){\n'+
+'var sel=document.querySelector(\'select[data-fk="h3"]\');\n'+
+'if(sel){\n'+
+'var match=Array.from(sel.options).find(function(o){ return o.value===wantedRole; });\n'+
+'if(match) sel.value=wantedRole;\n'+
+'}\n'+
+'}\n'+
+'}catch(e){}\n'+
+'})();\n'+
 '<\/script>\n</body>\n</html>\n';
 }
 function downloadPublicFormPage(form){
