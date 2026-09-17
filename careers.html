@@ -5,6 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Careers · Plei</title>
 <link rel="stylesheet" href="styles.css" />
+<style>
+#roleDetail{max-width:640px;margin:0 auto;display:none}
+#roleDetail .rdHead{display:flex;align-items:center;gap:16px;margin:22px 0 6px}
+#roleDetail .rdIcon{font-size:42px;line-height:1}
+#roleDetail h1{margin:0;font-size:30px}
+#roleDetail .rdMeta{margin:0 0 28px;color:var(--muted);font-size:14px}
+#roleDetail .rdDesc p{margin:0 0 14px;line-height:1.65;color:var(--txt)}
+#roleDetail .rdApply{display:inline-block;margin-top:8px;background:var(--green);color:#062018;font-weight:700;text-decoration:none;padding:12px 26px;border-radius:10px}
+#roleDetail .rdBack{color:var(--green);text-decoration:none;font-size:13px}
+</style>
 </head>
 <body>
   <div class="wrap">
@@ -15,6 +25,7 @@
       <span class="spacer"></span><span class="badge">We're hiring</span>
     </nav>
 
+    <div id="listSections">
     <h1>Play a part in the <span class="g">beautiful game</span>.</h1>
     <p class="sub">We're building the operating system for how the world plays soccer, a global marketplace connecting players, organizers, and brands. If you love the game and want to build something millions will use, you're in the right place.</p>
 
@@ -44,17 +55,17 @@
 
     <div class="section"><h2>Open Roles</h2><span class="rule"></span></div>
     <div class="grid">
-      <a class="card" href="apply-apply.html?role=Business%20Intelligence%20Engineer"><h3>Business Intelligence Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">Apply →</span></div></a>
-      <a class="card" href="apply-apply.html?role=QA%20Engineer"><h3>QA Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">Apply →</span></div></a>
-      <a class="card" href="apply-apply.html?role=Frontend%20Engineer"><h3>Frontend Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">Apply →</span></div></a>
-      <a class="card" href="apply-apply.html?role=Backend%20Engineer"><h3>Backend Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">Apply →</span></div></a>
-      <a class="card" href="apply-apply.html?role=Full-Stack%20Engineer"><h3>Full-Stack Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">Apply →</span></div></a>
-      <a class="card" href="apply-apply.html?role=DevOps%20Engineer"><h3>DevOps Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">Apply →</span></div></a>
-      <a class="card" href="apply-apply.html?role=AI%20Lead"><h3>AI Lead</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">Apply →</span></div></a>
-      <a class="card" href="apply-apply.html?role=Senior%20Product%20Designer"><h3>Senior Product Designer</h3><p>Product · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">Apply →</span></div></a>
-      <a class="card" href="apply-apply.html?role=Organizer%20Success%20Manager"><h3>Organizer Success Manager</h3><p>Growth · United States</p><div class="go"><span class="host">W2</span><span class="open">Apply →</span></div></a>
-      <a class="card" href="apply-apply.html?role=HR%20Operations%20Manager"><h3>HR Operations Manager</h3><p>Operations · Miami (hybrid)</p><div class="go"><span class="host">Full-time</span><span class="open">Apply →</span></div></a>
-      <a class="card" href="apply-apply.html?role=Booking%20Agent"><h3>Booking Agent</h3><p>Magic · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">Apply →</span></div></a>
+      <a class="card" href="#role/role_bie"><h3>📊 Business Intelligence Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
+      <a class="card" href="#role/role_qa"><h3>🔍 QA Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
+      <a class="card" href="#role/role_fe"><h3>🖥️ Frontend Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
+      <a class="card" href="#role/role_be"><h3>⚙️ Backend Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
+      <a class="card" href="#role/role_fs"><h3>🧩 Full-Stack Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
+      <a class="card" href="#role/role_devops"><h3>🛠️ DevOps Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
+      <a class="card" href="#role/role_ai"><h3>🤖 AI Lead</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
+      <a class="card" href="#role/role_design"><h3>🎨 Senior Product Designer</h3><p>Product · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
+      <a class="card" href="#role/role_osm"><h3>🤝 Organizer Success Manager</h3><p>Growth · United States</p><div class="go"><span class="host">W2</span><span class="open">View role →</span></div></a>
+      <a class="card" href="#role/role_hrops"><h3>🧑‍💼 HR Operations Manager</h3><p>Operations · Miami (hybrid)</p><div class="go"><span class="host">Full-time</span><span class="open">View role →</span></div></a>
+      <a class="card" href="#role/role_booking"><h3>📅 Booking Agent</h3><p>Magic · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
     </div>
 
     <div style="background:linear-gradient(180deg,#0e3626,#0b2c1f);border:1px solid rgba(47,215,113,.28);border-radius:18px;padding:26px;margin-top:30px;text-align:center">
@@ -62,8 +73,45 @@
       <p style="margin:0 0 16px;color:var(--muted)">We're always looking for great people who love the game. Tell us what you'd build.</p>
       <a href="mailto:careers@plei.com" style="display:inline-block;background:var(--green);color:#062018;font-weight:700;text-decoration:none;padding:11px 22px;border-radius:10px">Get in touch</a>
     </div>
+    </div>
+
+    <div id="roleDetail"></div>
 
     <footer>Plei, Inc. · <a href="index.html" style="color:var(--green);text-decoration:none">back to hub</a></footer>
   </div>
+
+<script>
+var ROLES = [{"id":"role_bie","icon":"📊","title":"Business Intelligence Engineer","team":"Engineering","location":"LatAm (remote)","type":"Intl contractor","desc":""},{"id":"role_qa","icon":"🔍","title":"QA Engineer","team":"Engineering","location":"LatAm (remote)","type":"Intl contractor","desc":""},{"id":"role_fe","icon":"🖥️","title":"Frontend Engineer","team":"Engineering","location":"LatAm (remote)","type":"Intl contractor","desc":""},{"id":"role_be","icon":"⚙️","title":"Backend Engineer","team":"Engineering","location":"LatAm (remote)","type":"Intl contractor","desc":""},{"id":"role_fs","icon":"🧩","title":"Full-Stack Engineer","team":"Engineering","location":"LatAm (remote)","type":"Intl contractor","desc":""},{"id":"role_devops","icon":"🛠️","title":"DevOps Engineer","team":"Engineering","location":"LatAm (remote)","type":"Intl contractor","desc":""},{"id":"role_ai","icon":"🤖","title":"AI Lead","team":"Engineering","location":"LatAm (remote)","type":"Intl contractor","desc":""},{"id":"role_design","icon":"🎨","title":"Senior Product Designer","team":"Product","location":"LatAm (remote)","type":"Intl contractor","desc":""},{"id":"role_osm","icon":"🤝","title":"Organizer Success Manager","team":"Growth","location":"United States","type":"W2","desc":""},{"id":"role_hrops","icon":"🧑‍💼","title":"HR Operations Manager","team":"Operations","location":"Miami (hybrid)","type":"Full-time","desc":""},{"id":"role_booking","icon":"📅","title":"Booking Agent","team":"Magic","location":"LatAm (remote)","type":"Intl contractor","desc":""}];
+function escH(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+function renderRoleDetail(role){
+var metaParts=[role.team, role.location, role.type].filter(Boolean);
+var descText=(role.desc||"").trim();
+var descHtml = descText
+  ? descText.split(/\n{2,}/).map(function(p){return '<p>'+escH(p).replace(/\n/g,"<br>")+'</p>';}).join("")
+  : '<p style="color:var(--muted)">No description yet — reach out to <a href="mailto:careers@plei.com" style="color:var(--green)">careers@plei.com</a> with any questions about this role.</p>';
+document.getElementById("roleDetail").innerHTML =
+  '<a href="#" class="rdBack">← All open roles</a>'+
+  '<div class="rdHead"><span class="rdIcon">'+escH(role.icon||"💼")+'</span><h1>'+escH(role.title)+'</h1></div>'+
+  '<p class="rdMeta">'+escH(metaParts.join(" · "))+'</p>'+
+  '<div class="rdDesc">'+descHtml+'</div>'+
+  '<a class="rdApply" href="apply-apply.html?role='+encodeURIComponent(role.title)+'">Apply now →</a>';
+}
+function route(){
+var m=(location.hash||"").match(/^#role\/(.+)$/);
+var role = m ? ROLES.filter(function(r){return r.id===decodeURIComponent(m[1]);})[0] : null;
+var list=document.getElementById("listSections"), detail=document.getElementById("roleDetail");
+if(role){
+  renderRoleDetail(role);
+  list.style.display="none";
+  detail.style.display="block";
+} else {
+  list.style.display="";
+  detail.style.display="none";
+}
+window.scrollTo(0,0);
+}
+window.addEventListener("hashchange", route);
+route();
+</script>
 </body>
 </html>

@@ -256,10 +256,12 @@ renderRoles();
 // ---- publish: rebuild careers.html from today's open roles, in the exact same look as the live page ----
 function buildCareersHtml(){
 var openRoles=(appState.openRoles||[]).filter(function(r){return r.status!=="closed" && r.public!==false && (r.title||"").trim();});
+var rolesJson = JSON.stringify(openRoles.map(function(r){
+return {id:r.id, icon:r.icon||"💼", title:r.title, team:r.team||"", location:r.location||"", type:r.type||"", desc:r.desc||""};
+}));
 var cardsHtml = openRoles.length ? openRoles.map(function(r){
-var href="apply-apply.html?role="+encodeURIComponent(r.title);
 var meta=[r.team,r.location].filter(Boolean).join(" · ");
-return '      <a class="card" href="'+href+'"><h3>'+esc(r.icon||"💼")+' '+esc(r.title)+'</h3><p>'+esc(meta)+'</p><div class="go"><span class="host">'+esc(r.type||"")+'</span><span class="open">Apply →</span></div></a>';
+return '      <a class="card" href="#role/'+esc(encodeURIComponent(r.id))+'"><h3>'+esc(r.icon||"💼")+' '+esc(r.title)+'</h3><p>'+esc(meta)+'</p><div class="go"><span class="host">'+esc(r.type||"")+'</span><span class="open">View role →</span></div></a>';
 }).join("\n") : '      <p style="color:var(--muted)">No open roles right now — check back soon.</p>';
 
 return `<!doctype html>
@@ -269,6 +271,16 @@ return `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Careers · Plei</title>
 <link rel="stylesheet" href="styles.css" />
+<style>
+#roleDetail{max-width:640px;margin:0 auto;display:none}
+#roleDetail .rdHead{display:flex;align-items:center;gap:16px;margin:22px 0 6px}
+#roleDetail .rdIcon{font-size:42px;line-height:1}
+#roleDetail h1{margin:0;font-size:30px}
+#roleDetail .rdMeta{margin:0 0 28px;color:var(--muted);font-size:14px}
+#roleDetail .rdDesc p{margin:0 0 14px;line-height:1.65;color:var(--txt)}
+#roleDetail .rdApply{display:inline-block;margin-top:8px;background:var(--green);color:#062018;font-weight:700;text-decoration:none;padding:12px 26px;border-radius:10px}
+#roleDetail .rdBack{color:var(--green);text-decoration:none;font-size:13px}
+</style>
 </head>
 <body>
   <div class="wrap">
@@ -279,6 +291,7 @@ return `<!doctype html>
       <span class="spacer"></span><span class="badge">We're hiring</span>
     </nav>
 
+    <div id="listSections">
     <h1>Play a part in the <span class="g">beautiful game</span>.</h1>
     <p class="sub">We're building the operating system for how the world plays soccer, a global marketplace connecting players, organizers, and brands. If you love the game and want to build something millions will use, you're in the right place.</p>
 
@@ -316,9 +329,46 @@ ${cardsHtml}
       <p style="margin:0 0 16px;color:var(--muted)">We're always looking for great people who love the game. Tell us what you'd build.</p>
       <a href="mailto:careers@plei.com" style="display:inline-block;background:var(--green);color:#062018;font-weight:700;text-decoration:none;padding:11px 22px;border-radius:10px">Get in touch</a>
     </div>
+    </div>
+
+    <div id="roleDetail"></div>
 
     <footer>Plei, Inc. · <a href="index.html" style="color:var(--green);text-decoration:none">back to hub</a></footer>
   </div>
+
+<script>
+var ROLES = ${rolesJson};
+function escH(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+function renderRoleDetail(role){
+var metaParts=[role.team, role.location, role.type].filter(Boolean);
+var descText=(role.desc||"").trim();
+var descHtml = descText
+  ? descText.split(/\\n{2,}/).map(function(p){return '<p>'+escH(p).replace(/\\n/g,"<br>")+'</p>';}).join("")
+  : '<p style="color:var(--muted)">No description yet — reach out to <a href="mailto:careers@plei.com" style="color:var(--green)">careers@plei.com</a> with any questions about this role.</p>';
+document.getElementById("roleDetail").innerHTML =
+  '<a href="#" class="rdBack">← All open roles</a>'+
+  '<div class="rdHead"><span class="rdIcon">'+escH(role.icon||"💼")+'</span><h1>'+escH(role.title)+'</h1></div>'+
+  '<p class="rdMeta">'+escH(metaParts.join(" · "))+'</p>'+
+  '<div class="rdDesc">'+descHtml+'</div>'+
+  '<a class="rdApply" href="apply-apply.html?role='+encodeURIComponent(role.title)+'">Apply now →</a>';
+}
+function route(){
+var m=(location.hash||"").match(/^#role\\/(.+)$/);
+var role = m ? ROLES.filter(function(r){return r.id===decodeURIComponent(m[1]);})[0] : null;
+var list=document.getElementById("listSections"), detail=document.getElementById("roleDetail");
+if(role){
+  renderRoleDetail(role);
+  list.style.display="none";
+  detail.style.display="block";
+} else {
+  list.style.display="";
+  detail.style.display="none";
+}
+window.scrollTo(0,0);
+}
+window.addEventListener("hashchange", route);
+route();
+<\/script>
 </body>
 </html>
 `;
