@@ -144,6 +144,14 @@
 .fillrow{margin:0 0 14px}
 .fillrow label{display:block;font-size:12.5px;font-weight:600;color:var(--green-soft);margin:0 0 5px}
 .fillrow input,.fillrow textarea,.fillrow select{width:100%;box-sizing:border-box;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:9px 11px;color:var(--txt);font:inherit;font-size:13.5px}
+
+.roletabs{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 16px}
+.roletab{background:rgba(255,255,255,.03);border:1px solid var(--line);color:var(--txt);border-radius:999px;padding:7px 8px 7px 14px;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;font:inherit}
+.roletab .n{background:rgba(255,255,255,.08);border-radius:999px;padding:1px 8px;font-size:11px;color:var(--muted)}
+.roletab:hover{border-color:rgba(255,255,255,.3)}
+.roletab.active{background:var(--green);color:#062018;border-color:var(--green);font-weight:700}
+.roletab.active .n{background:rgba(6,32,24,.22);color:#062018}
+.rolehint{font-size:12.5px;color:var(--muted);margin:-8px 0 18px}
 </style>
 </head>
 <body>
@@ -173,7 +181,10 @@
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 26px">
+    <div class="roletabs" id="roleTabs"></div>
+    <p class="rolehint" id="roleHint" style="display:none"></p>
+
+    <div id="statsGeneral" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 26px">
       <div style="background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:15px 18px">
         <p style="margin:0;font-size:28px;font-weight:800;color:var(--green)" id="stTotal">0</p>
         <p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">Total candidates</p>
@@ -192,10 +203,12 @@
       </div>
     </div>
 
+    <div id="statsRole" style="display:none;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:0 0 26px"></div>
+
     <div class="section"><h2>Open application form</h2><span class="rule"></span></div>
     <div id="hireFormCard"></div>
 
-    <div class="section"><h2>Add a candidate</h2><span class="rule"></span></div>
+    <div class="section"><h2 id="addCandHead">Add a candidate</h2><span class="rule"></span></div>
     <div class="tk-add">
       <input class="title" id="cTitle" type="text" placeholder="Candidate name" />
       <button class="add" id="cAdd">Add candidate</button>
@@ -314,6 +327,7 @@ var KEY="plei_hr_tasks_v1";
 var ME_KEY="plei_tasks_me";
 var AM_KEY="plei_tasks_amonly";
 var ADDMORE_KEY="plei_hiring_addmore";
+var ROLE_KEY="plei_hiring_role_filter";
 function load(){
 var s;
 try{ s = JSON.parse(localStorage.getItem(KEY)); }catch(e){ s = null; }
@@ -346,9 +360,12 @@ function loadAmOnly(){ try{ return localStorage.getItem(AM_KEY)==="1"; }catch(e)
 function saveAmOnly(v){ try{ localStorage.setItem(AM_KEY, v?"1":"0"); }catch(e){} }
 function loadBoolPref(key){ try{ return localStorage.getItem(key)==="1"; }catch(e){ return false; } }
 function saveBoolPref(key,v){ try{ localStorage.setItem(key, v?"1":"0"); }catch(e){} }
+function loadRoleFilter(){ try{ return localStorage.getItem(ROLE_KEY)||""; }catch(e){ return ""; } }
+function saveRoleFilter(v){ try{ localStorage.setItem(ROLE_KEY, v||""); }catch(e){} }
 var state=load();
 var ME=loadMe();
 var amOnly=loadAmOnly() && !!ME;
+var roleFilter=loadRoleFilter();
 
 function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
 function initials(n){ var p=String(n||"").trim().split(/\s+/); return (((p[0]||"")[0]||"")+((p[1]||"")[0]||"")).toUpperCase()||"?"; }
@@ -375,6 +392,17 @@ function PROJ(){ return state.projects.filter(function(p){return p.id===PROJECT_
 function candidateTasks(){ return state.tasks.filter(function(t){ return t.projectId===PROJECT_ID; }); }
 function taskById(id){ return state.tasks.filter(function(x){return x.id===id;})[0]; }
 function firstOpenStatus(p){ if(!p) return null; var s=(p.statuses||[]).filter(function(x){return x.cat==="open";})[0]; return s || (p.statuses||[])[0] || null; }
+
+// ---- per job-role sections: "Todos los roles" (unchanged general view) plus one section per role that has
+// at least one candidate so far, mirroring how ClickUp's own List view groups this same list by Job Role. ----
+function roleOf(t){ return (t.cf && t.cf.cf_role) || ""; }
+function roleTasks(role){ return candidateTasks().filter(function(t){ return roleOf(t)===role; }); }
+function distinctRoles(){
+var counts={};
+candidateTasks().forEach(function(t){ var r=roleOf(t); if(r) counts[r]=(counts[r]||0)+1; });
+return Object.keys(counts).map(function(r){ return {role:r, count:counts[r]}; }).sort(function(a,b){ return b.count-a.count || a.role.localeCompare(b.role); });
+}
+function visibleCandidateTasks(){ return roleFilter ? roleTasks(roleFilter) : candidateTasks(); }
 
 // ---- identity / assigned-to-me ----
 (function(){ var im=document.getElementById("idMe"); TEAM.forEach(function(n){ var o=document.createElement("option"); o.value=n; o.textContent=n; if(n===ME) o.selected=true; im.appendChild(o); }); })();
@@ -424,7 +452,10 @@ document.addEventListener("click", function(e){ if(!cAssignWrap.contains(e.targe
 document.getElementById("cAdd").addEventListener("click", function(){
 var title=document.getElementById("cTitle").value.trim(); if(!title){ document.getElementById("cTitle").focus(); return; }
 var status=(firstOpenStatus(PROJ())||{}).id||"new_app";
-state.tasks.push({id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title:title, who:picked.slice(), tags:[], vis:"company", due:document.getElementById("cDue").value, cad:"once", status:status, priority:document.getElementById("cPri").value, subtasks:[], notes:[], files:[], checklist:[], cf:{}, projectId:PROJECT_ID});
+// If a specific role tab is active, tag the new candidate with it right away — this is the common case while
+// actively sourcing for one open role, so its count/section picks the card up without an extra edit.
+var cf = roleFilter ? {cf_role:roleFilter} : {};
+state.tasks.push({id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title:title, who:picked.slice(), tags:[], vis:"company", due:document.getElementById("cDue").value, cad:"once", status:status, priority:document.getElementById("cPri").value, subtasks:[], notes:[], files:[], checklist:[], cf:cf, projectId:PROJECT_ID});
 save(state);
 document.getElementById("cTitle").value=""; document.getElementById("cDue").value=""; picked=[]; cRenderChips(); document.getElementById("cPri").value="normal";
 renderAll();
@@ -432,9 +463,31 @@ renderAll();
 document.getElementById("cTitle").addEventListener("keydown", function(e){ if(e.key==="Enter") document.getElementById("cAdd").click(); });
 
 // ---- stats ----
+function pct(n,d){ return d?Math.round(n/d*100):0; }
+function statTileHtml(value,label){ return '<div style="background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:15px 18px"><p style="margin:0;font-size:28px;font-weight:800;color:var(--green)">'+value+'</p><p style="margin:2px 0 0;font-size:12.5px;color:var(--muted)">'+label+'</p></div>'; }
+// ---- role tabs: "Todos los roles" (the general view, unchanged) plus one tab per role that has received at
+// least one candidate so far — appears on its own as soon as a candidate applies for that role. ----
+function renderRoleTabs(){
+var box=document.getElementById("roleTabs"); if(!box) return;
+var roles=distinctRoles(), totalAll=candidateTasks().length;
+var tabs=['<button type="button" class="roletab'+(!roleFilter?" active":"")+'" data-role="">Todos los roles<span class="n">'+totalAll+'</span></button>'];
+roles.forEach(function(r){ tabs.push('<button type="button" class="roletab'+(roleFilter===r.role?" active":"")+'" data-role="'+esc(r.role)+'">'+esc(r.role)+'<span class="n">'+r.count+'</span></button>'); });
+box.innerHTML=tabs.join("");
+box.querySelectorAll("[data-role]").forEach(function(b){
+b.addEventListener("click", function(){ roleFilter=b.getAttribute("data-role")||""; saveRoleFilter(roleFilter); renderAll(); });
+});
+var hint=document.getElementById("roleHint");
+if(roleFilter){ hint.style.display="block"; hint.textContent="Showing only candidates applying for "+roleFilter+" — the numbers below cover this role's whole pipeline (not the \"Assigned to me\" filter)."; }
+else { hint.style.display="none"; hint.textContent=""; }
+var head=document.getElementById("addCandHead"); if(head) head.textContent = roleFilter ? "Add a candidate — "+roleFilter : "Add a candidate";
+var cTitle=document.getElementById("cTitle"); if(cTitle) cTitle.placeholder = roleFilter ? "Candidate name (applying for "+roleFilter+")" : "Candidate name";
+}
 function renderStats(){
-var all=candidateTasks(), proj=PROJ();
+var proj=PROJ();
 function catOf(t){ var s=(proj.statuses||[]).filter(function(x){return x.id===t.status;})[0]; return s?s.cat:"open"; }
+var generalBox=document.getElementById("statsGeneral"), roleBox=document.getElementById("statsRole");
+if(!roleFilter){
+var all=candidateTasks();
 var total=all.length;
 var active=all.filter(function(t){return catOf(t)==="active";}).length;
 var offers=all.filter(function(t){return catOf(t)==="done";}).length;
@@ -443,6 +496,32 @@ document.getElementById("stTotal").textContent=total;
 document.getElementById("stActive").textContent=active;
 document.getElementById("stOffers").textContent=offers;
 document.getElementById("stPct").textContent=(reached?Math.round(offers/reached*100):0)+"%";
+generalBox.style.display="grid"; roleBox.style.display="none";
+return;
+}
+// Per-role panel: deliberately reflects this role's WHOLE pipeline (not the "assigned to me" toggle), so it
+// stays a reliable running record of how sourcing for this specific role is going. "Reached Barrier N" counts
+// anyone currently AT or PAST that barrier (same cumulative convention the general "Barrier 1 → offer" tile
+// already used) — a candidate who was later rejected no longer shows here, since a rejection only records the
+// final "Rejected" status, not which barrier it happened at; Rejected is shown as its own separate count.
+var all=roleTasks(roleFilter);
+var total=all.length;
+var rejected=all.filter(function(t){return t.status==="rejected";}).length;
+var chain=["barrier1","barrier2","barrier3","barrier4","passed","offer_sent","send_offer"];
+function reachedFrom(id){ var i=chain.indexOf(id); return all.filter(function(t){ return chain.indexOf(t.status)>=i; }).length; }
+var b1=reachedFrom("barrier1"), b2=reachedFrom("barrier2"), b3=reachedFrom("barrier3"), b4=reachedFrom("barrier4");
+var offers=all.filter(function(t){return catOf(t)==="done";}).length;
+roleBox.innerHTML=[
+statTileHtml(total, "Applicants"),
+statTileHtml(rejected, "Rejected ("+pct(rejected,total)+"%)"),
+statTileHtml(b1, "Reached Barrier 1 ("+pct(b1,total)+"%)"),
+statTileHtml(b2, "Reached Barrier 2 ("+pct(b2,total)+"%)"),
+statTileHtml(b3, "Reached Barrier 3 ("+pct(b3,total)+"%)"),
+statTileHtml(b4, "Reached Barrier 4 ("+pct(b4,total)+"%)"),
+statTileHtml(offers, "Offers out ("+pct(offers,total)+"%)"),
+statTileHtml((b1?pct(offers,b1):0)+"%", "Barrier 1 → offer")
+].join("");
+generalBox.style.display="none"; roleBox.style.display="grid";
 }
 
 // ---- board, grouped like the real pipeline: Not started / Active — the barriers / Done ----
@@ -459,7 +538,7 @@ return '<div class="task '+(isDoneCat?"dn":"")+'" data-id="'+t.id+'" data-pri="'
 '<div class="acts"><select class="cstatus" data-cid="'+t.id+'">'+stOpts+'</select><button class="del" data-cdel="'+t.id+'">Delete</button></div></div>';
 }
 function renderBoard(){
-var proj=PROJ(), all=candidateTasks();
+var proj=PROJ(), all=visibleCandidateTasks();
 if(amOnly && ME) all=all.filter(function(t){return whoArr(t.who).indexOf(ME)>=0;});
 var groups=[
 {title:"Not started", sub:"new, sourced, or paused before interviews", cats:["open"]},
@@ -496,7 +575,7 @@ box.querySelectorAll(".task[data-id]").forEach(function(card){
 card.addEventListener("click", function(e){ if(e.target.closest("select")||e.target.closest("button")) return; openDetail(card.getAttribute("data-id")); });
 });
 }
-function renderAll(){ renderStats(); renderBoard(); renderHireFormCard(); updateAmCount(); updateCfCount(); }
+function renderAll(){ renderRoleTabs(); renderStats(); renderBoard(); renderHireFormCard(); updateAmCount(); updateCfCount(); }
 
 // ---- detail modal (full-featured: status, priority, due, assignees, description, checklist, subtasks,
 // custom fields, documents, comments) ----
