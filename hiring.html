@@ -5,6 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Hiring &amp; Recruiting · Plei Hub</title>
 <link rel="stylesheet" href="styles.css" />
+<style>
+.rolelink{display:flex;align-items:center;gap:10px;padding:11px 14px;border:1px solid var(--line);border-radius:10px;background:rgba(255,255,255,.02);cursor:pointer;transition:background .12s,border-color .12s}
+.rolelink:hover{background:rgba(47,215,113,.08);border-color:rgba(47,215,113,.3)}
+.rolelink .emoji{font-size:18px;line-height:1;flex:0 0 auto}
+.rolelink .rtitle{flex:1;min-width:0;font-size:14.5px;font-weight:600;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rolelink .rmeta{font-size:12px;color:var(--muted);white-space:nowrap}
+.rolelink .pill{white-space:nowrap;border-radius:999px;padding:4px 11px;font-size:11.5px;font-weight:600}
+.rolelink .pill.open{border:1px solid rgba(47,215,113,.35);background:rgba(47,215,113,.14);color:var(--green-soft)}
+.rolelink .pill.closed{border:1px solid rgba(242,139,130,.35);background:rgba(242,139,130,.12);color:#f6a9a2}
+.rolelink .chev{color:var(--muted);font-size:16px;flex:0 0 auto}
+.modal{position:fixed;inset:0;background:rgba(3,15,10,.62);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}
+.modal.show{display:flex}
+.sheet{width:100%;max-width:560px;background:#0c2a1f;border:1px solid var(--line);border-radius:16px;padding:22px 24px}
+.sheet .x{float:right;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1}
+.sheet h2{margin:0 30px 4px 0;font-size:19px}
+.sheet .m{font-size:12.5px;color:var(--muted);margin:0 0 8px;display:flex;gap:8px;flex-wrap:wrap}
+.sheet .lbl{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--green-soft);margin:16px 0 6px}
+.sheet input,.sheet textarea,.sheet select{width:100%;box-sizing:border-box;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:9px 11px;color:var(--txt);font:inherit;font-size:13.5px;resize:vertical}
+</style>
 </head>
 <body>
   <div class="wrap">
@@ -41,6 +60,40 @@
     <footer><a href="hr.html" style="color:var(--green);text-decoration:none">← Back to HR dashboard</a></footer>
   </div>
 
+  <div class="modal" id="roleModal">
+    <div class="sheet">
+      <button class="x" id="roleModalClose" type="button" aria-label="Close">×</button>
+      <h2 id="roleModalTitle">New role</h2>
+      <p class="m">Changes save automatically — close whenever you're done.</p>
+
+      <div class="lbl">Icon &amp; title</div>
+      <div style="display:flex;gap:8px">
+        <input id="rmIcon" maxlength="4" style="flex:0 0 56px;text-align:center;font-size:18px" />
+        <input id="rmTitle" placeholder="Role title" style="flex:1" />
+      </div>
+
+      <div class="lbl">Team</div>
+      <select id="rmTeam"></select>
+
+      <div class="lbl">Location</div>
+      <input id="rmLocation" placeholder="Location" />
+
+      <div class="lbl">Type</div>
+      <select id="rmType"></select>
+
+      <div class="lbl">Status</div>
+      <select id="rmStatus"><option value="open">Open</option><option value="closed">Closed</option></select>
+
+      <div class="lbl">Description</div>
+      <textarea id="rmDesc" rows="5" placeholder="Responsibilities, requirements, anything worth knowing about this role."></textarea>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px">
+        <button id="rmDelete" type="button" style="border:1px solid rgba(242,139,130,.35);background:rgba(242,139,130,.1);color:#f6a9a2;border-radius:9px;padding:8px 14px;font-size:13px;cursor:pointer">Remove role</button>
+        <button id="rmDone" type="button" style="background:var(--green);color:#062018;font-weight:700;border:none;border-radius:9px;padding:9px 18px;font-size:13.5px;cursor:pointer">Done</button>
+      </div>
+    </div>
+  </div>
+
 <script>
 var KEY="plei_hr_tasks_v1";
 // Same seed used by hiring-pipeline.html / hr-tasks.html — kept in sync so a fresh browser sees the same
@@ -48,17 +101,17 @@ var KEY="plei_hr_tasks_v1";
 // just reads/writes that shared array; nothing here ever re-seeds over real edits.
 function seedOpenRoles(){
 return [
-{id:"role_bie", title:"Business Intelligence Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
-{id:"role_qa", title:"QA Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
-{id:"role_fe", title:"Frontend Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
-{id:"role_be", title:"Backend Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
-{id:"role_fs", title:"Full-Stack Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
-{id:"role_devops", title:"DevOps Engineer", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
-{id:"role_ai", title:"AI Lead", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
-{id:"role_design", title:"Senior Product Designer", team:"Product", location:"LatAm (remote)", type:"Intl contractor", status:"open"},
-{id:"role_osm", title:"Organizer Success Manager", team:"Growth", location:"United States", type:"W2", status:"open"},
-{id:"role_hrops", title:"HR Operations Manager", team:"Operations", location:"Miami (hybrid)", type:"Full-time", status:"open"},
-{id:"role_booking", title:"Booking Agent", team:"Magic", location:"LatAm (remote)", type:"Intl contractor", status:"open"}
+{id:"role_bie", title:"Business Intelligence Engineer", icon:"📊", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""},
+{id:"role_qa", title:"QA Engineer", icon:"🔍", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""},
+{id:"role_fe", title:"Frontend Engineer", icon:"🖥️", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""},
+{id:"role_be", title:"Backend Engineer", icon:"⚙️", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""},
+{id:"role_fs", title:"Full-Stack Engineer", icon:"🧩", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""},
+{id:"role_devops", title:"DevOps Engineer", icon:"🛠️", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""},
+{id:"role_ai", title:"AI Lead", icon:"🤖", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""},
+{id:"role_design", title:"Senior Product Designer", icon:"🎨", team:"Product", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""},
+{id:"role_osm", title:"Organizer Success Manager", icon:"🤝", team:"Growth", location:"United States", type:"W2", status:"open", desc:""},
+{id:"role_hrops", title:"HR Operations Manager", icon:"🧑‍💼", team:"Operations", location:"Miami (hybrid)", type:"Full-time", status:"open", desc:""},
+{id:"role_booking", title:"Booking Agent", icon:"📅", team:"Magic", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""}
 ];
 }
 function loadFullState(){
@@ -91,54 +144,80 @@ return;
 }
 list.innerHTML = roles.map(function(r){
 var isOpen = r.status!=="closed";
-return '<div class="rowline" data-id="'+esc(r.id)+'">'+
-'<div class="rn" style="display:flex;gap:8px;flex-wrap:wrap">'+
-'<input data-f="title" value="'+esc(r.title)+'" placeholder="Role title" style="flex:1 1 190px;min-width:160px;'+INPUT_CSS+'" />'+
-selectHtml("team", TEAMS, r.team)+
-'<input data-f="location" value="'+esc(r.location)+'" placeholder="Location" style="flex:1 1 150px;min-width:130px;'+INPUT_CSS+'" />'+
-selectHtml("type", TYPES, r.type)+
-'</div>'+
-'<button data-act="toggle" style="white-space:nowrap;border-radius:999px;padding:5px 13px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid '+(isOpen?"rgba(47,215,113,.35)":"rgba(242,139,130,.35)")+';background:'+(isOpen?"rgba(47,215,113,.14)":"rgba(242,139,130,.12)")+';color:'+(isOpen?"var(--green-soft)":"#f6a9a2")+'">'+(isOpen?"Open":"Closed")+'</button>'+
-'<button data-act="del" title="Remove role" style="border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px;width:30px;height:30px;font-size:16px;cursor:pointer;line-height:1">×</button>'+
+var meta=[r.team,r.location].filter(Boolean).join(" · ");
+return '<div class="rolelink" data-id="'+esc(r.id)+'">'+
+'<span class="emoji">'+esc(r.icon||"💼")+'</span>'+
+'<span class="rtitle">'+esc(r.title||"Untitled role")+'</span>'+
+'<span class="rmeta">'+esc(meta)+'</span>'+
+'<span class="pill '+(isOpen?"open":"closed")+'">'+(isOpen?"Open":"Closed")+'</span>'+
+'<span class="chev">›</span>'+
 '</div>';
 }).join("");
 }
-function fieldFromEl(el){ return el.getAttribute && el.getAttribute("data-f"); }
-function handleFieldChange(e){
-var f=fieldFromEl(e.target); if(!f) return;
-var row=e.target.closest("[data-id]"); if(!row) return;
-var id=row.getAttribute("data-id");
-var role=(appState.openRoles||[]).filter(function(r){return r.id===id;})[0]; if(!role) return;
-role[f]=e.target.value;
+function findRole(id){ return (appState.openRoles||[]).filter(function(r){return r.id===id;})[0]; }
+var currentRoleId=null;
+function openRoleModal(id){
+var role=findRole(id); if(!role) return;
+currentRoleId=id;
+document.getElementById("roleModalTitle").textContent = role.title || "New role";
+document.getElementById("rmIcon").value = role.icon || "💼";
+document.getElementById("rmTitle").value = role.title || "";
+document.getElementById("rmTeam").innerHTML = TEAMS.map(function(t){return '<option value="'+esc(t)+'"'+(role.team===t?" selected":"")+'>'+esc(t)+'</option>';}).join("");
+document.getElementById("rmLocation").value = role.location || "";
+document.getElementById("rmType").innerHTML = TYPES.map(function(t){return '<option value="'+esc(t)+'"'+(role.type===t?" selected":"")+'>'+esc(t)+'</option>';}).join("");
+document.getElementById("rmStatus").value = role.status==="closed" ? "closed" : "open";
+document.getElementById("rmDesc").value = role.desc || "";
+document.getElementById("roleModal").classList.add("show");
+setTimeout(function(){ document.getElementById("rmTitle").focus(); }, 30);
+}
+function closeRoleModal(){
+document.getElementById("roleModal").classList.remove("show");
+currentRoleId=null;
+renderRoles();
+}
+function saveModalField(f, val){
+if(!currentRoleId) return;
+var role=findRole(currentRoleId); if(!role) return;
+role[f]=val;
 saveFullState(appState);
+if(f==="title" || f==="icon"){
+document.getElementById("roleModalTitle").textContent = role.title || "New role";
+}
 document.getElementById("rolesCount").textContent = (appState.openRoles||[]).filter(function(r){return r.status!=="closed";}).length + " open";
 }
-var rolesListEl=document.getElementById("rolesList");
-rolesListEl.addEventListener("input", handleFieldChange);
-rolesListEl.addEventListener("change", handleFieldChange);
-rolesListEl.addEventListener("click", function(e){
-var actBtn=e.target.closest("[data-act]"); if(!actBtn) return;
-var row=actBtn.closest("[data-id]"); var id=row.getAttribute("data-id");
-var roles=appState.openRoles||[];
-var idx=-1; roles.forEach(function(r,i){ if(r.id===id) idx=i; });
-if(idx<0) return;
-if(actBtn.getAttribute("data-act")==="toggle"){
-roles[idx].status = roles[idx].status==="closed" ? "open" : "closed";
-saveFullState(appState); renderRoles();
-} else if(actBtn.getAttribute("data-act")==="del"){
-if(!confirm('Remove "'+(roles[idx].title||"this role")+'"? This can\'t be undone.')) return;
-roles.splice(idx,1);
-saveFullState(appState); renderRoles();
-}
+document.getElementById("rolesList").addEventListener("click", function(e){
+var row=e.target.closest("[data-id]"); if(!row) return;
+openRoleModal(row.getAttribute("data-id"));
+});
+document.getElementById("rmIcon").addEventListener("input", function(e){ saveModalField("icon", e.target.value); });
+document.getElementById("rmTitle").addEventListener("input", function(e){ saveModalField("title", e.target.value); });
+document.getElementById("rmTeam").addEventListener("change", function(e){ saveModalField("team", e.target.value); });
+document.getElementById("rmLocation").addEventListener("input", function(e){ saveModalField("location", e.target.value); });
+document.getElementById("rmType").addEventListener("change", function(e){ saveModalField("type", e.target.value); });
+document.getElementById("rmStatus").addEventListener("change", function(e){ saveModalField("status", e.target.value); });
+document.getElementById("rmDesc").addEventListener("input", function(e){ saveModalField("desc", e.target.value); });
+document.getElementById("roleModalClose").onclick=closeRoleModal;
+document.getElementById("rmDone").onclick=closeRoleModal;
+document.getElementById("rmDelete").onclick=function(){
+if(!currentRoleId) return;
+var role=findRole(currentRoleId); if(!role) return;
+if(!confirm('Remove "'+(role.title||"this role")+'"? This can\'t be undone.')) return;
+appState.openRoles = (appState.openRoles||[]).filter(function(r){return r.id!==currentRoleId;});
+saveFullState(appState);
+currentRoleId=null;
+document.getElementById("roleModal").classList.remove("show");
+renderRoles();
+};
+document.getElementById("roleModal").addEventListener("click", function(e){
+if(e.target.id==="roleModal") closeRoleModal();
 });
 document.getElementById("addRoleBtn").onclick=function(){
 var id="role_"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 appState.openRoles = appState.openRoles||[];
-appState.openRoles.push({id:id, title:"", team:"Engineering", location:"", type:"Intl contractor", status:"open"});
+appState.openRoles.push({id:id, title:"", icon:"💼", team:"Engineering", location:"", type:"Intl contractor", status:"open", desc:""});
 saveFullState(appState);
 renderRoles();
-var inp=document.querySelector('[data-id="'+id+'"] input[data-f="title"]');
-if(inp) inp.focus();
+openRoleModal(id);
 };
 renderRoles();
 
@@ -148,7 +227,7 @@ var openRoles=(appState.openRoles||[]).filter(function(r){return r.status!=="clo
 var cardsHtml = openRoles.length ? openRoles.map(function(r){
 var href="apply-apply.html?role="+encodeURIComponent(r.title);
 var meta=[r.team,r.location].filter(Boolean).join(" · ");
-return '      <a class="card" href="'+href+'"><h3>'+esc(r.title)+'</h3><p>'+esc(meta)+'</p><div class="go"><span class="host">'+esc(r.type||"")+'</span><span class="open">Apply →</span></div></a>';
+return '      <a class="card" href="'+href+'"><h3>'+esc(r.icon||"💼")+' '+esc(r.title)+'</h3><p>'+esc(meta)+'</p><div class="go"><span class="host">'+esc(r.type||"")+'</span><span class="open">Apply →</span></div></a>';
 }).join("\n") : '      <p style="color:var(--muted)">No open roles right now — check back soon.</p>';
 
 return `<!doctype html>
