@@ -14,6 +14,7 @@
 .rolelink .pill{white-space:nowrap;border-radius:999px;padding:4px 11px;font-size:11.5px;font-weight:600}
 .rolelink .pill.open{border:1px solid rgba(47,215,113,.35);background:rgba(47,215,113,.14);color:var(--green-soft)}
 .rolelink .pill.closed{border:1px solid rgba(242,139,130,.35);background:rgba(242,139,130,.12);color:#f6a9a2}
+.rolelink .pill.internal{border:1px solid rgba(239,180,80,.35);background:rgba(239,180,80,.14);color:#f4c777}
 .rolelink .chev{color:var(--muted);font-size:16px;flex:0 0 auto}
 .deptgroup{margin-bottom:24px}
 .deptgroup:last-child{margin-bottom:0}
@@ -56,7 +57,7 @@
     </a>
 
     <div class="section"><h2>Open Roles <span class="tag" id="rolesCount" style="margin-left:6px"></span></h2><span class="rule"></span></div>
-    <p style="color:var(--muted);font-size:13.5px;max-width:720px;margin:0 0 18px;line-height:1.5">Grouped by department. Click a role to edit everything about it, or add a new one straight into its department. This list is the single source of truth for the public <a href="careers.html" style="color:var(--green);text-decoration:none">careers page</a> and for the Job Role field on every candidate — toggle a role to <b style="color:var(--txt)">Closed</b> to pull it from the public page without losing its history.</p>
+    <p style="color:var(--muted);font-size:13.5px;max-width:720px;margin:0 0 18px;line-height:1.5">Grouped by department. Click a role to edit everything about it, or add a new one straight into its department. This list is the single source of truth for the Job Role field on every candidate. Each role also has its own <b style="color:var(--txt)">Public search</b> switch — set it to <b style="color:var(--txt)">Yes</b> to show that role on the public <a href="careers.html" style="color:var(--green);text-decoration:none">careers page</a>, or <b style="color:var(--txt)">No</b> to keep the search internal and pull it off that page without losing its history.</p>
 
     <div id="rolesList" style="display:flex;flex-direction:column;gap:9px;margin-bottom:14px"></div>
 
@@ -92,6 +93,9 @@
       <div class="lbl">Status</div>
       <select id="rmStatus"><option value="open">Open</option><option value="closed">Closed</option></select>
 
+      <div class="lbl">Public search</div>
+      <select id="rmPublic"><option value="yes">Yes — show on the careers page</option><option value="no">No — internal only, hidden from the careers page</option></select>
+
       <div class="lbl">Description</div>
       <textarea id="rmDesc" rows="5" placeholder="Responsibilities, requirements, anything worth knowing about this role."></textarea>
 
@@ -109,17 +113,17 @@ var KEY="plei_hr_tasks_v1";
 // just reads/writes that shared array; nothing here ever re-seeds over real edits.
 function seedOpenRoles(){
 return [
-{id:"role_bie", title:"Business Intelligence Engineer", icon:"📊", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""},
-{id:"role_qa", title:"QA Engineer", icon:"🔍", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""},
-{id:"role_fe", title:"Frontend Engineer", icon:"🖥️", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""},
-{id:"role_be", title:"Backend Engineer", icon:"⚙️", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""},
-{id:"role_fs", title:"Full-Stack Engineer", icon:"🧩", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""},
-{id:"role_devops", title:"DevOps Engineer", icon:"🛠️", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""},
-{id:"role_ai", title:"AI Lead", icon:"🤖", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""},
-{id:"role_design", title:"Senior Product Designer", icon:"🎨", team:"Product", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""},
-{id:"role_osm", title:"Organizer Success Manager", icon:"🤝", team:"Growth", location:"United States", type:"W2", status:"open", desc:""},
-{id:"role_hrops", title:"HR Operations Manager", icon:"🧑‍💼", team:"Operations", location:"Miami (hybrid)", type:"Full-time", status:"open", desc:""},
-{id:"role_booking", title:"Booking Agent", icon:"📅", team:"Magic", location:"LatAm (remote)", type:"Intl contractor", status:"open", desc:""}
+{id:"role_bie", title:"Business Intelligence Engineer", icon:"📊", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", public:true, desc:""},
+{id:"role_qa", title:"QA Engineer", icon:"🔍", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", public:true, desc:""},
+{id:"role_fe", title:"Frontend Engineer", icon:"🖥️", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", public:true, desc:""},
+{id:"role_be", title:"Backend Engineer", icon:"⚙️", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", public:true, desc:""},
+{id:"role_fs", title:"Full-Stack Engineer", icon:"🧩", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", public:true, desc:""},
+{id:"role_devops", title:"DevOps Engineer", icon:"🛠️", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", public:true, desc:""},
+{id:"role_ai", title:"AI Lead", icon:"🤖", team:"Engineering", location:"LatAm (remote)", type:"Intl contractor", status:"open", public:true, desc:""},
+{id:"role_design", title:"Senior Product Designer", icon:"🎨", team:"Product", location:"LatAm (remote)", type:"Intl contractor", status:"open", public:true, desc:""},
+{id:"role_osm", title:"Organizer Success Manager", icon:"🤝", team:"Growth", location:"United States", type:"W2", status:"open", public:true, desc:""},
+{id:"role_hrops", title:"HR Operations Manager", icon:"🧑‍💼", team:"Operations", location:"Miami (hybrid)", type:"Full-time", status:"open", public:true, desc:""},
+{id:"role_booking", title:"Booking Agent", icon:"📅", team:"Magic", location:"LatAm (remote)", type:"Intl contractor", status:"open", public:true, desc:""}
 ];
 }
 function loadFullState(){
@@ -144,10 +148,12 @@ return '<select data-f="'+field+'" style="flex:1 1 140px;min-width:120px;'+INPUT
 }
 function roleRowHtml(r){
 var isOpen = r.status!=="closed";
+var isPublic = r.public!==false;
 return '<div class="rolelink" data-id="'+esc(r.id)+'">'+
 '<span class="emoji">'+esc(r.icon||"💼")+'</span>'+
 '<span class="rtitle">'+esc(r.title||"Untitled role")+'</span>'+
 '<span class="rmeta">'+esc(r.location||"")+'</span>'+
+(isPublic ? '' : '<span class="pill internal">Internal</span>')+
 '<span class="pill '+(isOpen?"open":"closed")+'">'+(isOpen?"Open":"Closed")+'</span>'+
 '<span class="chev">›</span>'+
 '</div>';
@@ -188,6 +194,7 @@ document.getElementById("rmTeam").innerHTML = TEAMS.map(function(t){return '<opt
 document.getElementById("rmLocation").value = role.location || "";
 document.getElementById("rmType").innerHTML = TYPES.map(function(t){return '<option value="'+esc(t)+'"'+(role.type===t?" selected":"")+'>'+esc(t)+'</option>';}).join("");
 document.getElementById("rmStatus").value = role.status==="closed" ? "closed" : "open";
+document.getElementById("rmPublic").value = role.public===false ? "no" : "yes";
 document.getElementById("rmDesc").value = role.desc || "";
 document.getElementById("roleModal").classList.add("show");
 setTimeout(function(){ document.getElementById("rmTitle").focus(); }, 30);
@@ -210,7 +217,7 @@ document.getElementById("rolesCount").textContent = (appState.openRoles||[]).fil
 function addRoleInDept(team){
 var id="role_"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 appState.openRoles = appState.openRoles||[];
-appState.openRoles.push({id:id, title:"", icon:"💼", team:team, location:"", type:"Intl contractor", status:"open", desc:""});
+appState.openRoles.push({id:id, title:"", icon:"💼", team:team, location:"", type:"Intl contractor", status:"open", public:true, desc:""});
 saveFullState(appState);
 renderRoles();
 openRoleModal(id);
@@ -227,6 +234,7 @@ document.getElementById("rmTeam").addEventListener("change", function(e){ saveMo
 document.getElementById("rmLocation").addEventListener("input", function(e){ saveModalField("location", e.target.value); });
 document.getElementById("rmType").addEventListener("change", function(e){ saveModalField("type", e.target.value); });
 document.getElementById("rmStatus").addEventListener("change", function(e){ saveModalField("status", e.target.value); });
+document.getElementById("rmPublic").addEventListener("change", function(e){ saveModalField("public", e.target.value==="yes"); });
 document.getElementById("rmDesc").addEventListener("input", function(e){ saveModalField("desc", e.target.value); });
 document.getElementById("roleModalClose").onclick=closeRoleModal;
 document.getElementById("rmDone").onclick=closeRoleModal;
@@ -247,7 +255,7 @@ renderRoles();
 
 // ---- publish: rebuild careers.html from today's open roles, in the exact same look as the live page ----
 function buildCareersHtml(){
-var openRoles=(appState.openRoles||[]).filter(function(r){return r.status!=="closed" && (r.title||"").trim();});
+var openRoles=(appState.openRoles||[]).filter(function(r){return r.status!=="closed" && r.public!==false && (r.title||"").trim();});
 var cardsHtml = openRoles.length ? openRoles.map(function(r){
 var href="apply-apply.html?role="+encodeURIComponent(r.title);
 var meta=[r.team,r.location].filter(Boolean).join(" · ");
