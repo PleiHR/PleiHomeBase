@@ -15,6 +15,15 @@
 .rolelink .pill.open{border:1px solid rgba(47,215,113,.35);background:rgba(47,215,113,.14);color:var(--green-soft)}
 .rolelink .pill.closed{border:1px solid rgba(242,139,130,.35);background:rgba(242,139,130,.12);color:#f6a9a2}
 .rolelink .chev{color:var(--muted);font-size:16px;flex:0 0 auto}
+.deptgroup{margin-bottom:24px}
+.deptgroup:last-child{margin-bottom:0}
+.deptgroup .dhead{display:flex;align-items:center;gap:9px;margin:0 0 9px}
+.deptgroup .dhead h4{margin:0;font-size:12.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--green-soft)}
+.deptgroup .dhead .dcount{font-size:11.5px;color:var(--muted);background:rgba(255,255,255,.04);border-radius:999px;padding:2px 10px}
+.deptgroup .drows{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.deptgroup .dempty{color:var(--muted);font-size:12.5px;margin:0 0 8px}
+.deptAdd{display:block;background:none;border:1px dashed var(--line);color:var(--muted);border-radius:9px;padding:8px 12px;font-size:12.5px;cursor:pointer;width:100%;text-align:left;box-sizing:border-box}
+.deptAdd:hover{border-color:rgba(47,215,113,.4);color:var(--green-soft)}
 .modal{position:fixed;inset:0;background:rgba(3,15,10,.62);z-index:100;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}
 .modal.show{display:flex}
 .sheet{width:100%;max-width:560px;background:#0c2a1f;border:1px solid var(--line);border-radius:16px;padding:22px 24px}
@@ -47,12 +56,11 @@
     </a>
 
     <div class="section"><h2>Open Roles <span class="tag" id="rolesCount" style="margin-left:6px"></span></h2><span class="rule"></span></div>
-    <p style="color:var(--muted);font-size:13.5px;max-width:720px;margin:0 0 18px;line-height:1.5">Add, edit, close, or remove roles here — this list is the single source of truth for the public <a href="careers.html" style="color:var(--green);text-decoration:none">careers page</a> and for the Job Role field on every candidate. Toggle a role to <b style="color:var(--txt)">Closed</b> to pull it from the public page without losing its history.</p>
+    <p style="color:var(--muted);font-size:13.5px;max-width:720px;margin:0 0 18px;line-height:1.5">Grouped by department. Click a role to edit everything about it, or add a new one straight into its department. This list is the single source of truth for the public <a href="careers.html" style="color:var(--green);text-decoration:none">careers page</a> and for the Job Role field on every candidate — toggle a role to <b style="color:var(--txt)">Closed</b> to pull it from the public page without losing its history.</p>
 
     <div id="rolesList" style="display:flex;flex-direction:column;gap:9px;margin-bottom:14px"></div>
 
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:6px">
-      <button id="addRoleBtn" type="button" style="background:rgba(47,215,113,.14);border:1px solid rgba(47,215,113,.35);color:var(--green-soft);font-weight:700;border-radius:9px;padding:9px 16px;font-size:13.5px;cursor:pointer">+ Add role</button>
       <button id="publishCareersBtn" type="button" style="background:var(--green);color:#062018;font-weight:700;border:none;border-radius:9px;padding:9px 16px;font-size:13.5px;cursor:pointer">⬇ Publish careers.html</button>
     </div>
     <p style="color:var(--muted);font-size:12px;margin:2px 0 40px">Publishing downloads an updated careers.html with today's open roles — commit it to GitHub (or hand it to whoever does) to make it live at plei.com/careers.</p>
@@ -125,7 +133,7 @@ var appState = loadFullState();
 saveFullState(appState);
 
 function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
-var TEAMS=["Engineering","Product","Growth","Operations","Magic","Other"];
+var TEAMS=["Magic","Engineering","Growth","Operations","Marketing","Partnerships","Product"];
 var TYPES=["Intl contractor","W2","Full-time","Part-time"];
 var INPUT_CSS="background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:8px 10px;color:var(--txt);font:inherit;font-size:13.5px";
 
@@ -134,23 +142,37 @@ var known = opts.indexOf(cur)>=0;
 var extra = (!known && cur) ? '<option value="'+esc(cur)+'" selected>'+esc(cur)+'</option>' : '';
 return '<select data-f="'+field+'" style="flex:1 1 140px;min-width:120px;'+INPUT_CSS+'">'+extra+opts.map(function(o){return '<option value="'+esc(o)+'"'+(cur===o?" selected":"")+'>'+esc(o)+'</option>';}).join("")+'</select>';
 }
+function roleRowHtml(r){
+var isOpen = r.status!=="closed";
+return '<div class="rolelink" data-id="'+esc(r.id)+'">'+
+'<span class="emoji">'+esc(r.icon||"💼")+'</span>'+
+'<span class="rtitle">'+esc(r.title||"Untitled role")+'</span>'+
+'<span class="rmeta">'+esc(r.location||"")+'</span>'+
+'<span class="pill '+(isOpen?"open":"closed")+'">'+(isOpen?"Open":"Closed")+'</span>'+
+'<span class="chev">›</span>'+
+'</div>';
+}
 function renderRoles(){
 var list=document.getElementById("rolesList");
 var roles=appState.openRoles||[];
 document.getElementById("rolesCount").textContent = roles.filter(function(r){return r.status!=="closed";}).length + " open";
-if(!roles.length){
-list.innerHTML='<p style="color:var(--muted);font-size:13px;margin:0">No roles yet — add one below.</p>';
-return;
-}
-list.innerHTML = roles.map(function(r){
-var isOpen = r.status!=="closed";
-var meta=[r.team,r.location].filter(Boolean).join(" · ");
-return '<div class="rolelink" data-id="'+esc(r.id)+'">'+
-'<span class="emoji">'+esc(r.icon||"💼")+'</span>'+
-'<span class="rtitle">'+esc(r.title||"Untitled role")+'</span>'+
-'<span class="rmeta">'+esc(meta)+'</span>'+
-'<span class="pill '+(isOpen?"open":"closed")+'">'+(isOpen?"Open":"Closed")+'</span>'+
-'<span class="chev">›</span>'+
+
+var byDept={}; TEAMS.forEach(function(d){ byDept[d]=[]; });
+var other=[];
+roles.forEach(function(r){
+if(byDept[r.team]) byDept[r.team].push(r); else other.push(r);
+});
+var groups = TEAMS.map(function(d){ return {name:d, roles:byDept[d]}; });
+if(other.length) groups.push({name:"Other", roles:other});
+
+list.innerHTML = groups.map(function(g){
+var openCount = g.roles.filter(function(r){return r.status!=="closed";}).length;
+var rowsHtml = g.roles.length ? g.roles.map(roleRowHtml).join("") : '<p class="dempty">No roles yet in '+esc(g.name)+'.</p>';
+var addBtn = g.name==="Other" ? "" : '<button type="button" class="deptAdd" data-add-dept="'+esc(g.name)+'">+ Add role in '+esc(g.name)+'</button>';
+return '<div class="deptgroup" data-dept="'+esc(g.name)+'">'+
+'<div class="dhead"><h4>'+esc(g.name)+'</h4><span class="dcount">'+openCount+' open</span></div>'+
+'<div class="drows">'+rowsHtml+'</div>'+
+addBtn+
 '</div>';
 }).join("");
 }
@@ -185,7 +207,17 @@ document.getElementById("roleModalTitle").textContent = role.title || "New role"
 }
 document.getElementById("rolesCount").textContent = (appState.openRoles||[]).filter(function(r){return r.status!=="closed";}).length + " open";
 }
+function addRoleInDept(team){
+var id="role_"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+appState.openRoles = appState.openRoles||[];
+appState.openRoles.push({id:id, title:"", icon:"💼", team:team, location:"", type:"Intl contractor", status:"open", desc:""});
+saveFullState(appState);
+renderRoles();
+openRoleModal(id);
+}
 document.getElementById("rolesList").addEventListener("click", function(e){
+var addBtn=e.target.closest("[data-add-dept]");
+if(addBtn){ addRoleInDept(addBtn.getAttribute("data-add-dept")); return; }
 var row=e.target.closest("[data-id]"); if(!row) return;
 openRoleModal(row.getAttribute("data-id"));
 });
@@ -211,14 +243,6 @@ renderRoles();
 document.getElementById("roleModal").addEventListener("click", function(e){
 if(e.target.id==="roleModal") closeRoleModal();
 });
-document.getElementById("addRoleBtn").onclick=function(){
-var id="role_"+Date.now().toString(36)+Math.random().toString(36).slice(2,5);
-appState.openRoles = appState.openRoles||[];
-appState.openRoles.push({id:id, title:"", icon:"💼", team:"Engineering", location:"", type:"Intl contractor", status:"open", desc:""});
-saveFullState(appState);
-renderRoles();
-openRoleModal(id);
-};
 renderRoles();
 
 // ---- publish: rebuild careers.html from today's open roles, in the exact same look as the live page ----
