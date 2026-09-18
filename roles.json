@@ -1,0 +1,112 @@
+[
+ {
+  "id": "role_bie",
+  "icon": "📊",
+  "title": "Business Intelligence Engineer",
+  "team": "Engineering",
+  "location": "LatAm (remote)",
+  "type": "Intl contractor",
+  "desc": "",
+  "active": true
+ },
+ {
+  "id": "role_qa",
+  "icon": "🔍",
+  "title": "QA Engineer",
+  "team": "Engineering",
+  "location": "LatAm (remote)",
+  "type": "Intl contractor",
+  "desc": "",
+  "active": true
+ },
+ {
+  "id": "role_fe",
+  "icon": "🖥️",
+  "title": "Frontend Engineer",
+  "team": "Engineering",
+  "location": "LatAm (remote)",
+  "type": "Intl contractor",
+  "desc": "",
+  "active": true
+ },
+ {
+  "id": "role_be",
+  "icon": "⚙️",
+  "title": "Backend Engineer",
+  "team": "Engineering",
+  "location": "LatAm (remote)",
+  "type": "Intl contractor",
+  "desc": "",
+  "active": true
+ },
+ {
+  "id": "role_fs",
+  "icon": "🧩",
+  "title": "Full-Stack Engineer",
+  "team": "Engineering",
+  "location": "LatAm (remote)",
+  "type": "Intl contractor",
+  "desc": "",
+  "active": true
+ },
+ {
+  "id": "role_devops",
+  "icon": "🛠️",
+  "title": "DevOps Engineer",
+  "team": "Engineering",
+  "location": "LatAm (remote)",
+  "type": "Intl contractor",
+  "desc": "",
+  "active": true
+ },
+ {
+  "id": "role_ai",
+  "icon": "🤖",
+  "title": "AI Lead",
+  "team": "Engineering",
+  "location": "LatAm (remote)",
+  "type": "Intl contractor",
+  "desc": "",
+  "active": true
+ },
+ {
+  "id": "role_design",
+  "icon": "🎨",
+  "title": "Senior Product Designer",
+  "team": "Product",
+  "location": "LatAm (remote)",
+  "type": "Intl contractor",
+  "desc": "",
+  "active": true
+ },
+ {
+  "id": "role_osm",
+  "icon": "🤝",
+  "title": "Organizer Success Manager",
+  "team": "Growth",
+  "location": "United States",
+  "type": "W2",
+  "desc": "",
+  "active": true
+ },
+ {
+  "id": "role_hrops",
+  "icon": "🧑‍💼",
+  "title": "HR Operations Manager",
+  "team": "Operations",
+  "location": "Miami (hybrid)",
+  "type": "Full-time",
+  "desc": "",
+  "active": false
+ },
+ {
+  "id": "role_booking",
+  "icon": "📅",
+  "title": "Booking Agent",
+  "team": "Magic",
+  "location": "LatAm (remote)",
+  "type": "Intl contractor",
+  "desc": "",
+  "active": false
+ }
+]

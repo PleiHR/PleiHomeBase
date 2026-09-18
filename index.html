@@ -5,15 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Plei Hub</title>
 <link rel="stylesheet" href="styles.css" />
+<style>
+  .appcard{position:relative}
+  .appcard .apptag{position:absolute;top:16px;right:16px;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--green-soft);border:1px solid rgba(47,215,113,.35);border-radius:999px;padding:3px 10px;background:rgba(47,215,113,.06)}
+  .appcard h3{padding-right:110px}
+</style>
 </head>
 <body>
   <div class="wrap">
 
     <nav class="nav">
       <a class="logo" href="index.html"><img src="logo-green.png" alt="Plei" style="width:26px;height:26px;vertical-align:middle" />plei<span class="dot">.</span></a>
-      <a class="link active" href="index.html">Home</a>
-      <a class="link" href="okrs.html">OKRs</a>
-      <a class="link" href="hr.html">HR</a>
       <span class="spacer"></span><span class="badge">Internal</span>
     </nav>
 
@@ -29,61 +31,59 @@
       <span class="open" style="white-space:nowrap">Open →</span>
     </a>
 
-    <a class="card" href="hr-tasks.html" style="display:flex;align-items:center;gap:18px;border-color:rgba(47,215,113,.25);margin-bottom:14px">
-      <div class="ic" style="margin-bottom:0;flex:0 0 auto"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11M8 6h6M8 10h4M8 14h3"/></svg></div>
+    <a class="card" href="productivity.html" style="display:flex;align-items:center;gap:18px;border-color:rgba(47,215,113,.25);margin-bottom:36px">
+      <div class="ic" style="margin-bottom:0;flex:0 0 auto"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></div>
       <div style="flex:1;min-width:0">
-        <h3 style="margin:0 0 3px">Tasks</h3>
-        <p style="margin:0">The shared team to-do board. Assign people, tag by space, set deadlines, and track what's in motion.</p>
+        <h3 style="margin:0 0 3px">Productivity</h3>
+        <p style="margin:0">Tasks and project sprints in one place. Toggle between the shared to-do board and the sprint planner. Home of the GTM plan.</p>
       </div>
       <span class="open" style="white-space:nowrap">Open →</span>
     </a>
 
-    <a class="card" href="projects.html" style="display:flex;align-items:center;gap:18px;border-color:rgba(47,215,113,.25);margin-bottom:36px">
-      <div class="ic" style="margin-bottom:0;flex:0 0 auto"><svg viewBox="0 0 24 24"><path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z"/></svg></div>
-      <div style="flex:1;min-width:0">
-        <h3 style="margin:0 0 3px">Projects &amp; Sprints</h3>
-        <p style="margin:0">Run initiatives in sprints, plan, backlog, and board. Home of the GTM plan.</p>
-      </div>
-      <span class="open" style="white-space:nowrap">Open →</span>
-    </a>
-
-    <div class="section"><h2>Dashboards</h2><span class="rule"></span></div>
+    <div class="section"><h2>Plei Apps</h2><span class="rule"></span></div>
+    <p style="margin:-18px 0 18px;font-size:13px;color:var(--muted)">Built in-house by the team. One login: your Plei Google account.</p>
     <div class="grid">
-      <a class="card" href="https://plei-financial-hub.pages.dev/" target="_blank" rel="noopener">
+      <a class="card appcard" href="https://plei-financial-hub.pages.dev/" target="_blank" rel="noopener">
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l3-4 3 3 4-6"/></svg></div>
-        <h3>Financial Hub <span class="tag lock">Restricted</span></h3>
+        <h3>Financial Hub</h3>
         <p>Financials, spend, class reports, bonus. Owned by Finance.</p>
         <div class="go"><span class="host">plei-financial-hub.pages.dev</span><span class="open">Open →</span></div>
+        <span class="apptag">Restricted · Login</span>
       </a>
-      <a class="card" href="https://plei-product-hub.vercel.app/" target="_blank" rel="noopener">
+      <a class="card appcard" href="https://plei-product-hub.vercel.app/" target="_blank" rel="noopener">
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5zM3 7l9 5 9-5M12 12v10"/></svg></div>
-        <h3>Product Hub <span class="tag lock">Restricted</span></h3>
+        <h3>Product Hub</h3>
         <p>Product data and the systems that run the marketplace. Owned by Product and Eng.</p>
         <div class="go"><span class="host">plei-product-hub.vercel.app</span><span class="open">Open →</span></div>
+        <span class="apptag">Restricted · Login</span>
       </a>
-      <a class="card" href="hr.html">
+      <a class="card appcard" href="hr.html">
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 15a4 4 0 100-8 4 4 0 000 8zM5 21a7 7 0 0114 0"/></svg></div>
-        <h3>HR Dashboard <span class="tag lock">Restricted</span></h3>
+        <h3>HR Hub</h3>
         <p>Onboarding, offboarding, handbook, hiring, and people. Owned by HR.</p>
         <div class="go"><span class="host">hr.plei.com</span><span class="open">Open →</span></div>
+        <span class="apptag">Restricted · Login</span>
       </a>
-      <a class="card" href="https://performance.plei.com/" target="_blank" rel="noopener">
+      <a class="card appcard" href="https://performance.plei.com/" target="_blank" rel="noopener">
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 15a4 4 0 100-8 4 4 0 000 8zM5 21a7 7 0 0114 0"/></svg></div>
-        <h3>Performance Reviews <span class="tag">Google sign-in</span></h3>
+        <h3>Performance Reviews</h3>
         <p>Reviews, ratings, and performance tracking. Sign in with your Plei Google account.</p>
         <div class="go"><span class="host">performance.plei.com</span><span class="open">Open →</span></div>
+        <span class="apptag">Restricted · Login</span>
       </a>
-      <a class="card" href="https://plei-shop-app.vercel.app/login" target="_blank" rel="noopener">
+      <a class="card appcard" href="https://plei-shop-app.vercel.app/login" target="_blank" rel="noopener">
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M6 7h12l1 13H5L6 7zM9 7a3 3 0 016 0"/></svg></div>
-        <h3>Plei Shop Requests <span class="tag">Login required</span></h3>
+        <h3>Plei Shop Requests</h3>
         <p>Submit and manage Plei Shop material requests.</p>
         <div class="go"><span class="host">plei-shop-app.vercel.app</span><span class="open">Open →</span></div>
+        <span class="apptag">Restricted · Login</span>
       </a>
-      <a class="card" href="https://magic.todays.games" target="_blank" rel="noopener">
+      <a class="card appcard" href="https://magic.todays.games" target="_blank" rel="noopener">
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg></div>
-        <h3>Magic Dashboard <span class="tag">Google sign-in</span></h3>
+        <h3>Magic Dashboard</h3>
         <p>Real-time game operations and analytics for the Plei pickup soccer platform.</p>
         <div class="go"><span class="host">magic.todays.games</span><span class="open">Open →</span></div>
+        <span class="apptag">Restricted · Login</span>
       </a>
     </div>
 

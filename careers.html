@@ -43,30 +43,8 @@
       <div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6 4.4 2.3 7.2L12 16.8 5.7 21l2.3-7.2-6-4.4h7.6z"/></svg></div><h3>Team of owners</h3><p>We move fast, hold each other accountable, and chase excellence, with respect at the core. Global talent, local impact.</p></div>
     </div>
 
-    <div class="section"><h2>Perks</h2><span class="rule"></span></div>
-    <div class="grid small">
-      <div class="card small"><h3>Equity</h3><p>Own a piece of what we build</p></div>
-      <div class="card small"><h3>Health, dental, vision</h3><p>Covered benefits</p></div>
-      <div class="card small"><h3>401(k)</h3><p>Plan for the future</p></div>
-      <div class="card small"><h3>Flexible hours</h3><p>Core hours 10–2, own your schedule</p></div>
-      <div class="card small"><h3>Coral Gables HQ</h3><p>Parking covered, plus remote</p></div>
-      <div class="card small"><h3>Global team</h3><p>Work across borders and cultures</p></div>
-    </div>
-
     <div class="section"><h2>Open Roles</h2><span class="rule"></span></div>
-    <div class="grid">
-      <a class="card" href="#role/role_bie"><h3>📊 Business Intelligence Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
-      <a class="card" href="#role/role_qa"><h3>🔍 QA Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
-      <a class="card" href="#role/role_fe"><h3>🖥️ Frontend Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
-      <a class="card" href="#role/role_be"><h3>⚙️ Backend Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
-      <a class="card" href="#role/role_fs"><h3>🧩 Full-Stack Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
-      <a class="card" href="#role/role_devops"><h3>🛠️ DevOps Engineer</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
-      <a class="card" href="#role/role_ai"><h3>🤖 AI Lead</h3><p>Engineering · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
-      <a class="card" href="#role/role_design"><h3>🎨 Senior Product Designer</h3><p>Product · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
-      <a class="card" href="#role/role_osm"><h3>🤝 Organizer Success Manager</h3><p>Growth · United States</p><div class="go"><span class="host">W2</span><span class="open">View role →</span></div></a>
-      <a class="card" href="#role/role_hrops"><h3>🧑‍💼 HR Operations Manager</h3><p>Operations · Miami (hybrid)</p><div class="go"><span class="host">Full-time</span><span class="open">View role →</span></div></a>
-      <a class="card" href="#role/role_booking"><h3>📅 Booking Agent</h3><p>Magic · LatAm (remote)</p><div class="go"><span class="host">Intl contractor</span><span class="open">View role →</span></div></a>
-    </div>
+    <div class="grid" id="rolesGrid"></div>
 
     <div style="background:linear-gradient(180deg,#0e3626,#0b2c1f);border:1px solid rgba(47,215,113,.28);border-radius:18px;padding:26px;margin-top:30px;text-align:center">
       <h3 style="margin:0 0 6px;font-size:22px;font-weight:800">Don't see your role?</h3>
@@ -110,8 +88,24 @@ if(role){
 }
 window.scrollTo(0,0);
 }
-window.addEventListener("hashchange", route);
+function renderGrid(){
+var g=document.getElementById("rolesGrid");
+var act=ROLES.filter(function(r){return r.active!==false;});
+g.innerHTML = act.length ? act.map(function(r){
+  return '<a class="card" href="#role/'+encodeURIComponent(r.id)+'"><h3>'+escH(r.icon||"💼")+' '+escH(r.title)+'</h3><p>'+escH([r.team,r.location].filter(Boolean).join(" · "))+'</p><div class="go"><span class="host">'+escH(r.type||"")+'</span><span class="open">View role →</span></div></a>';
+}).join("") : '<p style="color:var(--muted)">No open roles right now — check back soon, or reach out below.</p>';
+}
+function routeActive(){
+var m=(location.hash||"").match(/^#role\/(.+)$/);
+if(m){ var role=ROLES.filter(function(r){return r.id===decodeURIComponent(m[1]) && r.active!==false;})[0]; if(!role){ location.hash=""; return; } }
 route();
+}
+window.addEventListener("hashchange", routeActive);
+renderGrid();
+routeActive();
+fetch("roles.json",{cache:"no-store"}).then(function(r){return r.json();}).then(function(data){
+  if(Array.isArray(data)&&data.length){ ROLES=data; renderGrid(); routeActive(); }
+}).catch(function(){});
 </script>
 </body>
 </html>

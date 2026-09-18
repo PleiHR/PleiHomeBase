@@ -1699,5 +1699,7 @@ if(document.getElementById("formsSection").style.display!=="none") renderForms()
 (function(){ try{ var p=new URLSearchParams(location.search); var sp=p.get("space"); if(sp){ var f=document.getElementById("fTag"); for(var i=0;i<f.options.length;i++){ if(f.options[i].value.toLowerCase()===sp.toLowerCase()){ f.value=f.options[i].value; break; } } } var vs=p.get("vis"); if(vs){ document.getElementById("fVis").value=vs; } }catch(e){} })();
 render();
 </script>
+
+<script>if(self!==top){var n=document.querySelector('.nav');if(n)n.style.display='none';}</script>
 </body>
 </html>

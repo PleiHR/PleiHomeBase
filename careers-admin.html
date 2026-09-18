@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Careers Admin · Plei Hub</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .rrow{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:13px;padding:12px 14px;margin-bottom:10px;background:rgba(255,255,255,.02)}
+  .rrow.off{opacity:.55}
+  .rrow .ic2{font-size:20px;flex:0 0 auto}
+  .rrow .who{flex:1;min-width:0}
+  .rrow .who b{font-size:14.5px;display:block}
+  .rrow .who span{font-size:12px;color:var(--muted)}
+  .pillbtn{border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--txt);border-radius:9px;padding:6px 12px;font-size:12.5px;cursor:pointer;font-weight:600}
+  .pillbtn.live{border-color:rgba(47,215,113,.4);color:var(--green-soft);background:rgba(47,215,113,.08)}
+  .pillbtn.hidden{border-color:rgba(230,198,106,.4);color:#e6c66a;background:rgba(230,198,106,.06)}
+  .pillbtn.danger{color:#f28b82}
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0}
+  .toolbar .primary{background:var(--green);color:#062018;font-weight:700;border:none;border-radius:10px;padding:11px 18px;font-size:14px;cursor:pointer}
+  .toolbar .ghostb{border:1px solid var(--line);background:none;color:var(--txt);border-radius:10px;padding:10px 16px;font-size:13.5px;cursor:pointer}
+  .editbox{border:1px solid var(--line);border-radius:13px;padding:14px;margin-bottom:10px;background:rgba(255,255,255,.015)}
+  .editbox input,.editbox textarea{width:100%;box-sizing:border-box;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:9px 11px;color:var(--txt);font:inherit;font-size:13px;margin-bottom:8px}
+  .editbox .half{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .note{font-size:12.5px;color:var(--muted);line-height:1.6}
+  .stepcard{background:linear-gradient(180deg,#0e3626,#0b2c1f);border:1px solid rgba(47,215,113,.28);border-radius:15px;padding:16px 18px;margin:14px 0}
+  .stepcard h3{margin:0 0 6px;font-size:15px}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a class="logo" href="index.html"><img src="logo-green.png" alt="Plei" style="width:26px;height:26px;vertical-align:middle" />plei<span class="dot">.</span></a>
+      <a class="link" href="index.html">Home</a>
+      <a class="link" href="hr.html">HR Hub</a>
+      <a class="link" href="careers.html" target="_blank">Careers (public) ↗</a>
+      <span class="spacer"></span><span class="badge">Restricted · HR</span>
+    </nav>
+
+    <h1>Careers <span class="g">admin</span>.</h1>
+    <p class="sub">Manage the roles shown on the public careers page. Toggle a role off to hide it instantly from the public list, edit details, add new openings. Changes go live when the updated roles.json is committed to GitHub.</p>
+
+    <div id="list"></div>
+
+    <div class="toolbar">
+      <button class="ghostb" id="addBtn">+ Add role</button>
+      <button class="primary" id="dlBtn">Download roles.json</button>
+      <button class="ghostb" id="copyBtn">Copy JSON</button>
+      <a class="ghostb" style="text-decoration:none;display:inline-block" href="https://github.com/PleiHR/PleiHomeBase/edit/main/roles.json" target="_blank" rel="noopener">Edit on GitHub ↗</a>
+    </div>
+
+    <div class="stepcard">
+      <h3>How publishing works</h3>
+      <p class="note">This hub is a static site, so the public page reads from one file: <b>roles.json</b>. Make your changes above, then either (1) hit <b>Download roles.json</b> and drag it into the GitHub repo, or (2) hit <b>Copy JSON</b>, open <b>Edit on GitHub</b>, paste over the file, and commit. The careers page updates in about a minute. Inactive roles stay saved here; they just never render publicly.</p>
+    </div>
+
+    <footer>Plei, Inc. · <a href="hr.html" style="color:var(--green);text-decoration:none">back to HR hub</a></footer>
+  </div>
+
+<script>
+var ROLES=[];
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+var editing=null;
+function render(){
+  var el=document.getElementById('list');
+  el.innerHTML = ROLES.map(function(r,i){
+    if(editing===i){
+      return '<div class="editbox" data-i="'+i+'">'
+        +'<div class="half"><input data-f="icon" value="'+esc(r.icon)+'" placeholder="Emoji" /><input data-f="title" value="'+esc(r.title)+'" placeholder="Title" /></div>'
+        +'<div class="half"><input data-f="team" value="'+esc(r.team)+'" placeholder="Team" /><input data-f="location" value="'+esc(r.location)+'" placeholder="Location" /></div>'
+        +'<input data-f="type" value="'+esc(r.type)+'" placeholder="Engagement type (W2, Intl contractor...)" />'
+        +'<textarea data-f="desc" rows="5" placeholder="Role description (blank shows a contact prompt)">'+esc(r.desc)+'</textarea>'
+        +'<div style="display:flex;gap:8px"><button class="pillbtn live" data-save="'+i+'">Save</button><button class="pillbtn" data-cancel="1">Cancel</button></div></div>';
+    }
+    return '<div class="rrow'+(r.active===false?' off':'')+'">'
+      +'<span class="ic2">'+esc(r.icon||'💼')+'</span>'
+      +'<div class="who"><b>'+esc(r.title)+'</b><span>'+esc([r.team,r.location,r.type].filter(Boolean).join(' · '))+'</span></div>'
+      +'<button class="pillbtn '+(r.active===false?'hidden':'live')+'" data-toggle="'+i+'">'+(r.active===false?'Hidden':'Live')+'</button>'
+      +'<button class="pillbtn" data-edit="'+i+'">Edit</button>'
+      +'<button class="pillbtn danger" data-del="'+i+'">Delete</button></div>';
+  }).join('');
+}
+document.getElementById('list').addEventListener('click', function(e){
+  var t=e.target;
+  if(t.dataset.toggle!==undefined){ var r=ROLES[+t.dataset.toggle]; r.active = r.active===false; render(); }
+  else if(t.dataset.edit!==undefined){ editing=+t.dataset.edit; render(); }
+  else if(t.dataset.cancel){ editing=null; render(); }
+  else if(t.dataset.save!==undefined){
+    var box=t.closest('.editbox'), r2=ROLES[+t.dataset.save];
+    box.querySelectorAll('[data-f]').forEach(function(inp){ r2[inp.dataset.f]=inp.value; });
+    editing=null; render();
+  }
+  else if(t.dataset.del!==undefined){
+    var r3=ROLES[+t.dataset.del];
+    if(confirm('Delete "'+r3.title+'" permanently? If the role might come back, toggle it to Hidden instead.')){ ROLES.splice(+t.dataset.del,1); editing=null; render(); }
+  }
+});
+document.getElementById('addBtn').addEventListener('click', function(){
+  ROLES.push({id:'role_'+Math.random().toString(36).slice(2,8), icon:'💼', title:'New role', team:'', location:'', type:'', desc:'', active:false});
+  editing=ROLES.length-1; render();
+});
+document.getElementById('dlBtn').addEventListener('click', function(){
+  var blob=new Blob([JSON.stringify(ROLES,null,1)],{type:'application/json'});
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='roles.json'; a.click();
+});
+document.getElementById('copyBtn').addEventListener('click', function(){
+  navigator.clipboard.writeText(JSON.stringify(ROLES,null,1)).then(function(){ alert('JSON copied. Paste it over roles.json on GitHub and commit.'); });
+});
+fetch('roles.json',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){ ROLES=d; render(); })
+  .catch(function(){ document.getElementById('list').innerHTML='<p class="note">Could not load roles.json. Open this page from the deployed hub (hub.plei.com/careers-admin.html).</p>'; });
+</script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Productivity · Plei Hub</title>
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .segwrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 16px}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:12px;padding:4px;background:rgba(255,255,255,.02);gap:4px}
+  .seg button{border:none;background:none;color:var(--muted);font:inherit;font-size:13.5px;font-weight:600;padding:8px 18px;border-radius:9px;cursor:pointer}
+  .seg button.on{background:rgba(47,215,113,.12);color:var(--green-soft);border:1px solid rgba(47,215,113,.35);padding:7px 17px}
+  .seg button:hover:not(.on){color:var(--txt)}
+  .viewframe{width:100%;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.01);height:calc(100vh - 220px);min-height:560px}
+  .viewframe.hide{display:none}
+  .hint{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <nav class="nav">
+      <a class="logo" href="index.html"><img src="logo-green.png" alt="Plei" style="width:26px;height:26px;vertical-align:middle" />plei<span class="dot">.</span></a>
+      <a class="link" href="index.html">Home</a>
+      <a class="link active" href="productivity.html">Productivity</a>
+      <span class="spacer"></span><span class="badge">Internal</span>
+    </nav>
+
+    <h1>Productivity<span class="g">.</span></h1>
+    <p class="sub">One home for the work in motion. Toggle between the shared task board and project sprints; both save as you go.</p>
+
+    <div class="segwrap">
+      <div class="seg" role="tablist" aria-label="Productivity views">
+        <button id="segTasks" role="tab" aria-selected="true">Tasks</button>
+        <button id="segProjects" role="tab" aria-selected="false">Projects &amp; Sprints</button>
+      </div>
+      <span class="hint" id="viewHint">The shared team to-do board: assign people, tag by space, set deadlines.</span>
+    </div>
+
+    <iframe id="frameTasks" class="viewframe" title="Tasks"></iframe>
+    <iframe id="frameProjects" class="viewframe hide" title="Projects and Sprints"></iframe>
+  </div>
+
+<script>
+(function(){
+  var segT = document.getElementById('segTasks');
+  var segP = document.getElementById('segProjects');
+  var frT = document.getElementById('frameTasks');
+  var frP = document.getElementById('frameProjects');
+  var hint = document.getElementById('viewHint');
+  var HINTS = {
+    tasks: 'The shared team to-do board: assign people, tag by space, set deadlines.',
+    projects: 'Run initiatives in sprints: plan, backlog, and board. Home of the GTM plan.'
+  };
+  var loaded = { tasks:false, projects:false };
+  // Pass any query params straight through (e.g. productivity.html?space=HR filters the task board).
+  var qs = location.search || '';
+  function load(which){
+    if(loaded[which]) return;
+    if(which==='tasks') frT.src = 'hr-tasks.html' + qs;
+    else frP.src = 'projects.html' + qs;
+    loaded[which] = true;
+  }
+  function show(which, pushHash){
+    var tasks = which==='tasks';
+    load(which);
+    frT.classList.toggle('hide', !tasks);
+    frP.classList.toggle('hide', tasks);
+    segT.classList.toggle('on', tasks);
+    segP.classList.toggle('on', !tasks);
+    segT.setAttribute('aria-selected', tasks);
+    segP.setAttribute('aria-selected', !tasks);
+    hint.textContent = HINTS[which];
+    try{ localStorage.setItem('plei_productivity_view', which); }catch(e){}
+    if(pushHash !== false) history.replaceState(null, '', '#'+which);
+  }
+  segT.addEventListener('click', function(){ show('tasks'); });
+  segP.addEventListener('click', function(){ show('projects'); });
+  var initial = 'tasks';
+  var h = (location.hash||'').replace('#','');
+  if(h==='projects' || h==='tasks') initial = h;
+  else { try{ var saved = localStorage.getItem('plei_productivity_view'); if(saved==='projects'||saved==='tasks') initial = saved; }catch(e){} }
+  show(initial, false);
+})();
+</script>
+</body>
+</html>
