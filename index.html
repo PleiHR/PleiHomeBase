@@ -7,6 +7,15 @@
 <link rel="stylesheet" href="styles.css" />
 <style>
   .grid{align-items:stretch}
+  .appsscroll{display:grid;grid-template-rows:repeat(2,1fr);grid-auto-flow:column;grid-auto-columns:calc((100% - 32px)/3);gap:16px;overflow-x:auto;padding-bottom:12px;scroll-snap-type:x proximity;scrollbar-width:thin}
+  .appsscroll::-webkit-scrollbar{height:7px}
+  .appsscroll::-webkit-scrollbar-thumb{background:rgba(47,215,113,.25);border-radius:6px}
+  .appsscroll .card{scroll-snap-align:start;min-width:0}
+  @media(max-width:900px){ .appsscroll{grid-auto-columns:calc((100% - 16px)/2)} }
+  @media(max-width:620px){ .appsscroll{grid-template-rows:1fr;grid-auto-columns:86%} }
+  a.card.appcard,div.card.appcard{display:flex;flex-direction:column;height:100%;box-sizing:border-box}
+  .card.appcard h3{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card.appcard p{flex:1 0 auto;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.95em;max-height:2.95em}
   .appcard{position:relative;display:flex;flex-direction:column}
   .appcard .apptag{position:absolute;top:16px;right:16px;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--green-soft);border:1px solid rgba(47,215,113,.35);border-radius:999px;padding:3px 10px;background:rgba(47,215,113,.06)}
   .appcard h3{padding-right:110px}
@@ -49,7 +58,7 @@
     </a>
 
     <div class="section"><h2>Plei Apps</h2><span class="rule"></span></div>
-    <div class="grid">
+    <div class="appsscroll">
       <a class="card appcard" href="https://plei-financial-hub.pages.dev/" target="_blank" rel="noopener">
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M4 19V5M4 19h16M8 15l3-4 3 3 4-6"/></svg></div>
         <h3>Financial Hub</h3>
@@ -60,7 +69,7 @@
       <a class="card appcard" href="https://plei-product-hub.vercel.app/" target="_blank" rel="noopener">
         <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5zM3 7l9 5 9-5M12 12v10"/></svg></div>
         <h3>Product Hub</h3>
-        <p>The roadmap, project statuses, rollout details, and FAQs. Built for customer-facing teams.</p>
+        <p>The roadmap, project statuses, rollouts, and FAQs for customer-facing teams.</p>
         <div class="credit"><img src="data:image/jpeg;base64,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" alt="" /><span class="t2">Built by <b>Stefano</b> · Product</span><span class="open2">Open →</span></div>
         <span class="apptag">Restricted · Login</span>
       </a>
