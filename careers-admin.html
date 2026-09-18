@@ -26,6 +26,40 @@
   .stepcard{background:linear-gradient(180deg,#0e3626,#0b2c1f);border:1px solid rgba(47,215,113,.28);border-radius:15px;padding:16px 18px;margin:14px 0}
   .stepcard h3{margin:0 0 6px;font-size:15px}
 </style>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js" crossorigin="anonymous"></script>
+<script>
+(function(){
+  var ADMIN_EMAILS = ['elizabeth@plei.com','elizabeth@plei.app','priscila@plei.com'];
+  var cfg = {apiKey:"AIzaSyDOWMPkmoe5IlUrYLtvZAWq1gHNVJ48akU",authDomain:"plei-performance-reviews.firebaseapp.com",projectId:"plei-performance-reviews"};
+  if(!firebase.apps.length) firebase.initializeApp(cfg);
+  var css = 'position:fixed;inset:0;background:#07231a;z-index:9999;display:flex;align-items:center;justify-content:center;font-family:inherit;color:#eafaf1;text-align:center;padding:20px';
+  var gate = document.createElement('div');
+  gate.id = 'adminGate';
+  gate.style.cssText = css;
+  gate.innerHTML = '<div style="max-width:360px"><img src="logo-green.png" style="width:42px;height:42px" alt=""/><h2 style="margin:14px 0 6px;font-size:20px">Admin area</h2><p style="color:#9fc4b2;font-size:13px;margin:0 0 16px">This section is limited to assigned admins.</p><button id="agBtn" style="background:#2fd771;color:#062018;font-weight:700;border:none;border-radius:10px;padding:11px 22px;font-size:14px;cursor:pointer">Sign in with Google</button><p id="agErr" style="color:#f28b82;font-size:12px;margin-top:12px"></p></div>';
+  document.addEventListener('DOMContentLoaded', function(){ document.body.appendChild(gate); });
+  function wire(){
+    var b = document.getElementById('agBtn');
+    if(!b) return;
+    b.onclick = function(){
+      var p = new firebase.auth.GoogleAuthProvider();
+      p.setCustomParameters({hd:'plei.com'});
+      firebase.auth().signInWithPopup(p).catch(function(e){ var el=document.getElementById('agErr'); if(el) el.textContent = e.message; });
+    };
+  }
+  document.addEventListener('DOMContentLoaded', wire);
+  firebase.auth().onAuthStateChanged(function(u){
+    var g = document.getElementById('adminGate');
+    if(u && ADMIN_EMAILS.indexOf((u.email||'').toLowerCase())>=0){
+      if(g) g.remove();
+    } else if(u){
+      if(g){ g.querySelector('p').textContent = 'Signed in as '+u.email+'. This account is not on the admin list.'; var btn=g.querySelector('#agBtn'); if(btn) btn.textContent='Try another account'; }
+      firebase.auth().signOut();
+    }
+  });
+})();
+</script>
 </head>
 <body>
   <div class="wrap">
