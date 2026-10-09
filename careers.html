@@ -70,7 +70,7 @@ document.getElementById("roleDetail").innerHTML =
   '<div class="rdHead"><span class="rdIcon">'+escH(role.icon||"💼")+'</span><h1>'+escH(role.title)+'</h1></div>'+
   '<p class="rdMeta">'+escH(metaParts.join(" · "))+'</p>'+
   '<div class="rdDesc">'+descHtml+'</div>'+
-  '<a class="rdApply" href="apply-apply.html?role='+encodeURIComponent(role.title)+'">Apply now →</a>';
+  '<a class="rdApply" href="https://recruiting.plei.com/apply.html?role='+encodeURIComponent(role.title)+'" target="_blank" rel="noopener">Apply now →</a>';
 }
 function route(){
 var m=(location.hash||"").match(/^#role\/(.+)$/);
