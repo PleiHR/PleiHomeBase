@@ -101,9 +101,6 @@ route();
 window.addEventListener("hashchange", routeActive);
 renderGrid();
 routeActive();
-fetch("roles.json",{cache:"no-store"}).then(function(r){return r.json();}).then(function(data){
-  if(Array.isArray(data)&&data.length){ ROLES=data; renderGrid(); routeActive(); }
-}).catch(function(){});
 </script>
 </body>
 </html>
