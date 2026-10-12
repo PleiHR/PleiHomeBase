@@ -4,8 +4,11 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Projects &amp; Sprints · Plei Hub</title>
+<script>(function(){try{if(new URLSearchParams(location.search).get("embed")==="1") document.documentElement.className+=" embedded";}catch(e){}})();</script>
 <link rel="stylesheet" href="styles.css" />
 <style>
+  .embedded #pageHeader{display:none}
+  .embedded .pjtabs{margin-top:0}
   .pjtabs{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 6px}
   .pjtab{border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--txt);border-radius:10px;padding:8px 14px;font-size:13.5px;font-weight:600;cursor:pointer}
   .pjtab.on{border-color:var(--green);background:rgba(47,215,113,.1);color:var(--green-soft)}
@@ -56,13 +59,15 @@
 </head>
 <body>
   <div class="wrap">
+    <div id="pageHeader">
     <nav class="nav">
       <a class="logo" href="index.html"><img src="logo-green.png" alt="Plei" style="width:26px;height:26px;vertical-align:middle" />Plei Hub</a>
       <span class="spacer"></span><span class="badge">Internal</span>
     </nav>
 
     <h1>Projects &amp; <span class="g">sprints</span></h1>
-    <p class="sub">Run initiatives in sprints, plan a sprint with dates and a goal, work a backlog, and move items across the board. Built for the GTM plan and any cross-team initiative. Saves as you go.</p>
+    <p class="sub">Plan sprints, work a backlog, and move items across the board. Saves as you go.</p>
+    </div>
 
     <div class="pjtabs" id="pjtabs"></div>
     <div id="projectArea"></div>

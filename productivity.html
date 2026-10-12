@@ -57,11 +57,14 @@
   var loaded = { tasks:false, projects:false, forms:false };
   // Pass any query params straight through (e.g. productivity.html?space=HR filters the task board).
   var qs = location.search || '';
+  // Pages embedded here hide their own duplicate nav/title (keeps the per-browser-storage note, which
+  // stays visible as a small collapsed "How this works" link either way) — Productivity already shows one.
+  function withEmbed(url){ return url + (url.indexOf('?')>=0 ? '&' : '?') + 'embed=1'; }
   function load(which){
     if(loaded[which]) return;
-    if(which==='tasks') frT.src = 'hr-tasks.html' + qs;
-    else if(which==='projects') frP.src = 'projects.html' + qs;
-    else frF.src = 'hr-tasks.html?tab=forms' + (qs ? '&' + qs.slice(1) : '');
+    if(which==='tasks') frT.src = withEmbed('hr-tasks.html' + qs);
+    else if(which==='projects') frP.src = withEmbed('projects.html' + qs);
+    else frF.src = withEmbed('hr-tasks.html?tab=forms' + (qs ? '&' + qs.slice(1) : ''));
     loaded[which] = true;
   }
   function show(which, pushHash){

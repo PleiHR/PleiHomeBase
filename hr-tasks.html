@@ -4,8 +4,11 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Tasks · Plei Hub</title>
+<script>(function(){try{if(new URLSearchParams(location.search).get("embed")==="1") document.documentElement.className+=" embedded";}catch(e){}})();</script>
 <link rel="stylesheet" href="styles.css" />
 <style>
+.embedded #pageHeader,.embedded #pageFooter{display:none}
+.embedded .pg-tabs{margin-top:0}
 .tk-add{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 8px}
 .tk-add input,.tk-add select{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:8px 10px;color:var(--txt);font:inherit;font-size:13px}
 .tk-add input[type=date]{color-scheme:dark}
@@ -206,21 +209,22 @@
 </head>
 <body>
 <div class="wrap">
+<div id="pageHeader">
 <nav class="nav">
 <a class="logo" href="index.html"><img src="logo-green.png" alt="Plei" style="width:26px;height:26px;vertical-align:middle" />Plei Hub</a>
 <span class="spacer"></span><span class="badge">Internal</span>
 </nav>
 
 <h1><span class="g">Tasks</span></h1>
-<p class="sub">The company's shared to-do — write what needs doing and hit Add. Everything else is optional.</p>
-<details class="howto"><summary>How this works</summary><p>Assign one or more people, tag it by space, set a priority, break it into subtasks, and comment with @mentions. Add a quick <b>checklist</b> right under the description for simple steps that don't need their own assignee or due date. Set a cadence and completing it creates the next one automatically. Define <b>custom fields</b> (text, dropdown, date, money, checklist, and more) and every task can carry them. Group related work into a <b>project</b> with its own board and custom status columns — start one from a template, the same way ClickUp Folders and Lists are built. The <b>Hiring Application Form</b> project is seeded in with the real 13-stage pipeline Magic runs today. Build a form under <b>Forms</b> and submitting it creates and assigns a task automatically (shown with a 🗒️ so you can tell it came from a form), the same way Magic's ClickUp forms do today — point a form at a project (like the public "Open Rolls" hiring form) and it lands there instead of the flat board. Any form can also be made <b>public</b>: it publishes as its own real Plei page that anyone can fill out with no login, and its answers arrive here as a task, with room for extra internal-only fields (status, priority, custom fields) that never show on the public page — see ⚙ Settings → Public forms to set it up. Use the <b>⋮</b> menu on any card to duplicate a task or move it into a project (or back to the board).</p></details>
+<p class="sub">Write what needs doing and hit Add — everything else is optional.</p>
+</div>
 
-<div class="callout" style="margin:0 0 18px">Saves to <b>your own browser</b> for now — teammates on a different computer won't see it yet. Public form submissions are the one exception: they travel through the small relay configured in ⚙ Settings → Public forms, so they can reach you even from someone else's device.</div>
+<details class="howto"><summary>How this works</summary><p><b>Saves to your own browser</b> for now — teammates on a different computer won't see it yet, except public form submissions (they travel through the relay set up in ⚙ Settings → Public forms). Assign people, tag it by space, set a priority, break it into subtasks, and comment with @mentions. Add a quick <b>checklist</b> right under the description for simple steps that don't need their own assignee or due date. Set a cadence and completing it creates the next one automatically. Define <b>custom fields</b> and every task can carry them. Group related work into a <b>project</b> with its own board and status columns — start one from a template. Build a <b>form</b> and submitting it creates and assigns a task automatically — point it at a project and it lands there instead of the flat board, or make it <b>public</b> so anyone can fill it out with no login. Use the <b>⋮</b> menu on any card to duplicate a task or move it into a project.</p></details>
 
 <div class="pg-tabs" id="pgTabs">
 <button class="pg-tab on" data-tab="board" type="button">Board</button>
-<button class="pg-tab" data-tab="projects" type="button">Projects <span style="opacity:.6">· sectors</span></button>
-<button class="pg-tab" data-tab="forms" type="button">Forms <span style="opacity:.6">· create tasks</span></button>
+<button class="pg-tab" data-tab="projects" type="button">Projects</button>
+<button class="pg-tab" data-tab="forms" type="button">Forms</button>
 </div>
 
 <div id="boardSection">
@@ -292,7 +296,7 @@
 <div id="projectDetail" style="display:none"></div>
 </div>
 
-<footer><a href="index.html" style="color:var(--green);text-decoration:none">← Back to home</a></footer>
+<footer id="pageFooter"><a href="index.html" style="color:var(--green);text-decoration:none">← Back to home</a></footer>
 </div>
 
 <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
