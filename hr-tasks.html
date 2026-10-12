@@ -484,6 +484,56 @@ return [
 {id:"m2",label:"Contact email",type:"email",req:true},
 {id:"m3",label:"Payment details / notes",type:"textarea",req:false}
 ]},
+{id:"f_req_coi", name:"Certificate of Insurance Request", desc:"Facility or partner certificate of insurance request (general — not specific to a Magic game). Processing is 1–3 business days.", who:[], tags:["Compliance"], vis:"company", priority:"normal", fields:[
+{id:"qi1",label:"Requester name",type:"text",req:true},
+{id:"qi2",label:"Requester email",type:"email",req:true},
+{id:"qi3",label:"Facility / Partner name",type:"text",req:true},
+{id:"qi4",label:"Facility address",type:"text",req:false},
+{id:"qi5",label:"Event date",type:"date",req:false},
+{id:"qi6",label:"Needed by",type:"date",req:true},
+{id:"qi7",label:"Additional insured needed",type:"select",req:false,opts:["No","Yes"]},
+{id:"qi8",label:"Details / special wording",type:"textarea",req:false}
+]},
+{id:"f_req_design", name:"Design Request", desc:"Creative and brand assets for marketing, social, and events.", who:[], tags:["Marketing"], vis:"company", priority:"normal", fields:[
+{id:"qd1",label:"Requester name",type:"text",req:true},
+{id:"qd2",label:"Requester email",type:"email",req:true},
+{id:"qd3",label:"What do you need",type:"text",req:true},
+{id:"qd4",label:"Type",type:"select",req:false,opts:["Social","Print","Presentation","Web","Other"]},
+{id:"qd5",label:"Due date",type:"date",req:true},
+{id:"qd6",label:"Details, copy, and links",type:"textarea",req:true}
+]},
+{id:"f_req_comms", name:"Comms / PR Request", desc:"Press, announcements, and communications support.", who:[], tags:["Marketing"], vis:"company", priority:"normal", fields:[
+{id:"qc1",label:"Requester name",type:"text",req:true},
+{id:"qc2",label:"Requester email",type:"email",req:true},
+{id:"qc3",label:"Request type",type:"select",req:false,opts:["Press / media","Announcement","Social","Other"]},
+{id:"qc4",label:"Headline / topic",type:"text",req:true},
+{id:"qc5",label:"Timing",type:"date",req:false},
+{id:"qc6",label:"Details and context",type:"textarea",req:true}
+]},
+{id:"f_req_it", name:"IT / Access Request", desc:"Accounts, tools, and access changes.", who:[], tags:["Operations"], vis:"company", priority:"normal", fields:[
+{id:"qt1",label:"Requester name",type:"text",req:true},
+{id:"qt2",label:"Requester email",type:"email",req:true},
+{id:"qt3",label:"System / tool",type:"text",req:true},
+{id:"qt4",label:"Action",type:"select",req:false,opts:["Grant access","Revoke access","New account","Other"]},
+{id:"qt5",label:"Urgency",type:"select",req:false,opts:["Normal","Urgent"]},
+{id:"qt6",label:"Reason",type:"textarea",req:true}
+]},
+{id:"f_req_eng", name:"Engineering Request", desc:"Bugs, features, and infrastructure asks for the engineering team.", who:[], tags:["Engineering"], vis:"company", priority:"normal", fields:[
+{id:"qe1",label:"Requester name",type:"text",req:true},
+{id:"qe2",label:"Requester email",type:"email",req:true},
+{id:"qe3",label:"Request type",type:"select",req:false,opts:["Bug","Feature","Infrastructure","Data / report","Other"]},
+{id:"qe4",label:"Title / summary",type:"text",req:true},
+{id:"qe5",label:"Priority",type:"select",req:false,opts:["Low","Normal","High","Urgent"]},
+{id:"qe6",label:"Details, steps to reproduce, links",type:"textarea",req:true}
+]},
+{id:"f_req_product", name:"Product Request", desc:"Feature ideas, changes, and product feedback.", who:[], tags:["Product"], vis:"company", priority:"normal", fields:[
+{id:"qp1",label:"Requester name",type:"text",req:true},
+{id:"qp2",label:"Requester email",type:"email",req:true},
+{id:"qp3",label:"Area",type:"select",req:false,opts:["App","Marketplace","Growth","Organizer tools","Other"]},
+{id:"qp4",label:"Title / summary",type:"text",req:true},
+{id:"qp5",label:"Priority",type:"select",req:false,opts:["Low","Normal","High","Urgent"]},
+{id:"qp6",label:"Problem, goal, and context",type:"textarea",req:true}
+]},
 {id:"form_hiring_public", name:"Open Rolls (Applications)", desc:"Candidates apply here — the exact 9 questions from the live ClickUp \"Open Rolls (Applications)\" form. Anyone with the link can fill it out, no login needed; each submission lands as a candidate task in the Hiring Application Form project, starting at New Application, with its answers in Custom fields (not dumped into the description) the same way ClickUp's form-to-field mapping works.", who:[], tags:["HR"], vis:"company", priority:"normal", projectId:"proj_hiring", public:true, slug:"apply", lastSyncRow:0, fields:[
 {id:"h1",label:"Hello! Please enter your Full name. (First Name & Last Name)",type:"text",req:true},
 {id:"h2",label:"Email Address",type:"email",req:true},
@@ -514,6 +564,16 @@ if(!Array.isArray(s.openRoles)){ s.openRoles = seedOpenRoles(); seeded=true; }
 // added by id instead of relying on first-ever-load seeding. Runs every load; cheap and a no-op once caught up.
 if(!s.projects.some(function(p){return p.id==="proj_hiring";})){ s.projects.push(defaultProjects()[0]); seeded=true; }
 seedFields().forEach(function(f){ if(!s.fields.some(function(x){return x.id===f.id;})){ s.fields.push(f); seeded=true; } });
+// Sept 2026 — moved the six request types (COI, Design, Comms/PR, IT, Engineering, Product) out of the
+// old standalone request-forms.html page (mailto-only, no task/record) and into this Forms system, so every
+// request lands as a trackable, assignable task like everything else here. Added by fixed id so a browser
+// that already had its own s.forms array (nearly everyone by now) still picks them up.
+["f_req_coi","f_req_design","f_req_comms","f_req_it","f_req_eng","f_req_product"].forEach(function(fid){
+if(!s.forms.some(function(f){return f.id===fid;})){
+var fresh = seedForms().filter(function(f){return f.id===fid;})[0];
+if(fresh){ s.forms.push(fresh); seeded=true; }
+}
+});
 var freshHiringForm = seedForms().filter(function(f){return f.id==="form_hiring_public";})[0];
 if(freshHiringForm){
 var hfIdx=-1; (s.forms||[]).forEach(function(f,i){ if(f.id==="form_hiring_public") hfIdx=i; });
@@ -1696,6 +1756,9 @@ if(document.getElementById("formsSection").style.display!=="none") renderForms()
 // Pre-filter from the URL, e.g. ?space=HR or ?vis=team, so a link can open a focused view.
 (function(){ try{ var p=new URLSearchParams(location.search); var sp=p.get("space"); if(sp){ var f=document.getElementById("fTag"); for(var i=0;i<f.options.length;i++){ if(f.options[i].value.toLowerCase()===sp.toLowerCase()){ f.value=f.options[i].value; break; } } } var vs=p.get("vis"); if(vs){ document.getElementById("fVis").value=vs; } }catch(e){} })();
 render();
+// Open directly to a specific page tab via ?tab=forms|projects|board — used when this page is embedded
+// as productivity.html's own "Forms" (or "Tasks"/"Projects") view, so it doesn't just default to Board.
+(function(){ try{ var tp=new URLSearchParams(location.search).get("tab"); if(tp){ var btn=document.querySelector('.pg-tab[data-tab="'+tp+'"]'); if(btn) btn.click(); } }catch(e){} })();
 </script>
 
 <script>if(self!==top){var n=document.querySelector('.nav');if(n)n.style.display='none';}</script>
