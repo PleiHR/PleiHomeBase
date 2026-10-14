@@ -75,8 +75,21 @@
 
   <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
 
+  <div id="hubAuthGate" style="display:none;position:fixed;inset:0;z-index:999;background:#06130d;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px">
+    <div style="max-width:360px">
+      <img src="logo-green.png" style="width:42px;height:42px" alt="" />
+      <h2 style="margin:14px 0 6px;font-size:20px;color:#eafff2">Sign in to continue</h2>
+      <p id="hubAuthMsg" style="color:#9fc4b2;font-size:13px;margin:0 0 16px;line-height:1.5">Projects &amp; Sprints are now shared company-wide — sign in with your @plei.com Google account so your projects and assignments are visible to the people you share them with.</p>
+      <button id="hubAuthBtn" type="button" style="background:#2fd771;color:#062018;font-weight:700;border:none;border-radius:10px;padding:11px 22px;font-size:14px;cursor:pointer">Sign in with Google</button>
+      <p id="hubAuthErr" style="color:#f28b82;font-size:12px;margin-top:12px"></p>
+    </div>
+  </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="hub-config.js"></script>
+<script src="hub-sync.js"></script>
 <script>
-var TEAM = ["Adrian Rodriguez Gonzalez","Agus Caruso","Alan Shilling","Andrea Lesmes","Angel Montejo","Angely Hernandez","Brayan Acebo","Bruno Brito","Carlos Sposito","Carmen Brandel","Chris Rodriguez","Danta & Co. Consulting LLC","David Caicedo","Delfina Valdez Martinez","Fabiano Oliveira","Giuliana Abras","Ivan Nuñez","JC Duran","Jeremias Espeche","Jonathan Montalvo","Julieta Ruber","Liz Irizarry","Lucas Arena","Maria Bautista","Maria Beltran","Maria Padron","Mili Bagaglio","Monica Rojas","Nahuel Canete","Natalia Ailen Dominguez Fernandez","Priscila Molina","Rigo B Castro","Roberto Dominguez","Sebastian Duque","Sebastian Rayo","Spencer Henry","Stefano Sanchez","Stephanie Kowalczuk","Thomas Arango","Tomás Noseda","Viviana Reales"];
+var TEAM =["Adrian Rodriguez Gonzalez","Agus Caruso","Alan Shilling","Andrea Lesmes","Angel Montejo","Angely Hernandez","Brayan Acebo","Bruno Brito","Carlos Sposito","Carmen Brandel","Chris Rodriguez","Danta & Co. Consulting LLC","David Caicedo","Delfina Valdez Martinez","Fabiano Oliveira","Giuliana Abras","Ivan Nuñez","JC Duran","Jeremias Espeche","Jonathan Montalvo","Julieta Ruber","Liz Irizarry","Lucas Arena","Maria Bautista","Maria Beltran","Maria Padron","Mili Bagaglio","Monica Rojas","Nahuel Canete","Natalia Ailen Dominguez Fernandez","Priscila Molina","Rigo B Castro","Roberto Dominguez","Sebastian Duque","Sebastian Rayo","Spencer Henry","Stefano Sanchez","Stephanie Kowalczuk","Thomas Arango","Tomás Noseda","Viviana Reales"];
 var PRIOS=["Low","Normal","High","Urgent"];
 var STLBL={todo:"To do",doing:"In motion",done:"Done"};
 
@@ -97,8 +110,80 @@ function seed(){
 }
 function i(){ return "it"+Date.now()+Math.random().toString(36).slice(2,6); }
 function load(){ try{ var s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.projects&&s.projects.length) return s; }catch(e){} return seed(); }
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch(e){} hubDiffAndPush(); }
 var state=load();
+
+// ---------------------------------------------------------------------------
+// Hub shared storage (Round 21) — same approach as hr-tasks.html: this page
+// stays on localStorage as the instant-load cache, but once someone signs
+// in, every project (its sprints AND items all travel together, since this
+// page already keeps a whole project as one object) syncs to the shared
+// hub_projects table (kind="sprints") so a restricted project's members are
+// real, server-enforced visibility rather than just a UI label. If
+// hub-sync.js/hub-config.js didn't load, HUB is undefined and everything
+// below is a no-op — purely local behavior, same as today.
+// ---------------------------------------------------------------------------
+var HUB = window.HubSync;
+var hubEnabled = !!(HUB && HUB.enabled);
+var hubReady = false;
+var projectCollection = null;
+var lastSyncedProjectIds = {};
+var hubUnsubProjects=null, hubUnsubProfiles=null, hubRemotePullTimer=null;
+
+function hubProjectToRow(p){
+  var members = (p.members||[]).map(function(n){ return HUB.resolveNameToId(n); }).filter(Boolean);
+  var me = HUB.getMyProfile();
+  return { id:p.id, kind:"sprints", data:p, members:members, created_by: me?me.id:null };
+}
+function hubRowToProject(row){
+  var p = (row.data && typeof row.data==="object") ? row.data : {};
+  p.id=row.id; p.members=p.members||[];
+  return p;
+}
+
+function hubDiffAndPush(){
+  if(!hubEnabled || !hubReady || !projectCollection) return;
+  var curIds={};
+  (state.projects||[]).forEach(function(p){ curIds[p.id]=true; projectCollection.queuePush(p); });
+  Object.keys(lastSyncedProjectIds).forEach(function(id){ if(!curIds[id]) projectCollection.remove(id); });
+  lastSyncedProjectIds=curIds;
+}
+
+async function hubPullAndMerge(){
+  if(!hubEnabled) return;
+  var remote = await projectCollection.pullAll();
+  if(remote===null) return;
+  var remoteIds={}; remote.forEach(function(p){ remoteIds[p.id]=true; });
+  var merged = remote.slice();
+  (state.projects||[]).forEach(function(p){ if(!remoteIds[p.id]) merged.push(p); });
+  state.projects = merged;
+  if(!state.projects.length){ var seeded=seed(); state.projects=seeded.projects; }
+  if(!state.sel || !state.projects.some(function(p){return p.id===state.sel;})) state.sel=state.projects[0].id;
+  lastSyncedProjectIds={}; state.projects.forEach(function(p){ lastSyncedProjectIds[p.id]=true; });
+  hubReady=true;
+  save(); render();
+}
+
+function hubScheduleRemotePull(){ if(hubRemotePullTimer) clearTimeout(hubRemotePullTimer); hubRemotePullTimer=setTimeout(function(){ hubRemotePullTimer=null; hubPullAndMerge(); },600); }
+function hubShowGate(msg,err){ var g=document.getElementById("hubAuthGate"); if(!g) return; if(msg) document.getElementById("hubAuthMsg").textContent=msg; document.getElementById("hubAuthErr").textContent=err||""; g.style.display="flex"; }
+function hubHideGate(){ var g=document.getElementById("hubAuthGate"); if(g) g.style.display="none"; }
+
+async function hubInit(){
+  if(!hubEnabled) return;
+  projectCollection = HUB.makeCollection({ table:"hub_projects", toRow:hubProjectToRow, fromRow:hubRowToProject, onRemote:function(){ hubScheduleRemotePull(); } });
+  var r = await HUB.init();
+  if(r.signedIn){ hubHideGate(); await hubPullAndMerge(); } else { hubShowGate(); }
+  hubUnsubProjects = projectCollection.subscribe();
+  hubUnsubProfiles = HUB.subscribeProfiles(function(){ projectCollection.invalidateAll(); hubDiffAndPush(); });
+  HUB.onAuthChange(function(session){ if(session){ hubHideGate(); hubPullAndMerge(); } else { hubReady=false; hubShowGate(); } });
+  var btn=document.getElementById("hubAuthBtn");
+  if(btn) btn.onclick=async function(){
+    btn.disabled=true; var res=await HUB.signIn(); btn.disabled=false;
+    if(res && res.openedNewTab){ hubShowGate("Opened in a new tab — sign in there with your @plei.com Google account, then come back here (you may need to reload this page once).",""); }
+    else if(res && !res.ok){ hubShowGate(null,"Couldn't sign in — try again, or check with IT if this keeps happening."); }
+  };
+}
+if(hubEnabled) hubInit();
 
 function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
 function initials(n){ var p=String(n||"").trim().split(/\s+/); return (((p[0]||"")[0]||"")+((p[1]||"")[0]||"")).toUpperCase()||"?"; }
@@ -135,10 +220,12 @@ function renderProject(){
       '<div class="pbar"><div style="width:'+pct+'%"></div></div><div class="ptxt">'+done+' of '+tot+' done · '+pct+'% <a href="#" id="editSprint" style="color:var(--green);text-decoration:none;margin-left:8px">Edit sprint</a></div></div>' : '';
   var assignOpts='<option value="">Assign…</option>'+TEAM.map(function(n){return '<option>'+esc(n)+'</option>';}).join("");
   var prioOpts=PRIOS.map(function(x){return '<option'+(x==="Normal"?" selected":"")+'>'+x+'</option>';}).join("");
+  var shareLabel = (p.members&&p.members.length) ? ("🔒 Shared with "+p.members.length+" "+(p.members.length===1?"person":"people")) : "🌐 Everyone at Plei can see this";
   document.getElementById("projectArea").innerHTML =
     '<div class="sprintbar"><span style="font-size:12.5px;color:var(--muted)">Sprints:</span>'+
       '<button class="sprintchip '+(backlogOn?"on":"")+'" data-s="__backlog__">Backlog</button>'+ sprintChips +
-      '<button class="sprintchip add" id="newSprint">+ Sprint</button></div>'+
+      '<button class="sprintchip add" id="newSprint">+ Sprint</button>'+
+      '<span style="flex:1"></span><button class="sprintchip" id="shareBtn" title="Choose who can see this project">'+shareLabel+'</button></div>'+
     metaHtml +
     '<div class="addrow"><input class="title" id="iTitle" type="text" placeholder="Add an item to '+(backlogOn?"the backlog":esc(sp?sp.name:""))+'…" />'+
       '<select id="iWho">'+assignOpts+'</select><select id="iPrio">'+prioOpts+'</select><input class="pts" id="iPts" type="number" min="0" placeholder="pts" /><button id="iAdd">Add</button></div>'+
@@ -153,13 +240,14 @@ function render(){ renderTabs(); renderProject(); }
 // ---- events ----
 document.getElementById("pjtabs").addEventListener("click", function(e){
   var t=e.target.closest("[data-p]"); if(t){ state.sel=t.getAttribute("data-p"); save(); render(); return; }
-  if(e.target.closest("#newProj")){ var n=prompt("New project name:"); if(n&&n.trim()){ var id="pj"+Date.now(); state.projects.push({id:id,name:n.trim(),sprints:[{id:"s"+Date.now(),name:"Sprint 1",start:"",end:"",goal:""}],items:[]}); state.sel=id; save(); render(); } }
+  if(e.target.closest("#newProj")){ var n=prompt("New project name:"); if(n&&n.trim()){ var id="pj"+Date.now(); state.projects.push({id:id,name:n.trim(),members:[],sprints:[{id:"s"+Date.now(),name:"Sprint 1",start:"",end:"",goal:""}],items:[]}); state.sel=id; save(); render(); } }
 });
 document.getElementById("projectArea").addEventListener("click", function(e){
   var p=proj();
   var sc=e.target.closest("[data-s]"); if(sc){ setView(p, sc.getAttribute("data-s")); render(); return; }
   if(e.target.closest("#newSprint")){ var name=prompt("Sprint name:","Sprint "+(p.sprints.length+1)); if(name&&name.trim()){ var id="s"+Date.now(); p.sprints.push({id:id,name:name.trim(),start:"",end:"",goal:""}); setView(p,id); save(); render(); } return; }
   if(e.target.closest("#editSprint")){ e.preventDefault(); openSprint(p, curView(p)); return; }
+  if(e.target.closest("#shareBtn")){ openProjectSharing(p); return; }
   if(e.target.closest("#iAdd")){ addItem(p); return; }
   var adv=e.target.closest("[data-adv]"), back=e.target.closest("[data-back]"), del=e.target.closest("[data-del]");
   var id=(adv&&adv.getAttribute("data-adv"))||(back&&back.getAttribute("data-back"))||(del&&del.getAttribute("data-del"));
@@ -198,6 +286,24 @@ function openSprint(p, sid){
   document.getElementById("sEnd").addEventListener("change",function(){ s.end=this.value; save(); renderProject(); });
   document.getElementById("sGoal").addEventListener("input",function(){ s.goal=this.value; save(); });
   document.getElementById("sDel").onclick=function(){ if(!confirm("Delete "+s.name+"? Its items move to the backlog.")) return; p.items.forEach(function(it){ if(it.sprintId===sid) it.sprintId=null; }); p.sprints=p.sprints.filter(function(x){return x.id!==sid;}); setView(p,"__backlog__"); closeModal(); render(); };
+}
+function openProjectSharing(p){
+  p.members = p.members||[];
+  sheet.innerHTML = '<button class="x" id="mX">×</button><h2 style="margin:0 0 4px;font-size:18px">Who can see "'+esc(p.name)+'"</h2>'+
+    '<label style="display:flex;align-items:center;gap:8px;font-size:13px;margin:10px 0 8px;cursor:pointer"><input type="checkbox" id="pjOpenAll" style="width:16px;height:16px;accent-color:var(--green)" />Everyone at Plei (default)</label>'+
+    '<div id="pjMembersWrap"><p style="color:var(--muted);font-size:12px;margin:0 0 8px">Only the people checked below — plus whoever creates it — can see this project, its sprints, and its items. Someone must have signed in at least once (with "Continue with Google" on this page) before checking them here actually grants them access.</p>'+
+    '<div id="pjMembersList" style="max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:9px;padding:8px 10px"></div></div>';
+  modal.classList.add("show");
+  document.getElementById("mX").onclick=closeModal;
+  function renderWrap(){ document.getElementById("pjMembersWrap").style.display = document.getElementById("pjOpenAll").checked ? "none" : ""; }
+  document.getElementById("pjOpenAll").checked = p.members.length===0;
+  document.getElementById("pjMembersList").innerHTML = TEAM.map(function(n){
+    return '<label style="display:flex;align-items:center;gap:8px;font-size:12.5px;padding:3px 0;cursor:pointer"><input type="checkbox" class="pjmember" value="'+esc(n)+'" '+(p.members.indexOf(n)>=0?"checked":"")+' />'+esc(n)+'</label>';
+  }).join("");
+  renderWrap();
+  function syncMembersFromUI(){ p.members = document.getElementById("pjOpenAll").checked ? [] : Array.prototype.slice.call(document.querySelectorAll(".pjmember:checked")).map(function(cb){return cb.value;}); save(); render(); }
+  document.getElementById("pjOpenAll").addEventListener("change", function(){ renderWrap(); syncMembersFromUI(); });
+  document.getElementById("pjMembersList").addEventListener("change", function(e){ if(e.target.classList.contains("pjmember")) syncMembersFromUI(); });
 }
 function openItem(p, id){
   var it=p.items.filter(function(x){return x.id===id;})[0]; if(!it) return; it.who=it.who||[];

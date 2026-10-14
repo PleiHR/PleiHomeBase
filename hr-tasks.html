@@ -302,8 +302,21 @@
 <div class="modal" id="modal"><div class="sheet" id="sheet"></div></div>
 <div class="taskmenu" id="taskMenu"></div>
 
+<div id="hubAuthGate" style="display:none;position:fixed;inset:0;z-index:999;background:#06130d;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px">
+  <div style="max-width:360px">
+    <img src="logo-green.png" style="width:42px;height:42px" alt="" />
+    <h2 style="margin:14px 0 6px;font-size:20px;color:#eafff2">Sign in to continue</h2>
+    <p id="hubAuthMsg" style="color:#9fc4b2;font-size:13px;margin:0 0 16px;line-height:1.5">Tasks and Projects are now shared company-wide — sign in with your @plei.com Google account so your tasks and assignments are visible to the people you share them with.</p>
+    <button id="hubAuthBtn" type="button" style="background:#2fd771;color:#062018;font-weight:700;border:none;border-radius:10px;padding:11px 22px;font-size:14px;cursor:pointer">Sign in with Google</button>
+    <p id="hubAuthErr" style="color:#f28b82;font-size:12px;margin-top:12px"></p>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="hub-config.js"></script>
+<script src="hub-sync.js"></script>
 <script>
-var TEAM = ["Adrian Rodriguez Gonzalez","Agus Caruso","Alan Shilling","Andrea Lesmes","Angel Montejo","Angely Hernandez","Brayan Acebo","Bruno Brito","Carlos Sposito","Carmen Brandel","Chris Rodriguez","Danta & Co. Consulting LLC","David Caicedo","Delfina Valdez Martinez","Fabiano Oliveira","Giuliana Abras","Ivan Nuñez","JC Duran","Jeremias Espeche","Jonathan Montalvo","Julieta Ruber","Liz Irizarry","Lucas Arena","Maria Bautista","Maria Beltran","Maria Padron","Mili Bagaglio","Monica Rojas","Nahuel Canete","Natalia Ailen Dominguez Fernandez","Priscila Molina","Rigo B Castro","Roberto Dominguez","Sebastian Duque","Sebastian Rayo","Spencer Henry","Stefano Sanchez","Stephanie Kowalczuk","Thomas Arango","Tomás Noseda","Viviana Reales"];
+var TEAM =["Adrian Rodriguez Gonzalez","Agus Caruso","Alan Shilling","Andrea Lesmes","Angel Montejo","Angely Hernandez","Brayan Acebo","Bruno Brito","Carlos Sposito","Carmen Brandel","Chris Rodriguez","Danta & Co. Consulting LLC","David Caicedo","Delfina Valdez Martinez","Fabiano Oliveira","Giuliana Abras","Ivan Nuñez","JC Duran","Jeremias Espeche","Jonathan Montalvo","Julieta Ruber","Liz Irizarry","Lucas Arena","Maria Bautista","Maria Beltran","Maria Padron","Mili Bagaglio","Monica Rojas","Nahuel Canete","Natalia Ailen Dominguez Fernandez","Priscila Molina","Rigo B Castro","Roberto Dominguez","Sebastian Duque","Sebastian Rayo","Spencer Henry","Stefano Sanchez","Stephanie Kowalczuk","Thomas Arango","Tomás Noseda","Viviana Reales"];
 var TAGS = ["HR","Finance","Compliance","Legal","Operations","Growth","Product","Engineering","Marketing","Magic","Partnership"];
 var VIS = {company:{l:"Company",i:"🌐"},team:{l:"Team",i:"👥"},private:{l:"Private",i:"🔒"}};
 var CAD = {once:"One-time",daily:"Daily",weekdays:"Weekdays",weekly:"Weekly",monthly:"Monthly",close:"Monthly · 10th biz day",annual:"Annual"};
@@ -599,7 +612,7 @@ else if(JSON.stringify(s.projectTemplates[tplIdx].statuses)!==JSON.stringify(fre
 if(seeded) save(s);
 return s;
 }
-function save(s){ try{ localStorage.setItem(KEY, JSON.stringify(s)); }catch(e){} }
+function save(s){ try{ localStorage.setItem(KEY, JSON.stringify(s)); }catch(e){} hubDiffAndPush(); }
 function loadMe(){ try{ return localStorage.getItem(ME_KEY)||""; }catch(e){ return ""; } }
 function saveMe(v){ try{ localStorage.setItem(ME_KEY, v||""); }catch(e){} }
 function loadAmOnly(){ try{ return localStorage.getItem(AM_KEY)==="1"; }catch(e){ return false; } }
@@ -609,6 +622,182 @@ function saveBoolPref(key,v){ try{ localStorage.setItem(key, v?"1":"0"); }catch(
 var state=load();
 var ME=loadMe();
 var amOnly=loadAmOnly() && !!ME;
+
+// ---------------------------------------------------------------------------
+// Hub shared storage (Round 21) — Tasks/Projects stay on localStorage as the
+// instant-load cache (nothing above this point changes), but once someone
+// signs in, every task/project also syncs to Supabase (supabase/hub-schema.sql)
+// so assignment and project membership become real, shared, enforced
+// visibility instead of per-browser-only data. If hub-sync.js/hub-config.js
+// didn't load (offline, blocked, or simply not deployed yet), HUB is
+// undefined and every function below becomes a no-op — the page keeps
+// working exactly as it does today, local-only.
+// ---------------------------------------------------------------------------
+var HUB = window.HubSync;
+var hubEnabled = !!(HUB && HUB.enabled);
+var hubReady = false; // true once the first pull+merge has completed
+var taskCollection=null, projectCollection=null;
+var lastSyncedTaskIds={}, lastSyncedProjectIds={};
+var hubUnsubTasks=null, hubUnsubProjects=null, hubUnsubProfiles=null;
+var hubRemotePullTimer=null;
+
+function hubTaskToRow(t){
+  var assignees = whoArr(t.who).map(function(n){ return HUB.resolveNameToId(n); }).filter(Boolean);
+  var me = HUB.getMyProfile();
+  return { id:t.id, data:t, project_id:(t.projectId||null), vis:(t.vis||"company"), assignees:assignees, created_by: me?me.id:null };
+}
+function hubRowToTask(row){
+  var t = (row.data && typeof row.data==="object") ? row.data : {};
+  t.id=row.id; t.projectId=row.project_id||t.projectId||null; t.vis=row.vis||t.vis||"company";
+  return t;
+}
+function hubProjectToRow(p){
+  var members = (p.members||[]).map(function(n){ return HUB.resolveNameToId(n); }).filter(Boolean);
+  var me = HUB.getMyProfile();
+  return { id:p.id, kind:"tasks", data:p, members:members, created_by: me?me.id:null };
+}
+function hubRowToProject(row){
+  var p = (row.data && typeof row.data==="object") ? row.data : {};
+  p.id=row.id; p.members=p.members||[];
+  return p;
+}
+
+// Called at the end of every save(state). Diffs state.tasks/state.projects
+// against the last-known synced id sets and queues an upsert for anything
+// new/changed, plus a delete for anything removed — without touching any of
+// the ~50 call sites that already call save(state) throughout this file.
+// The Hiring Application Form project (and its tasks) is deliberately left
+// out: it's its own dedicated system (see hiring-pipeline.html) and out of
+// scope for this round.
+//
+// Known edge case: creating a brand-new project together with seeded
+// template tasks in the same action queues both a project upsert and task
+// upserts in the same tick; the task upserts can occasionally race ahead of
+// the project upsert (foreign key violation, logged to console and simply
+// retried). It self-heals on the very next save() once the project row has
+// landed — no data is lost, it just takes one extra edit to settle.
+function hubDiffAndPush(){
+  if(!hubEnabled || !hubReady || !taskCollection || !projectCollection) return;
+  var curTaskIds={};
+  (state.tasks||[]).forEach(function(t){
+    if(t.projectId===PROJ_HIRING_ID) return;
+    curTaskIds[t.id]=true;
+    taskCollection.queuePush(t);
+  });
+  Object.keys(lastSyncedTaskIds).forEach(function(id){ if(!curTaskIds[id]) taskCollection.remove(id); });
+  lastSyncedTaskIds=curTaskIds;
+
+  var curProjIds={};
+  (state.projects||[]).forEach(function(p){
+    if(p.id===PROJ_HIRING_ID) return;
+    curProjIds[p.id]=true;
+    projectCollection.queuePush(p);
+  });
+  Object.keys(lastSyncedProjectIds).forEach(function(id){ if(!curProjIds[id]) projectCollection.remove(id); });
+  lastSyncedProjectIds=curProjIds;
+}
+
+// First sign-in (or a plain refresh once already signed in): pull the
+// shared tables and MERGE them into whatever is already in this browser's
+// localStorage, rather than replacing it — so the very first time someone
+// signs in, whatever they already had locally gets uploaded into the
+// shared table instead of silently disappearing. Anything that already
+// exists on the server (e.g. a colleague's task assigned to this person)
+// is added in too. From then on hubDiffAndPush() above keeps both sides
+// converged.
+async function hubPullAndMerge(){
+  if(!hubEnabled) return;
+  var remoteTasks = await taskCollection.pullAll();
+  var remoteProjects = await projectCollection.pullAll();
+  if(remoteTasks===null || remoteProjects===null) return; // pull failed — leave local state untouched, try again later
+
+  var remoteTaskIds={}; remoteTasks.forEach(function(t){ remoteTaskIds[t.id]=true; });
+  var mergedTasks = remoteTasks.slice();
+  (state.tasks||[]).forEach(function(t){ if(t.projectId===PROJ_HIRING_ID || !remoteTaskIds[t.id]) mergedTasks.push(t); });
+  state.tasks = mergedTasks;
+
+  var remoteProjIds={}; remoteProjects.forEach(function(p){ remoteProjIds[p.id]=true; });
+  var hiringLocal = (state.projects||[]).filter(function(p){ return p.id===PROJ_HIRING_ID; });
+  var mergedProjects = hiringLocal.concat(remoteProjects);
+  (state.projects||[]).forEach(function(p){ if(p.id!==PROJ_HIRING_ID && !remoteProjIds[p.id]) mergedProjects.push(p); });
+  state.projects = mergedProjects;
+
+  lastSyncedTaskIds={}; state.tasks.forEach(function(t){ if(t.projectId!==PROJ_HIRING_ID) lastSyncedTaskIds[t.id]=true; });
+  lastSyncedProjectIds={}; state.projects.forEach(function(p){ if(p.id!==PROJ_HIRING_ID) lastSyncedProjectIds[p.id]=true; });
+
+  hubReady=true;
+  save(state); // persists the merge locally AND uploads anything that was local-only
+  render(); renderProjects();
+  if(typeof openProjectId!=="undefined" && openProjectId){ var op=projectById(openProjectId); if(op) renderProjectBoard(op); }
+}
+
+function hubScheduleRemotePull(){
+  if(hubRemotePullTimer) clearTimeout(hubRemotePullTimer);
+  hubRemotePullTimer=setTimeout(function(){ hubRemotePullTimer=null; hubPullAndMerge(); }, 600);
+}
+
+function hubShowGate(msg, err){
+  var gate=document.getElementById("hubAuthGate");
+  if(!gate) return;
+  if(msg) document.getElementById("hubAuthMsg").textContent=msg;
+  document.getElementById("hubAuthErr").textContent=err||"";
+  gate.style.display="flex";
+}
+function hubHideGate(){ var g=document.getElementById("hubAuthGate"); if(g) g.style.display="none"; }
+
+// Once signed in, auto-pick "Who am I" (the existing ME_KEY identity picker)
+// from the real profile name, if it isn't set yet and matches someone in
+// TEAM — removes the need to also manually pick yourself from the dropdown.
+function hubAdoptMeFromProfile(){
+  if(ME) return;
+  var mp=HUB.getMyProfile();
+  if(mp && TEAM.indexOf(mp.name)>=0){ ME=mp.name; saveMe(ME); var sel=document.getElementById("idMe"); if(sel) sel.value=ME; render(); }
+}
+
+async function hubInit(){
+  if(!hubEnabled) return;
+  taskCollection = HUB.makeCollection({
+    table:"hub_tasks", toRow:hubTaskToRow, fromRow:hubRowToTask,
+    onRemote:function(){ hubScheduleRemotePull(); }
+  });
+  projectCollection = HUB.makeCollection({
+    table:"hub_projects", toRow:hubProjectToRow, fromRow:hubRowToProject,
+    onRemote:function(){ hubScheduleRemotePull(); }
+  });
+
+  var r = await HUB.init();
+  if(r.signedIn){
+    hubHideGate();
+    await hubPullAndMerge();
+    hubAdoptMeFromProfile();
+  } else {
+    hubShowGate();
+  }
+  hubUnsubTasks = taskCollection.subscribe();
+  hubUnsubProjects = projectCollection.subscribe();
+  hubUnsubProfiles = HUB.subscribeProfiles(function(){
+    // A new profile appeared (someone signed in for the first time) —
+    // re-resolve names to ids and re-push anything that couldn't be
+    // resolved before, so assigning someone before their very first sign-in
+    // still catches up automatically once they do.
+    taskCollection.invalidateAll(); projectCollection.invalidateAll(); hubDiffAndPush();
+  });
+
+  HUB.onAuthChange(function(session){
+    if(session){ hubHideGate(); hubPullAndMerge().then(hubAdoptMeFromProfile); }
+    else { hubReady=false; hubShowGate(); }
+  });
+
+  var btn=document.getElementById("hubAuthBtn");
+  if(btn) btn.onclick=async function(){
+    btn.disabled=true;
+    var res = await HUB.signIn();
+    btn.disabled=false;
+    if(res && res.openedNewTab){ hubShowGate("Opened in a new tab — sign in there with your @plei.com Google account, then come back here (you may need to reload this page once).", ""); }
+    else if(res && !res.ok){ hubShowGate(null, "Couldn't sign in — try again, or check with IT if this keeps happening."); }
+  };
+}
+if(hubEnabled) hubInit();
 
 function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
 function initials(n){ var p=String(n||"").trim().split(/\s+/); return (((p[0]||"")[0]||"")+((p[1]||"")[0]||"")).toUpperCase()||"?"; }
@@ -1064,8 +1253,9 @@ function renderProjects(){
 var grid=document.getElementById("projectGrid");
 var cards=(state.projects||[]).filter(function(p){return p.id!==PROJ_HIRING_ID;}).map(function(p){
 var prog=projectProgress(p);
+var shareBadge = (p.members&&p.members.length) ? ('<span class="tg" title="'+esc(p.members.join(", "))+'" style="background:rgba(255,180,80,.14);color:#ffb450">🔒 '+p.members.length+' people</span>') : '<span class="tg" style="background:rgba(120,170,255,.14);color:#bcd4ff">🌐 Everyone</span>';
 return '<div class="formcard" data-pid="'+p.id+'"><h3>'+esc(p.name)+'</h3><p>'+esc(p.desc||"")+'</p>'+
-'<div class="fmeta"><span class="tg">'+esc(p.area||"")+'</span></div>'+
+'<div class="fmeta"><span class="tg">'+esc(p.area||"")+'</span>'+shareBadge+'</div>'+
 '<div class="pbar-wrap"><div class="pbar-fill" style="width:'+prog.pct+'%"></div></div>'+
 '<div class="pmeta"><span>'+prog.done+'/'+prog.total+' done</span><span>'+prog.pct+'%</span></div>'+
 '<div class="facts"><button class="fillbtn" data-openp="'+p.id+'" type="button">Open board</button><button data-editp="'+p.id+'" type="button">Settings</button><button class="delf" data-delp="'+p.id+'" type="button">Delete</button></div></div>';
@@ -1097,6 +1287,7 @@ var pName = existing ? existing.name : "";
 var pArea = existing ? existing.area : (TAGS[0]||"");
 var pDesc = existing ? existing.desc : "";
 var statuses = existing ? existing.statuses.map(function(s){return {id:s.id,label:s.label,cat:s.cat};}) : defaultStatuses();
+var members = existing ? (existing.members||[]).slice() : [];
 var tplOpts = isNew ? ('<option value="">Start blank</option>'+(state.projectTemplates||[]).map(function(tp){return '<option value="'+esc(tp.id)+'">'+esc(tp.name)+'</option>';}).join("")) : "";
 var areaOpts = TAGS.map(function(a){return '<option value="'+esc(a)+'"'+(pArea===a?" selected":"")+'>'+esc(a)+'</option>';}).join("");
 
@@ -1107,6 +1298,10 @@ sheet.innerHTML =
 '<div class="lbl">Project name</div><input id="psName" type="text" value="'+esc(pName)+'" placeholder="e.g. Q3 onboarding" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:9px 11px;color:var(--txt);font:inherit;font-size:13.5px" />'+
 '<div class="lbl">Space</div><select id="psArea">'+areaOpts+'</select>'+
 '<div class="lbl">Description</div><textarea id="psDesc" style="min-height:50px">'+esc(pDesc)+'</textarea>'+
+'<div class="lbl">Who can see this project</div>'+
+'<label style="display:flex;align-items:center;gap:8px;font-size:13px;margin:2px 0 8px;cursor:pointer"><input type="checkbox" id="psOpenAll" style="width:16px;height:16px;accent-color:var(--green)" />Everyone at Plei (default)</label>'+
+'<div id="psMembersWrap"><p style="color:var(--muted);font-size:12px;margin:0 0 8px">Only the people checked below — plus whoever creates it — can see this project and its tasks. Someone must have signed in at least once (with "Continue with Google" on this page) before checking them here actually grants them access.</p>'+
+'<div id="psMembersList" style="max-height:170px;overflow:auto;border:1px solid var(--line);border-radius:9px;padding:8px 10px"></div></div>'+
 '<div class="lbl">Status columns — customize the board for this project</div><div id="psStatusList"></div><button type="button" id="psAddStatus" style="background:none;border:1px solid var(--line);color:var(--green-soft);border-radius:8px;padding:7px 12px;font-size:12.5px;cursor:pointer">+ Add status</button>'+
 '<div style="display:flex;justify-content:space-between;margin-top:18px;flex-wrap:wrap;gap:8px">'+
 (isNew ? '' : '<button id="psSaveTpl" type="button" style="background:none;border:1px solid var(--line);color:var(--txt);border-radius:9px;padding:9px 14px;font-size:13px;cursor:pointer">Save as template</button>')+
@@ -1125,6 +1320,14 @@ return '<div class="fbuild-field" data-idx="'+idx+'"><div class="fr">'+
 }
 function renderStatusList(){ document.getElementById("psStatusList").innerHTML = statuses.length ? statuses.map(statusRowHtml).join("") : '<p class="tk-empty">Add at least one status.</p>'; }
 renderStatusList();
+
+function renderMembersUI(){ document.getElementById("psMembersWrap").style.display = document.getElementById("psOpenAll").checked ? "none" : ""; }
+document.getElementById("psOpenAll").checked = members.length===0;
+document.getElementById("psMembersList").innerHTML = TEAM.map(function(n){
+return '<label style="display:flex;align-items:center;gap:8px;font-size:12.5px;padding:3px 0;cursor:pointer"><input type="checkbox" class="psmember" value="'+esc(n)+'" '+(members.indexOf(n)>=0?"checked":"")+' />'+esc(n)+'</label>';
+}).join("");
+renderMembersUI();
+document.getElementById("psOpenAll").addEventListener("change", renderMembersUI);
 document.getElementById("psStatusList").addEventListener("input", function(e){
 var row=e.target.closest("[data-idx]"); if(!row) return; var idx=parseInt(row.getAttribute("data-idx"),10); var s=statuses[idx]; if(!s) return;
 if(e.target.classList.contains("pslabel")) s.label=e.target.value;
@@ -1165,10 +1368,11 @@ var name=document.getElementById("psName").value.trim();
 if(!name){ document.getElementById("psName").focus(); return; }
 var cleanStatuses = statuses.map(function(s){ return {id:s.id, label:(s.label||"").trim()||"Status", cat:s.cat||"active"}; });
 if(!cleanStatuses.length) cleanStatuses = defaultStatuses();
+var cleanMembers = document.getElementById("psOpenAll").checked ? [] : Array.prototype.slice.call(document.querySelectorAll(".psmember:checked")).map(function(cb){return cb.value;});
 if(isNew){
 var tplId=document.getElementById("psTpl").value;
 var tp=tplId?projectTemplateById(tplId):null;
-var proj={ id:"p"+Date.now(), name:name, area:document.getElementById("psArea").value, desc:document.getElementById("psDesc").value.trim(), statuses:cleanStatuses };
+var proj={ id:"p"+Date.now(), name:name, area:document.getElementById("psArea").value, desc:document.getElementById("psDesc").value.trim(), statuses:cleanStatuses, members:cleanMembers };
 state.projects.push(proj);
 if(tp && tp.tasks && tp.tasks.length){
 tp.tasks.forEach(function(tt){
@@ -1177,7 +1381,7 @@ state.tasks.push({id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title
 }
 save(state); closeModal(); renderProjects(); render();
 } else {
-existing.name=name; existing.area=document.getElementById("psArea").value; existing.desc=document.getElementById("psDesc").value.trim(); existing.statuses=cleanStatuses;
+existing.name=name; existing.area=document.getElementById("psArea").value; existing.desc=document.getElementById("psDesc").value.trim(); existing.statuses=cleanStatuses; existing.members=cleanMembers;
 save(state); closeModal(); renderProjects(); render();
 if(openProjectId===existing.id) renderProjectBoard(existing);
 }
