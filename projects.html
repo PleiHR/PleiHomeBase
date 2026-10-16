@@ -13,6 +13,7 @@
   .pjtab{border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--txt);border-radius:10px;padding:8px 14px;font-size:13.5px;font-weight:600;cursor:pointer}
   .pjtab.on{border-color:var(--green);background:rgba(47,215,113,.1);color:var(--green-soft)}
   .pjtab.add{color:var(--muted);font-weight:500}
+  .pjtabs a.pjtab{text-decoration:none;display:inline-block}
   .sprintbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0 6px}
   .sprintchip{border:1px solid var(--line);background:rgba(255,255,255,.02);color:var(--txt);border-radius:9px;padding:7px 12px;font-size:12.5px;cursor:pointer}
   .sprintchip.on{border-color:var(--green);background:rgba(47,215,113,.1);color:var(--green-soft)}
@@ -129,6 +130,22 @@ var hubReady = false;
 var projectCollection = null;
 var lastSyncedProjectIds = {};
 var hubUnsubProjects=null, hubUnsubProfiles=null, hubRemotePullTimer=null;
+// Board-style projects (kind:"tasks") — these are created/edited on hr-tasks.html, which still owns their task
+// data and board-rendering code. Projects & Sprints just lists them here too, read-only, so there is exactly
+// one Projects destination app-wide: clicking one navigates to its board on hr-tasks.html (no iframe).
+var boardProjects = [];
+var boardProjectCollection = null;
+async function hubLoadBoardProjects(){
+  if(!hubEnabled) return;
+  if(!boardProjectCollection) boardProjectCollection = HUB.makeCollection({ table:"hub_projects", toRow:function(x){return x;}, fromRow:function(row){return row;} });
+  var rows = await boardProjectCollection.pullAll();
+  if(rows===null) return;
+  boardProjects = rows.filter(function(r){ return r.kind==="tasks"; }).map(function(row){
+    var d=(row.data && typeof row.data==="object") ? row.data : {};
+    return { id:row.id, name:d.name||"Untitled", area:d.area||"" };
+  });
+  renderTabs();
+}
 
 function hubProjectToRow(p){
   var members = (p.members||[]).map(function(n){ return HUB.resolveNameToId(n); }).filter(Boolean);
@@ -172,10 +189,10 @@ async function hubInit(){
   if(!hubEnabled) return;
   projectCollection = HUB.makeCollection({ table:"hub_projects", toRow:hubProjectToRow, fromRow:hubRowToProject, onRemote:function(){ hubScheduleRemotePull(); } });
   var r = await HUB.init();
-  if(r.signedIn){ hubHideGate(); await hubPullAndMerge(); } else { hubShowGate(); }
+  if(r.signedIn){ hubHideGate(); await hubPullAndMerge(); hubLoadBoardProjects(); } else { hubShowGate(); }
   hubUnsubProjects = projectCollection.subscribe();
   hubUnsubProfiles = HUB.subscribeProfiles(function(){ projectCollection.invalidateAll(); hubDiffAndPush(); });
-  HUB.onAuthChange(function(session){ if(session){ hubHideGate(); hubPullAndMerge(); } else { hubReady=false; hubShowGate(); } });
+  HUB.onAuthChange(function(session){ if(session){ hubHideGate(); hubPullAndMerge(); hubLoadBoardProjects(); } else { hubReady=false; hubShowGate(); } });
   var btn=document.getElementById("hubAuthBtn");
   if(btn) btn.onclick=async function(){
     btn.disabled=true; var res=await HUB.signIn(); btn.disabled=false;
@@ -194,8 +211,11 @@ function fmtD(d){ if(!d) return ""; var x=new Date(d+"T00:00:00"); return isNaN(
 
 function renderTabs(){
   var t=document.getElementById("pjtabs");
-  t.innerHTML = state.projects.map(function(p){ return '<button class="pjtab '+(p.id===state.sel?"on":"")+'" data-p="'+p.id+'">'+esc(p.name)+'</button>'; }).join("")
-    + '<button class="pjtab add" id="newProj">+ New project</button>';
+  var sprintTabs = state.projects.map(function(p){ return '<button class="pjtab '+(p.id===state.sel?"on":"")+'" data-p="'+p.id+'">'+esc(p.name)+'</button>'; }).join("");
+  var boardTabs = boardProjects.map(function(b){ return '<a class="pjtab" href="hr-tasks.html?project='+esc(b.id)+'&bare=1" title="Task board — opens on Tasks">📋 '+esc(b.name)+'</a>'; }).join("");
+  t.innerHTML = sprintTabs + boardTabs
+    + '<button class="pjtab add" id="newProj">+ New project</button>'
+    + '<a class="pjtab add" href="hr-tasks.html?newproject=1&bare=1">+ New task board</a>';
 }
 function whoHtml(w){ w=w||[]; if(!w.length) return ""; var a=w.slice(0,3).map(function(n){return '<span class="av" title="'+esc(n)+'">'+esc(initials(n))+'</span>';}).join(""); return '<span class="avs">'+a+'</span>'+(w.length>3?' +'+(w.length-3):''); }
 function itemHtml(it){
