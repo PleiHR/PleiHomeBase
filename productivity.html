@@ -6,14 +6,12 @@
 <title>Productivity · Plei Hub</title>
 <link rel="stylesheet" href="styles.css" />
 <style>
-  .segwrap{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 16px}
-  .seg{display:inline-flex;border:1px solid var(--line);border-radius:12px;padding:4px;background:rgba(255,255,255,.02);gap:4px}
-  .seg button{border:none;background:none;color:var(--muted);font:inherit;font-size:13.5px;font-weight:600;padding:8px 18px;border-radius:9px;cursor:pointer}
-  .seg button.on{background:rgba(47,215,113,.12);color:var(--green-soft);border:1px solid rgba(47,215,113,.35);padding:7px 17px}
-  .seg button:hover:not(.on){color:var(--txt)}
-  .viewframe{width:100%;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.01);height:calc(100vh - 220px);min-height:560px}
-  .viewframe.hide{display:none}
-  .hint{font-size:12px;color:var(--muted)}
+  .pcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:0 0 20px}
+  .pcard{display:block;text-decoration:none;color:inherit;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:16px;padding:22px 20px;transition:border-color .15s,background .15s}
+  .pcard:hover{border-color:rgba(47,215,113,.35);background:rgba(47,215,113,.04)}
+  .pcard h3{margin:0 0 8px;font-size:17px;display:flex;align-items:center;gap:8px}
+  .pcard p{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+  .pcard .go{display:inline-block;margin-top:14px;color:var(--green-soft);font-size:12.5px;font-weight:600}
 </style>
 </head>
 <body>
@@ -24,73 +22,27 @@
     </nav>
 
     <h1>Productivity<span class="g">.</span></h1>
-    <p class="sub">One home for the work in motion. Toggle between the shared task board, project sprints, and intake forms; all three save as you go.</p>
+    <p class="sub">One home for the work in motion — Tasks, Projects &amp; Sprints, and Forms each live on their own page. Sign in once with Google here and you'll stay signed in across all three.</p>
 
-    <div class="segwrap">
-      <div class="seg" role="tablist" aria-label="Productivity views">
-        <button id="segTasks" role="tab" aria-selected="true">Tasks</button>
-        <button id="segProjects" role="tab" aria-selected="false">Projects &amp; Sprints</button>
-        <button id="segForms" role="tab" aria-selected="false">Forms</button>
-      </div>
-      <span class="hint" id="viewHint">The shared team to-do board: assign people, tag by space, set deadlines.</span>
+    <div class="pcards">
+      <a class="pcard" href="hr-tasks.html?tab=board&bare=1">
+        <h3>✅ Tasks</h3>
+        <p>The shared team to-do board: assign people, tag by space, set deadlines and priority.</p>
+        <span class="go">Open Tasks →</span>
+      </a>
+      <a class="pcard" href="projects.html">
+        <h3>📁 Projects &amp; Sprints</h3>
+        <p>Every project, board-style or sprint-based, in one place. Plan a backlog, run a sprint, or track a simple status board.</p>
+        <span class="go">Open Projects &amp; Sprints →</span>
+      </a>
+      <a class="pcard" href="hr-tasks.html?tab=forms&bare=1">
+        <h3>🗒️ Forms</h3>
+        <p>Build intake forms that create and assign a task automatically. Publish one as its own public page, or keep it internal.</p>
+        <span class="go">Open Forms →</span>
+      </a>
     </div>
 
-    <iframe id="frameTasks" class="viewframe" title="Tasks"></iframe>
-    <iframe id="frameProjects" class="viewframe hide" title="Projects and Sprints"></iframe>
-    <iframe id="frameForms" class="viewframe hide" title="Forms"></iframe>
+    <p class="sub" style="font-size:12.5px">Each page opens straight to that one section — no extra tabs inside it, and no second Google sign-in.</p>
   </div>
-
-<script>
-(function(){
-  var segT = document.getElementById('segTasks');
-  var segP = document.getElementById('segProjects');
-  var segF = document.getElementById('segForms');
-  var frT = document.getElementById('frameTasks');
-  var frP = document.getElementById('frameProjects');
-  var frF = document.getElementById('frameForms');
-  var hint = document.getElementById('viewHint');
-  var HINTS = {
-    tasks: 'The shared team to-do board: assign people, tag by space, set deadlines.',
-    projects: 'Run initiatives in sprints: plan, backlog, and board. Home of the GTM plan.',
-    forms: 'Build intake forms that create and assign a task automatically. Publish one as its own public page, or keep it internal.'
-  };
-  var loaded = { tasks:false, projects:false, forms:false };
-  // Pass any query params straight through (e.g. productivity.html?space=HR filters the task board).
-  var qs = location.search || '';
-  // Pages embedded here hide their own duplicate nav/title (keeps the per-browser-storage note, which
-  // stays visible as a small collapsed "How this works" link either way) — Productivity already shows one.
-  function withEmbed(url){ return url + (url.indexOf('?')>=0 ? '&' : '?') + 'embed=1'; }
-  function load(which){
-    if(loaded[which]) return;
-    if(which==='tasks') frT.src = withEmbed('hr-tasks.html' + qs);
-    else if(which==='projects') frP.src = withEmbed('projects.html' + qs);
-    else frF.src = withEmbed('hr-tasks.html?tab=forms' + (qs ? '&' + qs.slice(1) : ''));
-    loaded[which] = true;
-  }
-  function show(which, pushHash){
-    load(which);
-    frT.classList.toggle('hide', which!=='tasks');
-    frP.classList.toggle('hide', which!=='projects');
-    frF.classList.toggle('hide', which!=='forms');
-    segT.classList.toggle('on', which==='tasks');
-    segP.classList.toggle('on', which==='projects');
-    segF.classList.toggle('on', which==='forms');
-    segT.setAttribute('aria-selected', which==='tasks');
-    segP.setAttribute('aria-selected', which==='projects');
-    segF.setAttribute('aria-selected', which==='forms');
-    hint.textContent = HINTS[which];
-    try{ localStorage.setItem('plei_productivity_view', which); }catch(e){}
-    if(pushHash !== false) history.replaceState(null, '', '#'+which);
-  }
-  segT.addEventListener('click', function(){ show('tasks'); });
-  segP.addEventListener('click', function(){ show('projects'); });
-  segF.addEventListener('click', function(){ show('forms'); });
-  var initial = 'tasks';
-  var h = (location.hash||'').replace('#','');
-  if(h==='projects' || h==='tasks' || h==='forms') initial = h;
-  else { try{ var saved = localStorage.getItem('plei_productivity_view'); if(saved==='projects'||saved==='tasks'||saved==='forms') initial = saved; }catch(e){} }
-  show(initial, false);
-})();
-</script>
 </body>
 </html>
