@@ -1260,8 +1260,7 @@ return '<div class="formcard" data-pid="'+p.id+'"><h3>'+esc(p.name)+'</h3><p>'+e
 '<div class="pmeta"><span>'+prog.done+'/'+prog.total+' done</span><span>'+prog.pct+'%</span></div>'+
 '<div class="facts"><button class="fillbtn" data-openp="'+p.id+'" type="button">Open board</button><button data-editp="'+p.id+'" type="button">Settings</button><button class="delf" data-delp="'+p.id+'" type="button">Delete</button></div></div>';
 }).join("");
-var hiringNote='<a class="formcard" href="hiring-pipeline.html" style="display:block;text-decoration:none;color:inherit"><h3>Hiring Application Form <span class="tg" style="background:rgba(47,215,113,.16);color:var(--green-soft)">→ Hiring page</span></h3><p>The candidate pipeline now lives on its own page inside Hiring — same data, dedicated board.</p></a>';
-grid.innerHTML = hiringNote + (cards || '<p class="tk-empty">No other projects yet — start one from a template or from blank.</p>');
+grid.innerHTML = (cards || '<p class="tk-empty">No other projects yet — start one from a template or from blank.</p>');
 grid.querySelectorAll("[data-openp]").forEach(function(b){ b.onclick=function(){ openProjectBoard(b.getAttribute("data-openp")); }; });
 grid.querySelectorAll("[data-editp]").forEach(function(b){ b.onclick=function(){ var p=projectById(b.getAttribute("data-editp")); if(p) openProjectSettings(p); }; });
 grid.querySelectorAll("[data-delp]").forEach(function(b){ b.onclick=function(){
@@ -1601,8 +1600,7 @@ var publicBtns = f.public ? ('<button data-pubpage="'+f.id+'" type="button">⬇ 
 return '<div class="formcard" data-id="'+f.id+'"><h3>'+esc(f.name)+'</h3><p>'+esc(f.desc||"")+'</p><div class="fmeta">'+pubBadge+projBadge+tagsHtml+whoHtmlStr+'</div>'+
 '<div class="facts"><button class="fillbtn" data-fill="'+f.id+'" type="button">Fill out</button><button data-editf="'+f.id+'" type="button">Edit</button>'+publicBtns+'<button class="delf" data-delf="'+f.id+'" type="button">Delete</button></div></div>';
 }).join("");
-var hiringFormNote='<a class="formcard" href="hiring-pipeline.html" style="display:block;text-decoration:none;color:inherit"><h3>Open Rolls (Applications) <span class="tg" style="background:rgba(47,215,113,.16);color:var(--green-soft)">→ Hiring page</span></h3><p>The public hiring form now lives on its own page inside Hiring, alongside the candidate board.</p></a>';
-grid.innerHTML = hiringFormNote + cards + '<button class="newformcard" id="newFormBtn" type="button">+ New form</button>';
+grid.innerHTML = cards + '<button class="newformcard" id="newFormBtn" type="button">+ New form</button>';
 document.getElementById("newFormBtn").onclick=function(){ openFormBuilder(null); };
 grid.querySelectorAll("[data-fill]").forEach(function(b){ b.onclick=function(){ var f=formById(b.getAttribute("data-fill")); if(f) openFormFill(f); }; });
 grid.querySelectorAll("[data-editf]").forEach(function(b){ b.onclick=function(){ var f=formById(b.getAttribute("data-editf")); if(f) openFormBuilder(f); }; });
