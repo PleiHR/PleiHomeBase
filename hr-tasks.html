@@ -4,11 +4,12 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Tasks · Plei Hub</title>
-<script>(function(){try{if(new URLSearchParams(location.search).get("embed")==="1") document.documentElement.className+=" embedded";}catch(e){}})();</script>
+<script>(function(){try{var qs=new URLSearchParams(location.search);if(qs.get("embed")==="1") document.documentElement.className+=" embedded";if(qs.get("bare")==="1") document.documentElement.className+=" bare";}catch(e){}})();</script>
 <link rel="stylesheet" href="styles.css" />
 <style>
 .embedded #pageHeader,.embedded #pageFooter{display:none}
 .embedded .pg-tabs{margin-top:0}
+.bare .pg-tabs{display:none}
 .tk-add{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start;background:rgba(255,255,255,.02);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:0 0 8px}
 .tk-add input,.tk-add select{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:8px 10px;color:var(--txt);font:inherit;font-size:13px}
 .tk-add input[type=date]{color-scheme:dark}
@@ -140,6 +141,18 @@
 .fbuild-field select{min-width:110px;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:7px 9px;color:var(--txt);font:inherit;font-size:13px}
 .fbuild-field label.req{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:4px;white-space:nowrap}
 .fbuild-field .remf{background:none;border:none;color:#f28b82;cursor:pointer;font-weight:700;font-size:12px}
+.sheet.wide{max-width:960px}
+.fb-cols{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap}
+.fb-col{flex:1 1 300px;min-width:260px}
+.fb-previewcol{flex:1 1 280px;min-width:240px;position:sticky;top:22px}
+.fb-preview{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:14px;padding:18px}
+.fb-preview h3{margin:0 0 6px;font-size:16px;word-break:break-word}
+.fb-preview .fbp-desc{color:var(--muted);font-size:12.5px;margin:0 0 16px}
+.fb-preview .fbp-field{margin:0 0 14px}
+.fb-preview .fbp-field label{display:block;font-size:12.5px;color:var(--txt);margin:0 0 5px;font-weight:600;word-break:break-word}
+.fb-preview .fbp-field label .req{color:#f28b82}
+.fb-preview .fbp-fake{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:8px;padding:8px 10px;font-size:12.5px;color:var(--muted)}
+.fb-preview .fbp-empty{color:var(--muted);font-size:12.5px;margin:0}
 .optsbuild{width:100%;margin-top:7px}
 .optschips{display:flex;flex-wrap:wrap;gap:5px;margin:0 0 6px}
 .optsnewrow{display:flex;gap:6px}
@@ -223,7 +236,6 @@
 
 <div class="pg-tabs" id="pgTabs">
 <button class="pg-tab on" data-tab="board" type="button">Board</button>
-<button class="pg-tab" data-tab="projects" type="button">Projects</button>
 <button class="pg-tab" data-tab="forms" type="button">Forms</button>
 </div>
 
@@ -288,7 +300,6 @@
 </div>
 
 <div id="projectsSection" style="display:none">
-<p style="color:var(--muted);font-size:13px;margin:0 0 16px">Group related tasks into a project with its own board and status columns — the same idea as a List inside a ClickUp Folder. Each project lives inside one of the company's spaces and tracks its own progress; start one from a template or from blank.</p>
 <div id="projectListView">
 <div style="display:flex;justify-content:flex-end;margin:0 0 14px"><button id="newProjectBtn" type="button" style="background:var(--green);color:#062018;font-weight:700;border:none;border-radius:9px;padding:9px 16px;font-size:13.5px;cursor:pointer">+ New project</button></div>
 <div class="formgrid" id="projectGrid"></div>
@@ -996,7 +1007,7 @@ save(state); render();
 
 // ---- detail ----
 var modal=document.getElementById("modal"), sheet=document.getElementById("sheet");
-function closeModal(){ modal.classList.remove("show"); }
+function closeModal(){ modal.classList.remove("show"); sheet.classList.remove("wide"); }
 modal.addEventListener("click", function(e){ if(e.target===modal) closeModal(); });
 document.addEventListener("keydown", function(e){ if(e.key==="Escape") closeModal(); });
 function taskById(id){ return state.tasks.filter(function(x){return x.id===id;})[0]; }
@@ -1249,6 +1260,16 @@ if(onDone) onDone();
 
 // ---- projects ----
 var openProjectId=null;
+// True when this page was reached from projects.html (the single, unified Projects destination app-wide) via
+// ?project=<id> or ?newproject=1, rather than via the (now-removed) internal "Projects" tab. Changes where the
+// board's back button sends you, and what happens right after creating a brand-new board-style project.
+var cameFromProjectsPage = (function(){ try{ var qp=new URLSearchParams(location.search); return !!(qp.get("project")||qp.get("newproject")); }catch(e){ return false; } })();
+function openProjectsSection(){
+document.querySelectorAll(".pg-tab").forEach(function(x){ x.classList.remove("on"); });
+document.getElementById("boardSection").style.display="none";
+document.getElementById("formsSection").style.display="none";
+document.getElementById("projectsSection").style.display="";
+}
 function renderProjects(){
 var grid=document.getElementById("projectGrid");
 var cards=(state.projects||[]).filter(function(p){return p.id!==PROJ_HIRING_ID;}).map(function(p){
@@ -1308,7 +1329,7 @@ sheet.innerHTML =
 '<button id="psSave" type="button" style="background:var(--green);color:#062018;font-weight:700;border:none;border-radius:9px;padding:9px 16px;font-size:13.5px;cursor:pointer">'+(isNew?"Create project":"Save changes")+'</button>'+
 '</div>';
 modal.classList.add("show");
-document.getElementById("psX").onclick=closeModal;
+document.getElementById("psX").onclick = (isNew && cameFromProjectsPage) ? function(){ location.href="projects.html"; } : closeModal;
 
 function statusRowHtml(s, idx){
 return '<div class="fbuild-field" data-idx="'+idx+'"><div class="fr">'+
@@ -1378,7 +1399,8 @@ tp.tasks.forEach(function(tt){
 state.tasks.push({id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title:tt.title, who:[], tags:[], vis:"company", due:"", cad:"once", status:tt.status, priority:"normal", subtasks:[], notes:[], files:[], projectId:proj.id});
 });
 }
-save(state); closeModal(); renderProjects(); render();
+save(state); closeModal(); renderProjects();
+if(cameFromProjectsPage){ openProjectsSection(); openProjectBoard(proj.id); } else { render(); }
 } else {
 existing.name=name; existing.area=document.getElementById("psArea").value; existing.desc=document.getElementById("psDesc").value.trim(); existing.statuses=cleanStatuses; existing.members=cleanMembers;
 save(state); closeModal(); renderProjects(); render();
@@ -1469,7 +1491,7 @@ box.style.display="";
 var p=projectById(id); if(!p) return;
 box.innerHTML =
 '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 6px">'+
-'<button id="pbBack" type="button" style="background:none;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:6px 12px;font-size:12.5px;cursor:pointer">← All projects</button>'+
+'<button id="pbBack" type="button" style="background:none;border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:6px 12px;font-size:12.5px;cursor:pointer">'+(cameFromProjectsPage?"← Projects":"← All projects")+'</button>'+
 '<h2 style="margin:0;font-size:19px" id="pbTitle"></h2>'+
 '<span class="tg" id="pbArea"></span>'+
 '<span style="flex:1"></span>'+
@@ -1484,7 +1506,7 @@ box.innerHTML =
 '<button class="add" id="pAdd">Add task</button>'+
 '</div>'+
 '<div class="pboard" id="pBoard"></div>';
-document.getElementById("pbBack").onclick=closeProjectBoard;
+document.getElementById("pbBack").onclick = cameFromProjectsPage ? function(){ location.href="projects.html"; } : closeProjectBoard;
 document.getElementById("pbSettings").onclick=function(){ openProjectSettings(projectById(id)); };
 document.getElementById("pAdd").onclick=function(){
 var title=document.getElementById("pTitle").value.trim(); if(!title){ document.getElementById("pTitle").focus(); return; }
@@ -1617,9 +1639,12 @@ var priOpts=Object.keys(PRI).map(function(k){return '<option value="'+k+'"'+((ex
 var visOpts=Object.keys(VIS).map(function(k){return '<option value="'+k+'"'+((existing&&existing.vis===k)?' selected':(!existing&&k==="company"?" selected":""))+'>'+VIS[k].i+' '+VIS[k].l+'</option>';}).join("");
 var projOpts='<option value="">— Flat board —</option>'+(state.projects||[]).map(function(p){return '<option value="'+esc(p.id)+'"'+((existing&&existing.projectId===p.id)?' selected':'')+'>'+esc(p.name)+'</option>';}).join("");
 var isPublic = !!(existing && existing.public);
+sheet.classList.add("wide");
 sheet.innerHTML =
 '<button class="x" id="fbX">×</button>'+
 '<h2>'+(existing?"Edit form":"New form")+'</h2>'+
+'<div class="fb-cols">'+
+'<div class="fb-col">'+
 '<div class="lbl">Form name</div><input id="fbName" type="text" value="'+esc(existing?existing.name:"")+'" placeholder="e.g. Game Cancellation Form" style="width:100%;box-sizing:border-box;background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:9px 11px;color:var(--txt);font:inherit;font-size:13.5px" />'+
 '<div class="lbl">Description</div><textarea id="fbDesc" style="min-height:50px">'+esc(existing?existing.desc:"")+'</textarea>'+
 '<div class="lbl">Send new submissions into project</div><select id="fbProject">'+projOpts+'</select>'+
@@ -1630,9 +1655,17 @@ sheet.innerHTML =
 '<div class="lbl">Public access</div>'+
 '<label style="display:flex;align-items:center;gap:8px;font-size:13px;margin:0 0 10px;cursor:pointer"><input type="checkbox" id="fbPublic" style="width:16px;height:16px;accent-color:var(--green)" '+(isPublic?"checked":"")+' /> Make this form public — anyone with the link can fill it out, no login needed</label>'+
 '<div class="addrow" id="fbSlugRow" style="display:'+(isPublic?"flex":"none")+'"><input id="fbSlug" type="text" placeholder="url-slug, e.g. apply" value="'+esc(existing&&existing.slug?existing.slug:"")+'" /></div>'+
-'<div style="display:flex;justify-content:flex-end;margin-top:18px"><button id="fbSave" type="button" style="background:var(--green);color:#062018;font-weight:700;border:none;border-radius:9px;padding:9px 16px;font-size:13.5px;cursor:pointer">Save form</button></div>';
+'<div style="display:flex;justify-content:flex-end;margin-top:18px"><button id="fbSave" type="button" style="background:var(--green);color:#062018;font-weight:700;border:none;border-radius:9px;padding:9px 16px;font-size:13.5px;cursor:pointer">Save form</button></div>'+
+'</div>'+
+'<div class="fb-col fb-previewcol">'+
+'<div class="lbl">Live preview — what filling it out looks like</div>'+
+'<div class="fb-preview" id="fbPreview"></div>'+
+'</div>'+
+'</div>';
 modal.classList.add("show");
 document.getElementById("fbX").onclick=closeModal;
+document.getElementById("fbName").addEventListener("input", renderFbPreview);
+document.getElementById("fbDesc").addEventListener("input", renderFbPreview);
 document.getElementById("fbPublic").addEventListener("change", function(){
 document.getElementById("fbSlugRow").style.display = this.checked ? "flex" : "none";
 if(this.checked && !document.getElementById("fbSlug").value.trim()){ document.getElementById("fbSlug").value = slugify(document.getElementById("fbName").value || "form"); }
@@ -1671,31 +1704,53 @@ return '<div class="fbuild-field" data-idx="'+idx+'"><div class="fr">'+
 '</div>';
 }
 function renderFieldList(){ var box=document.getElementById("fbFieldList"); box.innerHTML = fbFields.length ? fbFields.map(renderFieldRow).join("") : '<p class="tk-empty">No fields yet — add at least one.</p>'; }
+function renderFbPreview(){
+var box=document.getElementById("fbPreview"); if(!box) return;
+var nameEl=document.getElementById("fbName"), descEl=document.getElementById("fbDesc");
+var nameV=((nameEl&&nameEl.value)||"Untitled form").trim();
+var descV=((descEl&&descEl.value)||"").trim();
+var rows=fbFields.map(function(f){
+var lab=esc(f.label||"Untitled question")+(f.req?' <span class="req">*</span>':'');
+var fake;
+if(f.type==="textarea") fake='<div class="fbp-fake" style="min-height:48px">Long answer…</div>';
+else if(f.type==="select") fake='<div class="fbp-fake">'+((f.opts&&f.opts.length)?esc(f.opts[0])+' ▾':'Choose… ▾')+'</div>';
+else if(f.type==="date") fake='<div class="fbp-fake">dd/mm/yyyy</div>';
+else if(f.type==="file") fake='<div class="fbp-fake">📎 Attach a file…</div>';
+else if(f.type==="email") fake='<div class="fbp-fake">name@example.com</div>';
+else fake='<div class="fbp-fake">Short answer…</div>';
+return '<div class="fbp-field"><label>'+lab+'</label>'+fake+'</div>';
+}).join("");
+box.innerHTML = '<h3>'+esc(nameV)+'</h3>'+(descV?'<p class="fbp-desc">'+esc(descV)+'</p>':'')+(rows || '<p class="fbp-empty">Add a field to see it here.</p>');
+}
 document.getElementById("fbFieldList").addEventListener("input", function(e){
 var row=e.target.closest("[data-idx]"); if(!row) return; var idx=parseInt(row.getAttribute("data-idx"),10); var f=fbFields[idx]; if(!f) return;
 if(e.target.classList.contains("flabel")) f.label=e.target.value;
+renderFbPreview();
 });
 document.getElementById("fbFieldList").addEventListener("keydown", function(e){
 if(!e.target.classList.contains("optsnew") || e.key!=="Enter") return;
 e.preventDefault();
 var row=e.target.closest("[data-idx]"); if(!row) return; var idx=parseInt(row.getAttribute("data-idx"),10); var f=fbFields[idx]; if(!f) return;
 addOptFromInput(f, e.target);
+renderFbPreview();
 });
 document.getElementById("fbFieldList").addEventListener("change", function(e){
 var row=e.target.closest("[data-idx]"); if(!row) return; var idx=parseInt(row.getAttribute("data-idx"),10); var f=fbFields[idx]; if(!f) return;
 if(e.target.classList.contains("ftype")){ f.type=e.target.value; renderFieldList(); }
 else if(e.target.classList.contains("freq")) f.req=e.target.checked;
+renderFbPreview();
 });
 document.getElementById("fbFieldList").addEventListener("click", function(e){
 var rem=e.target.closest(".remf");
-if(rem){ var row=e.target.closest("[data-idx]"); var idx=parseInt(row.getAttribute("data-idx"),10); fbFields.splice(idx,1); renderFieldList(); return; }
+if(rem){ var row=e.target.closest("[data-idx]"); var idx=parseInt(row.getAttribute("data-idx"),10); fbFields.splice(idx,1); renderFieldList(); renderFbPreview(); return; }
 var addBtn=e.target.closest(".optsadd");
-if(addBtn){ var row2=e.target.closest("[data-idx]"); var idx2=parseInt(row2.getAttribute("data-idx"),10); var f2=fbFields[idx2]; if(!f2) return; addOptFromInput(f2, row2.querySelector(".optsnew")); return; }
+if(addBtn){ var row2=e.target.closest("[data-idx]"); var idx2=parseInt(row2.getAttribute("data-idx"),10); var f2=fbFields[idx2]; if(!f2) return; addOptFromInput(f2, row2.querySelector(".optsnew")); renderFbPreview(); return; }
 var rmChip=e.target.closest("[data-oprm]");
-if(rmChip){ var row3=e.target.closest("[data-idx]"); var idx3=parseInt(row3.getAttribute("data-idx"),10); var f3=fbFields[idx3]; if(!f3) return; f3.opts=(f3.opts||[]).filter(function(x){return x!==rmChip.getAttribute("data-oprm");}); renderOptsChipsInRow(row3, f3); return; }
+if(rmChip){ var row3=e.target.closest("[data-idx]"); var idx3=parseInt(row3.getAttribute("data-idx"),10); var f3=fbFields[idx3]; if(!f3) return; f3.opts=(f3.opts||[]).filter(function(x){return x!==rmChip.getAttribute("data-oprm");}); renderOptsChipsInRow(row3, f3); renderFbPreview(); return; }
 });
-document.getElementById("fbAddField").onclick=function(){ fbFields.push({id:"q"+Date.now()+Math.random().toString(36).slice(2,4), label:"", type:"text", req:false, opts:[]}); renderFieldList(); };
+document.getElementById("fbAddField").onclick=function(){ fbFields.push({id:"q"+Date.now()+Math.random().toString(36).slice(2,4), label:"", type:"text", req:false, opts:[]}); renderFieldList(); renderFbPreview(); };
 renderFieldList();
+renderFbPreview();
 
 document.getElementById("fbSave").onclick=function(){
 var name=document.getElementById("fbName").value.trim();
@@ -1755,7 +1810,7 @@ var cf = isHiring ? hiringCfFromValues(vals) : {};
 var task={ id:"t"+Date.now()+Math.random().toString(36).slice(2,5), title:titleFromFormValues(form,vals), who:whoArr(form.who).slice(), tags:tagArr(form.tags).slice(), vis:form.vis||"company", due:"", cad:"once", status:status, brief:brief, priority:form.priority||"normal", subtasks:[], notes:[], files:[], cf:cf, formId:form.id, projectId: proj?proj.id:null };
 state.tasks.push(task); save(state); closeModal();
 if(proj){
-document.querySelector('.pg-tab[data-tab="projects"]').click();
+openProjectsSection();
 openProjectBoard(proj.id);
 } else {
 document.querySelector('.pg-tab[data-tab="board"]').click();
@@ -1965,6 +2020,10 @@ render();
 // Open directly to a specific page tab via ?tab=forms|projects|board — used when this page is embedded
 // as productivity.html's own "Forms" (or "Tasks"/"Projects") view, so it doesn't just default to Board.
 (function(){ try{ var tp=new URLSearchParams(location.search).get("tab"); if(tp){ var btn=document.querySelector('.pg-tab[data-tab="'+tp+'"]'); if(btn) btn.click(); } }catch(e){} })();
+// Projects now live only on projects.html (the single, unified Projects destination app-wide) — this page opens
+// straight to one project's board via ?project=<id>, or straight to the "new project" form via ?newproject=1,
+// both without ever showing the (removed) internal Projects tab/list.
+(function(){ try{ var qp=new URLSearchParams(location.search); var pid=qp.get("project"); if(pid){ openProjectsSection(); openProjectBoard(pid); } else if(qp.get("newproject")==="1"){ openProjectsSection(); openProjectSettings(null); } }catch(e){} })();
 </script>
 
 <script>if(self!==top){var n=document.querySelector('.nav');if(n)n.style.display='none';}</script>
